@@ -1,0 +1,14 @@
+.footer {
+  @apply  bg-primary text-[#001429] border-b-secondary 
+  border-b w-[100%] font-medium;
+ 
+  /* color: #fefefe; */
+ /*  height: 73px; */
+  font-family: var(--font-montserrat);
+  /* font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center; */
+  
+}

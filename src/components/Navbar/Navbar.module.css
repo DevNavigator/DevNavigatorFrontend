@@ -1,0 +1,13 @@
+.nav {
+  @apply  bg-primary text-[#001429] border-b-secondary 
+  border-b  fixed w-[100%] font-medium shadow-lg shadow-gray-400
+  z-10;  
+  /* height: 73px; */
+  /* text-center flex items-center content-center */
+  /* font-family: var(--font-montserrat); */
+  /* font-weight: 500; */
+  /* display: flex;
+  align-items: center; */
+  /* position: fixed; */
+  /* width: 100%;  */
+}
