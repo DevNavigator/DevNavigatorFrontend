@@ -1,6 +1,5 @@
 import { ICourse } from "@/interfaces/Icourse";
 import Image from "next/image";
-import Button from "../Button/Button";
 import BuyButton from "../BuyButton/BuyButton";
 
 const Detail = (course: ICourse) => {
@@ -16,8 +15,8 @@ const Detail = (course: ICourse) => {
           height={320}
         />
 
-        <div className="flex flex-col gap-4 md:w-[800px] mt-5">
-          <div className="flex justify-between items-center ">
+        <div className="flex flex-col gap-4 md:w-[800px]">
+          <div className="flex justify-between items-center mt-5">
             <p className="text-end font-bold pr-1">{course.type}</p>
           </div>
           <p className="py-4 text-xl">{course.description}</p>
