@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { IProduct } from '../interfaces/Icourse';
+import { ICourse } from '../interfaces/Icourse';
 import { AuthContext } from './authContext';
   import Swal from 'sweetalert2';
   import withReactContent from 'sweetalert2-react-content';
@@ -9,8 +9,8 @@ import { AuthContext } from './authContext';
   const MySwal = withReactContent(Swal);
 
 interface CartContextProps {
-  cart: IProduct[];
-  addToCart: (product: IProduct) => void;
+  cart: ICourse[];
+  addToCart: (product: ICourse) => void;
   removeFromCart: (productId: number, ProducName: string )  => void;
   clearCart: () => void;
 }
@@ -25,7 +25,7 @@ export const CartContext = createContext<CartContextProps>({
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [cart, setCart] = useState<IProduct[]>([]);
+  const [cart, setCart] = useState<ICourse[]>([]);
   const { user } = useContext(AuthContext);
 
   useEffect(() => {
@@ -39,8 +39,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [user]);
 
-  const addToCart = (product: IProduct) => {
-    const updatedCart = [...cart, product];
+  const addToCart = (course: ICourse) => {
+    const updatedCart = [...cart, course];
     setCart(updatedCart);
     localStorage.setItem('cart', JSON.stringify(updatedCart));
   };
@@ -55,9 +55,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
       toast: true,
       position: 'center',
     });  
-    const updatedCart = cart.filter((product) => product.id !== productId);
-    setCart(updatedCart);
-    localStorage.setItem('cart', JSON.stringify(updatedCart));
+    //const updatedCart = cart.filter((course) => course.id !== productId);
+    //setCart(updatedCart);
+    //localStorage.setItem('cart', JSON.stringify(updatedCart));
   };
 
   const clearCart = () => {
