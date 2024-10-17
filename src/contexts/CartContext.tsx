@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { IProduct } from '../interfaces/Iproduct';
+import { IProduct } from '../interfaces/Icourse';
 import { AuthContext } from './authContext';
   import Swal from 'sweetalert2';
   import withReactContent from 'sweetalert2-react-content';

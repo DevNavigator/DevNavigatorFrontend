@@ -1,4 +1,4 @@
-import { IProduct } from "@/interfaces/Iproduct";
+import { IProduct } from "@/interfaces/Icourse";
 
 
 export const getProducts = async (url: string): Promise<IProduct[]> => {

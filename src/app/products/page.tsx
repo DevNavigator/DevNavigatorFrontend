@@ -1,8 +1,8 @@
 import Card from '@/components/Card/Card';
 import CardList from '@/components/CardList/CardList';
-import { products } from '../../mock/products';
+import { course } from '../../mock/products';
 import style from './page.module.css';
-import { IProduct } from '@/interfaces/Iproduct';
+import { ICourse } from '@/interfaces/Icourse';
 import { getProducts } from '@/services/productsServices';
 
 const page = async () => {
@@ -13,10 +13,10 @@ const page = async () => {
   return (
     <main className="!mt-24 mb-10">
       <CardList>
-        {products.map((product: IProduct, i: number) => (
+        {course.map((product: ICourse, i: number) => (
           <Card
             key={i}
-            product={product}
+            course={product}
           />
         ))}
       </CardList>

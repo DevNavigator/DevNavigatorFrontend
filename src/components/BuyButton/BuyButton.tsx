@@ -1,6 +1,6 @@
 'use client';
 
-import { IProduct } from '@/interfaces/Iproduct';
+import { ICourse} from '@/interfaces/Icourse';
 import { AuthContext } from '@/contexts/authContext';
 import { CartContext } from '@/contexts/CartContext';
 import { useRouter } from 'next/navigation';
@@ -12,10 +12,10 @@ import withReactContent from 'sweetalert2-react-content';
 const MySwal = withReactContent(Swal);
 
 interface BuyButtonProps {
-  product: IProduct;
+  course: ICourse;
 }
 
-const BuyButton = ({ product }: BuyButtonProps) => {
+const BuyButton = ({ course }: BuyButtonProps) => {
   const { user } = useContext(AuthContext);
   const { addToCart, cart } = useContext(CartContext);
   const router = useRouter();
@@ -24,11 +24,11 @@ const BuyButton = ({ product }: BuyButtonProps) => {
     if (!user?.login) {
       router.push('/login');
     } else {
-      if (!cart.some((p: IProduct) => p.id === product.id)) {
-        addToCart(product);
+      if (!cart.some((p: ICourse) => p.id === course.id)) {
+        addToCart(course);
         // alert(`${product.name} added to your cart`);
         MySwal.fire({
-          title: `${product.name} añadido a su carrito`,
+          title: `${course.title} añadido a su carrito`,
           icon: 'success',
           confirmButtonText: 'Aceptar',
           backdrop: true,
@@ -42,7 +42,7 @@ const BuyButton = ({ product }: BuyButtonProps) => {
       } else {
         // alert(`${product.name} is already in your cart`);
         MySwal.fire({
-          title: `${product.name} ya está en su carrito`,
+          title: `${course.title} ya está en su carrito`,
           icon: 'warning',
           confirmButtonText: 'Aceptar',
           backdrop: true,
@@ -56,7 +56,7 @@ const BuyButton = ({ product }: BuyButtonProps) => {
       }
     }
   };
-  return <Button onClick={handleBuy}>Comprar</Button>;
+  return <Button onClick={handleBuy}>Iniciar Curso</Button>;
 };
 
 export default BuyButton;

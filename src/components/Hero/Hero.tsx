@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import Button from '../Button/Button';
-import Image from 'next/image';
+import Link from "next/link";
+import Button from "../Button/Button";
+import Image from "next/image";
 
 const Hero = () => {
   return (
     <div className="container flex h-[calc(100vh-70px)] w-screen ">
       {/* Imagen a la izquierda */}
-      <div className=" border w-[calc(400px)] rounded-3xl flex-1 flex items-center justify-center relative mt-2 border-secondary shadow-lg shadow-secondary">
+      <div className="w-[calc(400px)] rounded-3xl flex-1 flex items-center justify-center relative mt-2 ">
         <div className="w-full h-full">
           <Image
             className="w-full h-full object-cover object-center rounded-3xl"

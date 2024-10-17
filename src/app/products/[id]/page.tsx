@@ -1,8 +1,8 @@
 import Detail from '@/components/Detail/Detail';
-import { IProduct } from '@/interfaces/Iproduct';
+import { ICourse } from '@/interfaces/Icourse';
 import { getProductById } from '@/services/productsServices';
 import { notFound } from 'next/navigation';
-import { products } from "@/mock/products"
+import { course } from "@/mock/products"
 
 const page = async ({ params }: { params: { id: string } }) => {
  
@@ -10,13 +10,13 @@ const page = async ({ params }: { params: { id: string } }) => {
   // const response = await fetch(url, { next: { revalidate: 0 } });
   // const products = await response.json();
   // const product = products[0];
-  const product = products.filter((product: IProduct) => product.id.toString() === params.id)[0];
+  const courses = course.filter((course: ICourse) => course.id.toString() === params.id)[0];
   // const product = await getProductById(url, params.id);
-  if (product === undefined) {
+  if (course === undefined) {
     notFound();
   }
 
-  return <Detail  {...product} />;
+  return <Detail  {...courses} />;
 };
 
 export default page;

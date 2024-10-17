@@ -4,7 +4,7 @@ import Button from '@/components/Button/Button';
 import { AuthContext } from '@/contexts/authContext';
 import { CartContext } from '@/contexts/CartContext';
 import { IOrder } from '@/interfaces/Iforms';
-import { IProduct } from '@/interfaces/Iproduct';
+import { ICourse } from '@/interfaces/Icourse';
 
 import { useRouter } from 'next/navigation';
 import { useContext, useEffect, useState } from 'react';
@@ -18,6 +18,7 @@ import {
 import styles from './Cart.module.css'
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
+import { course } from '@/mock/products';
 
 const MySwal = withReactContent(Swal);
 
@@ -75,7 +76,7 @@ const Page = () => {
     const url =
       process.env.NEXT_PUBLIC_API_URL + '/orders' ||
       'http://localhost:3001/orders';
-    const products = cart.map((product: IProduct) => product.id);
+    const products = cart.map((course: ICourse) => course.id);
 
     fetch(url, {
       method: 'POST',
@@ -85,7 +86,7 @@ const Page = () => {
       },
       body: JSON.stringify({
         userId: user?.user.userId,
-        products: products,
+        course: course,
       }),
     })
       .then((res) => res.json())
@@ -146,25 +147,25 @@ const Page = () => {
             </div>
           ) : (
             <div className="space-y-4 mb-8">
-              {cart.map((product: IProduct) => (
+              {cart.map((course: ICourse) => (
                 <div
-                  key={product.id}
+                  key={course.id}
                   className="flex justify-between items-center bg-gray-50 p-4 rounded-lg shadow-md"
                 >
                   <div className="flex items-center">
                     <FaShoppingBag className="text-3xl mr-4" />
                     <span className="text-lg text-secondary font-medium">
-                      {product.name}
+                      {course.title}
                     </span>
                   </div>
                   <div className="flex items-center">
                     <span className="text-lg text-secondary font-medium">
-                      U$S {product.price.toFixed(2)}
+                      U$S {course.id.toFixed(2)}
                     </span>
                     <Button
-                      onClick={() => handleRemove(product.id, product.name)}
+                      onClick={() => handleRemove(course.id, course.title)}
                       className={styles.buttonClearUnit}
-                      aria-label={`Remove ${product.name} from cart`}
+                      aria-label={`Remove ${course.title} from cart`}
                     >
                       <FaRegTrashCan />
                     </Button>
