@@ -10,13 +10,14 @@ import { getCourse } from '@/services/productsServices';
 const page = async () => {
   const url = `${process.env.API_URL}/courses`; 
   const courses = await getCourse(url); 
-  // const featuredProducts = course.slice(0, 3);
+  console.log(courses);
+  const fistCourses = courses.slice(0, 3);
 
   return (
     <div style={{ marginTop: '4.1rem' }}>
       <Hero />
       <CardList className="!mb-7">
-        {courses.map((course: ICourse, i: number) => (
+        {fistCourses.map((course: ICourse, i: number) => (
           <Card
             key={i}
             course={course}
