@@ -6,9 +6,9 @@ import Image from "next/image";
 
 const Hero = () => {
   return (
-    <div className="container flex h-[calc(100vh-70px)] w-screen ">
+    <div className="container flex h-[calc(100vh-70px)] w-screen !mb-16">
       {/* Imagen a la izquierda */}
-      <div className="w-[calc(400px)] rounded-3xl flex-1 flex items-center justify-center relative mt-2 ">
+      <div className="w-[calc(400px)] rounded-3xl flex-1 flex items-center justify-center relative mt-2  shadow-lg shadow-gray-700">
         <div className="w-full h-full">
           <Image
             className="w-full h-full object-cover object-center rounded-3xl"

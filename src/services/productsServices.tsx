@@ -1,14 +1,25 @@
-import { IProduct } from "@/interfaces/Icourse";
+import { ICourse } from "@/interfaces/Icourse";
+
+export const getCourse = async (url: string): Promise<ICourse[]> => {
+  const response = await fetch(url, { next: { revalidate: 0 } });
+  if (!response.ok) {
+    throw new Error(`Error fetching courses: ${response.statusText}`);
+  }
+  const courses: ICourse[] = await response.json();
+  return courses;
+};
 
 
-export const getProducts = async (url: string): Promise<IProduct[]> => {
-    const response = await fetch(url, { next: { revalidate: 0 } });
-    const products: IProduct[] = await response.json();
-    return products;
-}
+export const getCourseById = async (id: string): Promise<ICourse> => {
+  const url = `${process.env.API_URL}/courses/${id}`; // Construir la URL aquí
+  const response = await fetch(url, { next: { revalidate: 0 } });
+  
+  const data = await response.json();
+  console.log(data); // Verificar la respuesta completa del servidor
 
-export const getProductById = async (url: string, id: string): Promise<IProduct> => {
-    const response = await getProducts(url);
-    const product: IProduct = response.filter((product: IProduct) => product.id.toString() === id)[0];
-    return product;
-}
+  if (!response.ok) {
+    throw new Error(`Course with id ${id} not found: ${response.statusText}`);
+  }
+
+  return data as ICourse;
+};

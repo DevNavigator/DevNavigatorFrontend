@@ -4,7 +4,7 @@ import LoginForm from "@/components/LoginForm/LoginForm";
 const page = () => {
   return (
     <div className={`container !mt-24`}>
-      <div className="border w-[400px] mx-auto p-10 rounded-3xl shadow-lg">
+      <div className=" w-[400px] mx-auto p-10 rounded-3xl shadow-lg shadow-gray-700/40">
         <h1 className="text-center">Inicia sesión</h1>
         <LoginForm />
         <div className="mx-auto text-center mt-7">

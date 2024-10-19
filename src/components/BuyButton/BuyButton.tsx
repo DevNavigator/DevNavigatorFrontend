@@ -1,6 +1,6 @@
 'use client';
 
-import { ICourse} from '@/interfaces/Icourse';
+import { ICourse } from '@/interfaces/Icourse';
 import { AuthContext } from '@/contexts/authContext';
 import { CartContext } from '@/contexts/CartContext';
 import { useRouter } from 'next/navigation';
@@ -52,11 +52,11 @@ const BuyButton = ({ course }: BuyButtonProps) => {
           if (result.isConfirmed) {
             router.push('/products');
           }
-        }); 
+        });
       }
     }
   };
-  return <Button onClick={handleBuy}>Iniciar Curso</Button>;
+  return <Button onClick={handleBuy}>Suscribirse</Button>;
 };
 
 export default BuyButton;

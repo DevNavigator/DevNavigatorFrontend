@@ -8,7 +8,7 @@ interface ProductProps {
 
 const Card = ({ course }: ProductProps) => {
   return (
-    <div className="bg-primary border text-secondary rounded-3xl p-4 flex flex-col  hover:border-secondary hover:shadow-lg hover:shadow-gray-400">
+    <div className="bg-primary border-2 text-secondary rounded-3xl p-4 flex flex-col  hover:border-secondary hover:shadow-lg hover:shadow-gray-400">
       <Link href={`/products/${course.id}`} className=" ">
         <div className="flex justify-between items-center">
           <h3>{course.title}</h3>

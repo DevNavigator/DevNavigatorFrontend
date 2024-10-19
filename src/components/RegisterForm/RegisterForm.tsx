@@ -15,6 +15,8 @@ import { useRouter } from 'next/navigation';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 
+import { FaCircleXmark, FaCircleCheck } from 'react-icons/fa6';// Para mostrar iconos
+
 const MySwal = withReactContent(Swal);
 
 const RegisterForm = () => {
@@ -39,6 +41,7 @@ const RegisterForm = () => {
 
   const [data, setData] = useState(initialData);
   const [errors, setErrors] = useState(initialData);
+  const [valid, setValid] = useState(initialDirty); // Nuevo estado para validez
   const [dirty, setDirty] = useState(initialDirty);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -48,31 +51,27 @@ const RegisterForm = () => {
     const response = await registerService(apiUrl + '/users/register', data);
 
     if (!response.message) {
-      // alert('Registrado correctamente');
-       MySwal.fire({
-         title: '¡Registrado correctamente!',
-         icon: 'success',
-         confirmButtonText: 'OK',
-         backdrop: true,
-         toast: true,
-         position: 'center',
-       }).then((result) => {
-         if (result.isConfirmed) {
-           router.push('/login');
-           //  router.back();
-         }
-       });
-      
+      MySwal.fire({
+        title: '¡Registrado correctamente!',
+        icon: 'success',
+        confirmButtonText: 'OK',
+        backdrop: true,
+        toast: true,
+        position: 'center',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          router.push('/login');
+        }
+      });
     } else {
-      // alert(response.message);
-       MySwal.fire({
-         title: `Completa todos los campos`,
-         icon: 'error',
-         confirmButtonText: 'Aceptar',
-         backdrop: true,
-         toast: true,
-         position: 'center',
-       });
+      MySwal.fire({
+        title: `Completa todos los campos`,
+        icon: 'error',
+        confirmButtonText: 'Aceptar',
+        backdrop: true,
+        toast: true,
+        position: 'center',
+      });
     }
   };
 
@@ -89,9 +88,25 @@ const RegisterForm = () => {
       name: validateName(data.name),
       email: validateEmail(data.email),
       password: validatePassword(data.password),
-      confirmPassword: validateConfirmPassword(data.password, data.confirmPassword),        
+      confirmPassword: validateConfirmPassword(
+        data.password,
+        data.confirmPassword
+      ),
       address: validateAddress(data.address),
       phone: validatePhone(data.phone),
+    });
+
+    // Actualiza validez basada en errores
+    setValid({
+      name: !validateName(data.name),
+      email: !validateEmail(data.email),
+      password: !validatePassword(data.password),
+      confirmPassword: !validateConfirmPassword(
+        data.password,
+        data.confirmPassword
+      ),
+      address: !validateAddress(data.address),
+      phone: !validatePhone(data.phone),
     });
   }, [data]);
 
@@ -100,13 +115,9 @@ const RegisterForm = () => {
       onSubmit={handleSubmit}
       className=" "
     >
-      <div className="flex flex-col w-[300px] mx-auto ">
-        <label
-          htmlFor="name"
-          className=""
-        >
-          Nombre
-        </label>
+      <div className="flex flex-col w-[300px] mx-auto">
+        {/* Nombre */}
+        <label htmlFor="name">Nombre</label>
         <input
           className="border-b-2 border-secondary"
           type="text"
@@ -117,8 +128,25 @@ const RegisterForm = () => {
           onChange={handleChange}
           onBlur={handleBlur}
         />
-        {dirty.name ? <p className="text-red-600 mt-0">{errors.name}</p> : null}
+        {dirty.name && (
+          <p
+            className={`mt-0 flex items-center ${
+              valid.name ? 'text-green-500' : 'text-red-600'
+            }`}
+          >
+            {valid.name ? (
+              <>
+                <FaCircleCheck className="h-4 w-4 mr-1" /> ¡Nombre válido!
+              </>
+            ) : (
+              <>
+                <FaCircleXmark className="h-4 w-4 mr-1" /> {errors.name}
+              </>
+            )}
+          </p>
+        )}
 
+        {/* Email */}
         <label
           htmlFor="email"
           className="mt-2"
@@ -135,10 +163,25 @@ const RegisterForm = () => {
           onChange={handleChange}
           onBlur={handleBlur}
         />
-        {dirty.email ? (
-          <p className="text-red-600 mt-0">{errors.email}</p>
-        ) : null}
+        {dirty.email && (
+          <p
+            className={`mt-0 flex items-center ${
+              valid.email ? 'text-green-500' : 'text-red-600'
+            }`}
+          >
+            {valid.email ? (
+              <>
+                <FaCircleCheck className="h-4 w-4 mr-1" /> ¡Email válido!
+              </>
+            ) : (
+              <>
+                <FaCircleXmark className="h-4 w-4 mr-1" /> {errors.email}
+              </>
+            )}
+          </p>
+        )}
 
+        {/* Contraseña */}
         <label
           htmlFor="password"
           className="mt-2"
@@ -155,10 +198,25 @@ const RegisterForm = () => {
           onChange={handleChange}
           onBlur={handleBlur}
         />
-        {dirty.password ? (
-          <p className="text-red-600">{errors.password}</p>
-        ) : null}
+        {dirty.password && (
+          <p
+            className={`mt-0 flex items-center ${
+              valid.password ? 'text-green-500' : 'text-red-600'
+            }`}
+          >
+            {valid.password ? (
+              <>
+                <FaCircleCheck className="h-4 w-4 mr-1" /> ¡Contraseña válida!
+              </>
+            ) : (
+              <>
+                <FaCircleXmark className="h-4 w-4 mr-1" /> {errors.password}
+              </>
+            )}
+          </p>
+        )}
 
+        {/* Confirmar Contraseña */}
         <label
           htmlFor="confirmPassword"
           className="mt-2"
@@ -175,10 +233,27 @@ const RegisterForm = () => {
           onChange={handleChange}
           onBlur={handleBlur}
         />
-        {dirty.confirmPassword ? (
-          <p className="text-red-600">{errors.confirmPassword}</p>
-        ) : null}
+        {dirty.confirmPassword && (
+          <p
+            className={`mt-0 flex items-center ${
+              valid.confirmPassword ? 'text-green-500' : 'text-red-600'
+            }`}
+          >
+            {valid.confirmPassword ? (
+              <>
+                <FaCircleCheck className="h-4 w-4 mr-1" /> ¡Las contraseñas
+                coinciden!
+              </>
+            ) : (
+              <>
+                <FaCircleXmark className="h-4 w-4 mr-1" />{' '}
+                {errors.confirmPassword}
+              </>
+            )}
+          </p>
+        )}
 
+        {/* Dirección */}
         <label
           htmlFor="address"
           className="mt-2"
@@ -195,10 +270,25 @@ const RegisterForm = () => {
           onChange={handleChange}
           onBlur={handleBlur}
         />
-        {dirty.address ? (
-          <p className="text-red-600 mt-0">{errors.address}</p>
-        ) : null}
+        {dirty.address && (
+          <p
+            className={`mt-0 flex items-center ${
+              valid.address ? 'text-green-500' : 'text-red-600'
+            }`}
+          >
+            {valid.address ? (
+              <>
+                <FaCircleCheck className="h-4 w-4 mr-1" /> ¡Dirección válida!
+              </>
+            ) : (
+              <>
+                <FaCircleXmark className="h-4 w-4 mr-1" /> {errors.address}
+              </>
+            )}
+          </p>
+        )}
 
+        {/* Teléfono */}
         <label
           htmlFor="phone"
           className="mt-2"
@@ -215,13 +305,27 @@ const RegisterForm = () => {
           onChange={handleChange}
           onBlur={handleBlur}
         />
-        {dirty.phone ? (
-          <p className="text-red-600 mt-0">{errors.phone}</p>
-        ) : null}
+        {dirty.phone && (
+          <p
+            className={`mt-0 flex items-center ${
+              valid.phone ? 'text-green-500' : 'text-red-600'
+            }`}
+          >
+            {valid.phone ? (
+              <>
+                <FaCircleCheck className="h-4 w-4 mr-1" /> ¡Teléfono válido!
+              </>
+            ) : (
+              <>
+                <FaCircleXmark className="h-4 w-4 mr-1" /> {errors.phone}
+              </>
+            )}
+          </p>
+        )}
 
         <Button
           type="submit"
-          className="mt-4 w-36 mx-auto "
+          className="mt-4 w-36 mx-auto"
         >
           Registrarse
         </Button>
