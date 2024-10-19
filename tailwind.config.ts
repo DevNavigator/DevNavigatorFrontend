@@ -12,13 +12,9 @@ const config: Config = {
         primary: '#fefefe',
         secondary: '#0346a9',
         tertiary: '#fff',
-        transparent: 'transparent',
+       
       },
-      backgroundImage: {
-        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'gradient-conic':
-          'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
-      },
+      
     },
   },
   plugins: [],

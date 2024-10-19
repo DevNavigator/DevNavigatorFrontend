@@ -45,11 +45,12 @@ export const validateAddress = (address: string) => {
 
 export const validatePhone = (phone: string) => {
   let validation = '';
-  const regexPhone = /^\+\d{12}$/; // + seguido de 12 dígitos
+  const regexPhone = /^\d{10,}$/; // Acepta mínimo 10 dígitos o más
 
   if (!regexPhone.test(phone)) {
-    validation = 'El número debe comenzar con "+" seguido de 12 dígitos.';
+    validation = 'El número debe tener un mínimo de 10 dígitos';
   }
 
   return validation;
 };
+

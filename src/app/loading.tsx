@@ -16,7 +16,10 @@ const Loading = () => {
         </div>
         <div className="flex flex-col">
           <div className="text-white text-lg font-semibold">Cargando...</div>
-          <div className="text-primary text-lg font-semibold">DamiShop!</div>
+          <div className="text-primary text-lg font-semibold">
+            {' '}
+            Dev {'</>'} Navigator
+          </div>
         </div>
       </framerMotion.motion.div>
     </div>
