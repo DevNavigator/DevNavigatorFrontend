@@ -16,7 +16,7 @@ const page = async () => {
     <div style={{ marginTop: '4.1rem' }}>
       <Hero />
       <CardList className="!mb-7">
-        {featuredProducts.map((product: ICourse, i: number) => (
+        {courses.map((course: ICourse, i: number) => (
           <Card
             key={i}
             course={course}
