@@ -15,7 +15,7 @@ const page = async () => {
   return (
     <div style={{ marginTop: '4.1rem' }}>
       <Hero />
-      <CardList className="!mb-7">
+      <CardList className="!mt-7 !mb-7">
         {featuredProducts.map((product: ICourse, i: number) => (
           <Card
             key={i}

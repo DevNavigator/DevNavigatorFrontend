@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import { AuthContext } from '@/contexts/authContext';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
+import { FaCircleXmark, FaCircleCheck } from 'react-icons/fa6';// Para mostrar iconos
 
 const MySwal = withReactContent(Swal);
 
@@ -20,41 +21,40 @@ const LoginForm = () => {
   const [data, setData] = useState(initialData);
   const [errors, setErrors] = useState(initialData);
   const [dirty, setDirty] = useState(initialDirty);
+  const [valid, setValid] = useState(initialDirty); // Nuevo estado para validez
 
-  
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {      
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-    const response = await loginService(apiUrl + "/users/login", data);
-    
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    const response = await loginService(apiUrl + '/users/login', data);
+
     if (response.login) {
       //alert("Login correcto");
-       MySwal.fire({
-         title: `${response.user.name.toLocaleUpperCase()} ¡Bienvenido a DamiShop!`,
-         icon: 'success',
-         showConfirmButton: false,
-         timer: 3000,
-         timerProgressBar: true,
-         backdrop: true,
-         toast: true,
-         position: 'center',
-       });
+      MySwal.fire({
+        title: `${response.user.name.toLocaleUpperCase()} ¡Bienvenido a DamiShop!`,
+        icon: 'success',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        backdrop: true,
+        toast: true,
+        position: 'center',
+      });
       setUser(response);
       router.push('/');
-      // router.back();   
-      
+      // router.back();
     } else {
       //alert("Login incorrecto");
-       MySwal.fire({
-         title: '¡Login incorrecto!',
-         text: 'Inténtalo de nuevo',
-         icon: 'error',
-         confirmButtonText: 'Aceptar',
-         backdrop: true,
-         toast: true,
-         position: 'center',
-       });
-      }
+      MySwal.fire({
+        title: '¡Login incorrecto!',
+        text: 'Inténtalo de nuevo',
+        icon: 'error',
+        confirmButtonText: 'Aceptar',
+        backdrop: true,
+        toast: true,
+        position: 'center',
+      });
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -71,6 +71,22 @@ const LoginForm = () => {
       password: validatePassword(data.password),
     });
   }, [data]);
+  useEffect(() => {
+    setErrors({
+    
+      email: validateEmail(data.email),
+      password: validatePassword(data.password),    
+     
+    });
+
+    // Actualiza validez basada en errores
+    setValid({    
+      email: !validateEmail(data.email),
+      password: !validatePassword(data.password),  
+   
+    });
+  }, [data]);
+
 
   return (
     <form
@@ -78,9 +94,15 @@ const LoginForm = () => {
       className=" "
     >
       <div className="flex flex-col w-[300px] mx-auto">
-        <label htmlFor="email">Email</label>
+        {/* Email */}
+        <label
+          htmlFor="email"
+          className="mt-2"
+        >
+          Email
+        </label>
         <input
-          className="border-b-2 border-secondary mb-4 "
+          className="border-b-2 border-secondary"
           type="email"
           id="email"
           name="email"
@@ -89,11 +111,33 @@ const LoginForm = () => {
           onChange={handleChange}
           onBlur={handleBlur}
         />
-        {dirty.email ? <p className="text-red-600">{errors.email}</p> : null}
-        
-        <label htmlFor="password">Contraseña</label>
+        {dirty.email && (
+          <p
+            className={`mt-0 flex items-center ${
+              valid.email ? 'text-green-500' : 'text-red-600'
+            }`}
+          >
+            {valid.email ? (
+              <>
+                <FaCircleCheck className="h-4 w-4 mr-1" /> ¡Email válido!
+              </>
+            ) : (
+              <>
+                <FaCircleXmark className="h-4 w-4 mr-1" /> {errors.email}
+              </>
+            )}
+          </p>
+        )}
+
+        {/* Contraseña */}
+        <label
+          htmlFor="password"
+          className="mt-2"
+        >
+          Contraseña
+        </label>
         <input
-          className="border-b-2 border-secondary "
+          className="border-b-2 border-secondary"
           type="password"
           id="password"
           name="password"
@@ -102,9 +146,23 @@ const LoginForm = () => {
           onChange={handleChange}
           onBlur={handleBlur}
         />
-        {dirty.password ? (
-          <p className="text-red-600">{errors.password}</p>
-        ) : null}
+        {dirty.password && (
+          <p
+            className={`mt-0 flex items-center ${
+              valid.password ? 'text-green-500' : 'text-red-600'
+            }`}
+          >
+            {valid.password ? (
+              <>
+                <FaCircleCheck className="h-4 w-4 mr-1" /> ¡Contraseña válida!
+              </>
+            ) : (
+              <>
+                <FaCircleXmark className="h-4 w-4 mr-1" /> {errors.password}
+              </>
+            )}
+          </p>
+        )}
         <Button
           className="mt-4 w-36 mx-auto"
           type="submit"
