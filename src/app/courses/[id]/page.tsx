@@ -3,9 +3,8 @@ import { getCourseById } from '@/services/coursesServices';
 import { notFound } from 'next/navigation';
 
 const page = async ({ params }: { params: { id: string } }) => {
-  const courseId = params.id;
-
-  const course = await getCourseById(courseId);
+  const { id } = await params; // Asegúrate de esperar a params
+  const course = await getCourseById(id);
 
   if (!course) {
     notFound();

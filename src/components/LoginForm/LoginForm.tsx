@@ -119,7 +119,7 @@ const LoginForm = () => {
           >
             {valid.email ? (
               <>
-                <FaCircleCheck className="h-4 w-4 mr-1" /> ¡Email válido!
+                <FaCircleCheck className="h-4 w-4 mr-1" /> 
               </>
             ) : (
               <>
