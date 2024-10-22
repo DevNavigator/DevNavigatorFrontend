@@ -4,15 +4,11 @@ import style from './Navbar.module.css';
 import UserWidget from '../UserWidget/UserWidget';
 import { useContext, useEffect, useState } from 'react';
 import Image from 'next/image';
-import imgLogo from '@/assets/DevNavigator.png'
-
-
-
+import imgLogo from '@/assets/DevNavigator.png';
 
 const Navbar = () => {
+  const [isClick, setIsClick] = useState(false);
 
-  const [isClick, setIsClick] = useState(false); 
- 
   const toggleNavbar = (): void => {
     setIsClick(!isClick);
   };
@@ -24,7 +20,7 @@ const Navbar = () => {
   return (
     <nav className={style.nav}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-evenly h-16">
+        <div className="flex items-center justify-evenly h-auto">
           <div className="flex items-center me-28">
             <div className="flex-shrink-0">
               <Link

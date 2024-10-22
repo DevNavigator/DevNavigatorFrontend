@@ -8,18 +8,20 @@ interface ProductProps {
 
 const Card = ({ course }: ProductProps) => {
   return (
-    <div className="bg-primary border-2 text-secondary rounded-3xl p-4 flex flex-col  hover:border-secondary hover:shadow-lg hover:shadow-gray-400">
-      <Link
-        href={`/courses/${course.id}`}
-        className=" "
-      >
+    <div className="bg-primary border-2 text-secondary rounded-3xl p-4 flex flex-col hover:border-secondary hover:shadow-lg hover:shadow-gray-400">
+      <Link href={`/courses/${course.id}`}>
         <div className="flex justify-between items-center h-[90px]">
-          <h3 className="p-2">{course.title}</h3>
+          <h3
+            //data-tip={course.title} // Usa data-tip para el tooltip
+            className="p-2 overflow-hidden text-ellipsis whitespace-nowrap"
+          >
+            {course.title}
+          </h3>
           <p className="text-secondary text-base">
             Suscripción {course.status_courses}
           </p>
         </div>
-        <div className="flex justify-center my-auto  h-[280px] ">
+        <div className="flex justify-center my-auto h-[225px]">
           <Image
             className="mix-blend-multiply content-center object-contain hover:scale-105"
             src={course.image_url}
@@ -29,6 +31,7 @@ const Card = ({ course }: ProductProps) => {
           />
         </div>
       </Link>
+      
     </div>
   );
 };
