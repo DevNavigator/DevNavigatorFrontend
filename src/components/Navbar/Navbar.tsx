@@ -48,7 +48,7 @@ const Navbar = () => {
                 INICIO
               </Link>
               <Link
-                href="/products"
+                href="/courses"
                 className="hover:bg-secondary hover:text-white rounded-lg p-2"
               >
                 CURSOS IT
@@ -118,11 +118,11 @@ const Navbar = () => {
               INICIO
             </Link>
             <Link
-              href="/products"
+              href="/courses"
               className="hover:bg-secondary hover:text-white block rounded-lg text-base font-medium bg-primary p-2"
               onClick={closeNavbar}
             >
-              PRODUCTOS
+              CURSOS
             </Link>
             <Link
               href="/about"

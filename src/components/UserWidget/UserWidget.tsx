@@ -17,7 +17,7 @@ const UserWidget = () => {
   const { user, logout } = useContext(AuthContext);
   const { cart } = useContext(CartContext);
 
-  if (user?.login) {
+  if (user?.success) {
     return (
       <div className="flex justify-center items-center gap-4 ">
         <div className="hover:bg-secondary hover:text-white rounded-lg p-2">
