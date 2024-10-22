@@ -35,8 +35,13 @@ const Study: React.FC = () => {
   ];
 
   return (
-    <div className="grid grid-cols-1 md:flex md:flex-col items-center justify-center min-h-screen bg-tertiary p-6">
-      <h1 className="text-3xl font-bold mb-6 text-center">Curso PHP - DevNavigator</h1>
+    <div
+      className="grid grid-cols-1 md:flex md:flex-col items-center justify-center  bg-tertiary p-6 "
+      style={{ marginTop: '4.1rem' }}
+    >
+      <h1 className="text-3xl font-bold mb-6 text-center">
+        Curso PHP - DevNavigator
+      </h1>
       <div className="max-w-4xl w-full  md:flex">
         <div className="flex-1 flex justify-center">
           {activeVideo !== null && (
@@ -53,17 +58,16 @@ const Study: React.FC = () => {
           )}
         </div>
 
-    
-        <div className="border mb-4 md:border-l-2 border-blue-500 mx-4 md:h-[315px]" ></div>
+        <div className="border mb-4 md:border-l-2 border-blue-500 mx-4 md:h-[315px]"></div>
 
-        <div className="flex flex-col ml-4"> 
+        <div className="flex flex-col ml-4">
           {videoDescriptions.map((description, index) => (
             <a
               key={index}
               onClick={() => setActiveVideo(index)} // Video index
               className="text-blue-500 hover:underline mb-2 cursor-pointer"
             >
-              {description} 
+              {description}
             </a>
           ))}
         </div>
