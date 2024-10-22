@@ -6,12 +6,12 @@ import Image from "next/image";
 
 const Hero = () => {
   return (
-    <div className="container flex h-[calc(100vh-70px)] w-screen !mb-16">
+    <div className="container grid grid-cols-1 !mb-28 md:flex h-[calc(100vh-70px)] w-screen  md:!mb-16 mx-auto">
       {/* Imagen a la izquierda */}
-      <div className="w-[calc(400px)] rounded-3xl flex-1 flex items-center justify-center relative mt-2  shadow-lg shadow-gray-700">
-        <div className="w-full h-full">
+      <div className=" mb-5 md:w-[calc(400px)] rounded-3xl md:flex-1 md:flex items-center justify-center relative mt-2  shadow-lg shadow-gray-700">
+        <div className="w-full h-[calc(200px)] md:h-full">
           <Image
-            className="w-full h-full object-cover object-center rounded-3xl"
+            className="h-[calc(200px)] w-full md:h-full object-cover object-center rounded-3xl"
             sizes="100vw"
             fill
             alt="Image"
@@ -21,10 +21,10 @@ const Hero = () => {
       </div>
 
       {/* Contenido a la derecha */}
-      <div className="flex-1 flex flex-col justify-center p-8">
+      <div className="  flex-1 flex flex-col justify-center md:p-8">
         <div className="flex flex-col">
           <div className="flex items-center mb-4">
-            <div className="mr-2">
+            <div className="md:mr-2">
               <Image
                 width={100}
                 height={100}
@@ -54,9 +54,9 @@ const Hero = () => {
               </li>
             </ul>
           </div>
-          <div className="mt-4">
-            <Link href="/products">
-              <Button>Ver Oferta Académica</Button>
+          <div className=" flex justify-center md:justify-normal items-center mt-4">
+            <Link href="/courses">
+              <Button >Ver Oferta Académica</Button>
             </Link>
           </div>
         </div>
