@@ -1,6 +1,6 @@
-import { ICourse } from "@/interfaces/Icourse";
-import Link from "next/link";
-import Image from "next/image";
+import { ICourse } from '@/interfaces/Icourse';
+import Link from 'next/link';
+import Image from 'next/image';
 
 interface ProductProps {
   course: ICourse;
@@ -9,9 +9,12 @@ interface ProductProps {
 const Card = ({ course }: ProductProps) => {
   return (
     <div className="bg-primary border-2 text-secondary rounded-3xl p-4 flex flex-col  hover:border-secondary hover:shadow-lg hover:shadow-gray-400">
-      <Link href={`/courses/${course.id}`} className=" ">
-        <div className="flex justify-between items-center">
-          <h3>{course.title}</h3>
+      <Link
+        href={`/courses/${course.id}`}
+        className=" "
+      >
+        <div className="flex justify-between items-center h-[90px]">
+          <h3 className="p-2">{course.title}</h3>
           <p className="text-secondary text-base">
             Suscripción {course.status_courses}
           </p>
