@@ -16,10 +16,17 @@ const Detail = (course: ICourse) => {
           height={320}
         />
 
+<<<<<<< HEAD
         <div className=" md:w-[800px]">
           {/* <p className="text-2xl font-bold text-end">{course.title}</p> */}
           <p className="py-4 text-xl text-center">{course.description}</p>
           <div className="text-center ">            
+=======
+        <div className="flex flex-col gap-4 md:w-[800px]">
+          <p className="text-2xl font-bold text-end">{course.title}</p>
+          <div className="flex justify-between items-center ">
+            <p className="text-end font-bold pr-1 "></p>
+>>>>>>> 8c9d71556c96f24ffe6edf24fd2fc2089c68447e
             <BuyButton course={course} />
           </div>
         </div>
