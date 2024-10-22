@@ -17,7 +17,7 @@ const Detail = (course: ICourse) => {
         />
 
         <div className="flex flex-col gap-4 md:w-[800px]">
-          <p className="text-2xl font-bold text-end">U$S {course.title}</p>
+          <p className="text-2xl font-bold text-end">{course.title}</p>
           <div className="flex justify-between items-center ">
             <p className="text-end font-bold pr-1 "></p>
             <BuyButton course={course} />

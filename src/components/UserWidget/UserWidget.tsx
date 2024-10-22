@@ -54,11 +54,11 @@ const UserWidget = () => {
 
   return (
     <div className="flex justify-center items-center gap-4 ">
-      <div className="hover:bg-secondary hover:text-white rounded-lg p-2">
         <Link href="/login">
+      <div className="hover:bg-secondary hover:text-white rounded-lg p-2">
           <FaRegUser />
-        </Link>
       </div>
+        </Link>
     </div>
   );
 };
