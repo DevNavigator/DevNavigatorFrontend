@@ -48,7 +48,7 @@ const RegisterForm = () => {
     e.preventDefault();
 
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-    const response = await registerService(apiUrl + '/users/register', data);
+    const response = await registerService(apiUrl + '/auth/signUp', data);
 
     if (!response.message) {
       MySwal.fire({
@@ -65,7 +65,7 @@ const RegisterForm = () => {
       });
     } else {
       MySwal.fire({
-        title: `Completa todos los campos`,
+        title: `¡${response.message}!`,
         icon: 'error',
         confirmButtonText: 'Aceptar',
         backdrop: true,

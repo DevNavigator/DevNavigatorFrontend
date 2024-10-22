@@ -18,7 +18,7 @@ export interface IRegisterForm extends ILoginForm {
 
 }
 export interface IUserSession {
-  login: boolean;
+  success: boolean;
   user: IRegisterForm;
   token: string;
 }

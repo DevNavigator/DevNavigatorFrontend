@@ -55,7 +55,7 @@ const Hero = () => {
             </ul>
           </div>
           <div className="mt-4">
-            <Link href="/products">
+            <Link href="/courses">
               <Button>Ver Oferta Académica</Button>
             </Link>
           </div>
