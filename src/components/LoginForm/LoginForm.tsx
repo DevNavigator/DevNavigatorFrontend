@@ -26,12 +26,12 @@ const LoginForm = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-    const response = await loginService(apiUrl + '/users/login', data);
+    const response = await loginService(apiUrl + '/auth/signIn', data);
 
-    if (response.login) {
+    if (response.success) {
       //alert("Login correcto");
       MySwal.fire({
-        title: `${response.user.name.toLocaleUpperCase()} ¡Bienvenido a DamiShop!`,
+        title: `${response.username.toLocaleUpperCase()} ¡Bienvenido a DevNavigator!`,
         icon: 'success',
         showConfirmButton: false,
         timer: 3000,
@@ -46,7 +46,7 @@ const LoginForm = () => {
     } else {
       //alert("Login incorrecto");
       MySwal.fire({
-        title: '¡Login incorrecto!',
+        title: `¡${response.message}!`,
         text: 'Inténtalo de nuevo',
         icon: 'error',
         confirmButtonText: 'Aceptar',
@@ -119,7 +119,7 @@ const LoginForm = () => {
           >
             {valid.email ? (
               <>
-                <FaCircleCheck className="h-4 w-4 mr-1" /> ¡Email válido!
+                <FaCircleCheck className="h-4 w-4 mr-1" /> 
               </>
             ) : (
               <>
