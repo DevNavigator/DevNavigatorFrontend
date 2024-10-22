@@ -32,10 +32,10 @@ export default function NotFound() {
             </p>
             <p>
               <Link
-                href="/products"
+                href="/courses"
                 className="underline hover:no-underline"
               >
-                Ver productos
+                Ver Cursos
               </Link>
             </p>
           </div>
