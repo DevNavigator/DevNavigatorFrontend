@@ -19,7 +19,7 @@ const Button = ({
   href = '',
   disabled = false,
 }: IButton) => {
-  const commonClasses = `p-2 px-5 rounded-3xl border border-trasparent bg-${variant} ${className} text-primary transition-all hover:bg-primary hover:text-secondary hover:border-secondary hover:border hover:scale-110 active:scale-95`;
+  const commonClasses = `p-2 px-5 rounded-3xl border border-trasparent bg-${variant} ${className} text-primary transition-all hover:bg-primary hover:text-secondary hover:border-secondary hover:border hover:scale-110 active:scale-95 ease-in-out duration-300`;
 
   // Renderiza un <a> si href está presente, de lo contrario, un <button>
   return href ? (
