@@ -10,9 +10,9 @@ const Card = ({ course }: ProductProps) => {
   return (
     <div className="w-[240px] mx-auto bg-primary border-2 text-secondary rounded-3xl p-4 flex flex-col shadow-lg shadow-gray-700/40 hover:border-secondary hover:shadow-lg hover:shadow-gray-400 hover:scale-105 ease-in-out   duration-200">
       <Link href={`/courses/${course.id}`}>
-        <div className="flex justify-center my-auto h-[185px]">
+        <div className="!rounded-lg flex justify-center my-auto h-[185px]">
           <Image
-            className="mix-blend-multiply content-center object-contain hover:scale-105 ease-in-out duration-300"
+            className="mix-blend-multiply content-center object-contain hover:scale-105 ease-in-out duration-300 "
             src={course.image_url}
             alt={course.title}
             width={180}

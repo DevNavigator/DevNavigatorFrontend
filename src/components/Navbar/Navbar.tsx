@@ -1,10 +1,11 @@
-'use client';
-import Link from 'next/link';
-import style from './Navbar.module.css';
-import UserWidget from '../UserWidget/UserWidget';
-import { useContext, useEffect, useState } from 'react';
-import Image from 'next/image';
-import imgLogo from '@/assets/DevNavigator.png';
+"use client";
+import Link from "next/link";
+import style from "./Navbar.module.css";
+import UserWidget from "../UserWidget/UserWidget";
+import { useContext, useEffect, useState } from "react";
+import Image from "next/image";
+import imgLogo from "@/assets/DevNavigator.png";
+import NotificationBell from "../Widget/NotificationBell";
 
 const Navbar = () => {
   const [isClick, setIsClick] = useState(false);
@@ -23,15 +24,8 @@ const Navbar = () => {
         <div className="flex items-center justify-evenly h-auto">
           <div className="flex items-center me-28">
             <div className="flex-shrink-0">
-              <Link
-                href="/"
-                className="text-3xl font-bold text-start"
-              >
-                <Image
-                  src={imgLogo}
-                  alt={''}
-                  width={150}
-                />
+              <Link href="/" className="text-3xl font-bold text-start">
+                <Image src={imgLogo} alt={""} width={150} />
               </Link>
             </div>
           </div>
@@ -58,6 +52,12 @@ const Navbar = () => {
               <div>
                 <UserWidget />
               </div>
+              <Link
+                href="/"
+                className="hover:bg-secondary hover:text-white rounded-lg p-2"
+              >
+                <NotificationBell />
+              </Link>
             </div>
           </div>
           <div className="md:hidden flex items-center">
