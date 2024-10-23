@@ -2,7 +2,7 @@
 
 import { AuthContext } from "@/contexts/authContext";
 import { useRouter } from "next/navigation";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useRef } from "react"; // Asegúrate de importar useRef
 import moment from "moment-timezone";
 import {
   FaEnvelope,
@@ -13,6 +13,7 @@ import {
 } from "react-icons/fa6";
 import { jwtDecode } from "jwt-decode";
 import Image from "next/image";
+import axios from "axios";
 
 // Función para formatear la fecha
 const formatDate = (dateString: string) => {
@@ -32,17 +33,18 @@ interface CustomJwtPayload {
 
 const Dashboard = () => {
   const router = useRouter();
-  const { user } = useContext(AuthContext);
+  const { user, setUser } = useContext(AuthContext);
   const [userType, setUserType] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState<boolean>(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     if (!user?.success) {
       router.push("/login");
     } else if (user.token) {
-      // Decodificar el token
       const decodedToken = jwtDecode<CustomJwtPayload>(user.token);
-      setUserType(decodedToken.types); // Guardar el tipo de usuario en el estado
+      setUserType(decodedToken.types);
     }
   }, [user, router]);
 
@@ -60,29 +62,55 @@ const Dashboard = () => {
       const formData = new FormData();
       formData.append("file", file);
 
+      setUploading(true);
       try {
-        const response = await fetch(
+        const response = await axios.post(
           `${url}/files/imgprofile/${user?.user.id}`,
+          formData,
           {
-            method: "POST",
             headers: {
               Authorization: `Bearer ${user?.token}`,
+              "Content-Type": "multipart/form-data",
             },
-            body: formData,
           }
         );
 
-        if (response.ok) {
-          const updatedUser = await response.json();
-          // Actualizar el estado del usuario o hacer algo con los datos actualizados
-          console.log("Imagen subida con éxito:", updatedUser);
-          // Opcional: Actualiza el estado del usuario en el contexto si es necesario
+        if (response.status === 200) {
+          console.log("Imagen subida con éxito:", response.data);
+
+          const updatedUserResponse = await axios.get(
+            `${url}/user/${user?.user.id}`,
+            {
+              headers: {
+                Authorization: `Bearer ${user?.token}`,
+              },
+            }
+          );
+
+          setUser(prevUser => ({
+            ...prevUser,
+            user: updatedUserResponse.data,
+          }));
+
+          setFile(null);
+          if (fileInputRef.current) {
+            fileInputRef.current.value = ""; // Resetear el input
+          }
         } else {
           console.error("Error al subir la imagen:", response.statusText);
         }
       } catch (error) {
         console.error("Error al subir la imagen:", error);
+      } finally {
+        setUploading(false);
       }
+    }
+  };
+
+  const handleCancelUpload = () => {
+    setFile(null); // Restablecer el archivo seleccionado
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""; // Resetear el input
     }
   };
 
@@ -103,13 +131,15 @@ const Dashboard = () => {
             <Image
               src={user?.user.imgProfile || "/assets/DevNavigator.png"}
               alt="Foto de Perfil"
-              width={128} // Ajusta el tamaño
-              height={128} // Ajusta el tamaño
-              className="rounded-full border-2 border-secondary"
+              width={200}
+              height={200}
+              className="rounded-full border-2 border-secondary object-cover"
+              style={{ width: "200px", height: "200px" }}
             />
-            <label className="absolute bottom-0 right-0 cursor-pointer">
-              <FaCamera className="text-secondary bg-white rounded-full p-1" />
+            <label className="absolute bottom-0 right-0 cursor-pointer z-10">
+              <FaCamera className="text-secondary bg-white rounded-full p-1 h-8 w-8" />
               <input
+                ref={fileInputRef}
                 type="file"
                 accept="image/*"
                 onChange={handleFileChange}
@@ -117,13 +147,23 @@ const Dashboard = () => {
               />
             </label>
           </div>
-          {/* Mostrar botón solo si hay un archivo seleccionado */}
+          {/* Mostrar botones solo si hay un archivo seleccionado */}
           {file && (
-            <button
-              className="mt-4 bg-secondary text-white p-2 rounded"
-              onClick={handleUpload}>
-              Subir Imagen
-            </button>
+            <div className="mt-4">
+              <button
+                className={`bg-secondary text-white p-2 rounded ${
+                  uploading ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+                onClick={handleUpload}
+                disabled={uploading}>
+                {uploading ? "Cargando..." : "Subir Imagen"}
+              </button>
+              <button
+                className="ml-4 bg-red-500 text-white p-2 rounded"
+                onClick={handleCancelUpload}>
+                Cancelar
+              </button>
+            </div>
           )}
           <div className="w-auto mt-4 items-center bg-gray-50 p-4 rounded-lg shadow-md">
             <div className="flex items-center p-1">
