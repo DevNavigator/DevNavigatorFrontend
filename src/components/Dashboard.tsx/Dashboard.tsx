@@ -2,8 +2,7 @@
 
 import { AuthContext } from "@/contexts/authContext";
 import { useRouter } from "next/navigation";
-import { useContext, useEffect, useState, useRef } from "react"; // Asegúrate de importar useRef
-import moment from "moment-timezone";
+import { useContext, useEffect, useState, useRef } from "react";
 import {
   FaEnvelope,
   FaLocationDot,
@@ -14,22 +13,8 @@ import {
 import { jwtDecode } from "jwt-decode";
 import Image from "next/image";
 import axios from "axios";
-
-// Función para formatear la fecha
-const formatDate = (dateString: string) => {
-  return moment(dateString)
-    .tz("America/Sao_Paulo")
-    .format("DD/MM/YYYY hh:mm a");
-};
-
-// Define la interfaz para el payload del JWT
-interface CustomJwtPayload {
-  id: string;
-  email: string;
-  types: string;
-  iat: number;
-  exp: number;
-}
+import UserEditForm from "./UserEditForm";
+import Swal from "sweetalert2";
 
 const Dashboard = () => {
   const router = useRouter();
@@ -37,18 +22,20 @@ const Dashboard = () => {
   const [userType, setUserType] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState<boolean>(false);
+  const [showEditModal, setShowEditModal] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     if (!user?.success) {
       router.push("/login");
     } else if (user.token) {
-      const decodedToken = jwtDecode<CustomJwtPayload>(user.token);
+      const decodedToken = jwtDecode(user.token);
       setUserType(decodedToken.types);
     }
   }, [user, router]);
 
-  const isAdmin = userType === "admin" || userType === "superAdmin";
+  const isAdmin = userType === "admin";
+  const isSuperAdmin = userType === "superAdmin";
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
@@ -77,7 +64,6 @@ const Dashboard = () => {
 
         if (response.status === 200) {
           console.log("Imagen subida con éxito:", response.data);
-
           const updatedUserResponse = await axios.get(
             `${url}/user/${user?.user.id}`,
             {
@@ -87,17 +73,20 @@ const Dashboard = () => {
             }
           );
 
-          setUser(prevUser => ({
-            ...prevUser,
-            user: updatedUserResponse.data,
-          }));
+          const updatedUser = {
+            ...user,
+            user: {
+              ...user.user,
+              imgProfile:
+                updatedUserResponse.data.imgProfile || user.user.imgProfile,
+            },
+          };
 
+          setUser(updatedUser);
           setFile(null);
           if (fileInputRef.current) {
-            fileInputRef.current.value = ""; // Resetear el input
+            fileInputRef.current.value = "";
           }
-        } else {
-          console.error("Error al subir la imagen:", response.statusText);
         }
       } catch (error) {
         console.error("Error al subir la imagen:", error);
@@ -107,11 +96,39 @@ const Dashboard = () => {
     }
   };
 
-  const handleCancelUpload = () => {
-    setFile(null); // Restablecer el archivo seleccionado
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ""; // Resetear el input
+  const handleEditUser = () => {
+    setShowEditModal(true);
+  };
+
+  const updateUserInfo = async () => {
+    const url = "http://localhost:3001";
+    try {
+      const updatedUserResponse = await axios.get(
+        `${url}/user/${user?.user.id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+          },
+        }
+      );
+
+      const updatedUser = {
+        ...user,
+        user: {
+          ...user.user,
+          ...updatedUserResponse.data, // Actualizar con los datos recibidos
+        },
+      };
+
+      setUser(updatedUser); // Actualizar el estado del usuario
+    } catch (error) {
+      console.error("Error al obtener el usuario actualizado:", error);
     }
+  };
+
+  const closeModal = () => {
+    setShowEditModal(false);
+    updateUserInfo(); // Actualizar los datos del usuario cuando se cierre el modal
   };
 
   return (
@@ -120,24 +137,22 @@ const Dashboard = () => {
         <h1 className="text-3xl font-bold text-secondary">Mi Cuenta</h1>
       </div>
 
-      {/* Información del Usuario */}
       <div className="bg-primary p-6 text-secondary flex flex-col items-center justify-center border-b border-b-secondary">
         <h2 className="text-2xl font-bold text-secondary">
           Información de la Cuenta
         </h2>
         <div className="flex flex-col items-center mt-4">
-          {/* Foto de Perfil */}
           <div className="relative">
             <Image
               src={user?.user.imgProfile || "/assets/DevNavigator.png"}
               alt="Foto de Perfil"
-              width={200}
-              height={200}
-              className="rounded-full border-2 border-secondary object-cover"
-              style={{ width: "200px", height: "200px" }}
+              width={200} // Ancho fijo
+              height={200} // Alto fijo
+              className="rounded-full border-2 border-secondary object-cover" // Ajusta la imagen al contenedor
+              style={{ width: "200px", height: "200px" }} // Tamaño fijo adicional
             />
             <label className="absolute bottom-0 right-0 cursor-pointer z-10">
-              <FaCamera className="text-secondary bg-white rounded-full p-1 h-8 w-8" />
+              <FaCamera className="text-secondary bg-white p-1 h-10 w-10" />
               <input
                 ref={fileInputRef}
                 type="file"
@@ -147,7 +162,6 @@ const Dashboard = () => {
               />
             </label>
           </div>
-          {/* Mostrar botones solo si hay un archivo seleccionado */}
           {file && (
             <div className="mt-4">
               <button
@@ -160,7 +174,12 @@ const Dashboard = () => {
               </button>
               <button
                 className="ml-4 bg-red-500 text-white p-2 rounded"
-                onClick={handleCancelUpload}>
+                onClick={() => {
+                  setFile(null);
+                  if (fileInputRef.current) {
+                    fileInputRef.current.value = "";
+                  }
+                }}>
                 Cancelar
               </button>
             </div>
@@ -169,7 +188,7 @@ const Dashboard = () => {
             <div className="flex items-center p-1">
               <FaUser className="text-lg mr-4 text-secondary" />
               <span className="text-lg text-secondary font-medium">
-                {user?.user.name.toLocaleUpperCase()}
+                {user?.user.name}
               </span>
             </div>
             <div className="flex items-center p-1">
@@ -190,15 +209,16 @@ const Dashboard = () => {
                 {user?.user.phone}
               </span>
             </div>
-            <button className="mt-4 bg-secondary text-white p-2 rounded">
+            <button
+              className="mt-4 bg-secondary text-white p-2 rounded"
+              onClick={handleEditUser}>
               Modificar Información
             </button>
           </div>
         </div>
       </div>
-
-      {/* Panel de Administración solo para Admin y SuperAdmin */}
-      {isAdmin && (
+      {/* Rutas disponibles tanto para Admin como SuperAdmin */}
+      {(isAdmin || isSuperAdmin) && (
         <div className="bg-primary p-6 text-secondary flex flex-col items-center justify-center border-b border-b-secondary">
           <h2 className="text-2xl font-bold text-secondary">
             Panel de Administración
@@ -212,6 +232,44 @@ const Dashboard = () => {
             </button>
             <button className="bg-secondary text-white p-2 rounded ml-4">
               Crear Suscripción
+            </button>
+          </div>
+        </div>
+      )}
+      {/* Panel exclusivo para SuperAdmin */}
+      {isSuperAdmin && (
+        <div className="bg-primary p-6 text-secondary flex flex-col items-center justify-center border-b border-b-secondary">
+          <h2 className="text-2xl font-bold text-secondary">
+            Panel de SuperAdmin
+          </h2>
+          <div className="w-full mt-4">
+            <button className="bg-secondary text-white p-2 rounded">
+              Gestionar Usuarios Admin
+            </button>
+            <button className="bg-secondary text-white p-2 rounded ml-4">
+              Dar de baja a un usuario
+            </button>
+            <button className="bg-secondary text-white p-2 rounded ml-4">
+              Cancelar Suscripción usuario
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Submodal para editar información del usuario */}
+      {showEditModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+            <h2 className="text-2xl font-bold mb-4">Editar Información</h2>
+            <UserEditForm
+              userId={user.user.id}
+              token={user.token}
+              closeModal={closeModal} // Pasar la función para cerrar el modal
+            />
+            <button
+              className="mt-4 bg-red-500 text-white p-2 rounded"
+              onClick={closeModal}>
+              Cerrar
             </button>
           </div>
         </div>

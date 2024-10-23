@@ -8,6 +8,7 @@ export interface IOrder {
   status: string;
   date: string;
 }
+
 export interface IRegisterForm extends ILoginForm {
   name: string;
   address: string;
@@ -16,6 +17,7 @@ export interface IRegisterForm extends ILoginForm {
   userId?: number;
   orders?: IOrder[];
 }
+
 export interface IUserSession {
   success: boolean;
   user: {
@@ -25,6 +27,7 @@ export interface IUserSession {
     address: string;
     phone: string;
     imgProfile: string;
+    typeUser: string;
   };
   token: string;
 }
