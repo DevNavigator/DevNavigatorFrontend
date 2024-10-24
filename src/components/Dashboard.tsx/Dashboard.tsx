@@ -215,7 +215,20 @@ const Dashboard = () => {
           </Button>
         </div>
       </div>
-
+      {isAdmin && (
+        <div className="flex items-center justify-center m-5">
+          <Button className="m-2">Ver Usuarios</Button>
+          <Button className="m-2">Crear Usuario</Button>
+          <Button className="m-2">Editar Usuario</Button>
+        </div>
+      )}
+      {isSuperAdmin && (
+        <div className="flex items-center justify-center m-5">
+          <Button className="m-2">Ver Usuarios</Button>
+          <Button className="m-2">Crear Usuario</Button>
+          <Button className="m-2">Editar Usuario</Button>
+        </div>
+      )}
       {showEditModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">

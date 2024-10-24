@@ -4,8 +4,13 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
 import Button from "../Button/Button";
+interface UserEditFormProps {
+  userId: string | undefined;
+  token: string | undefined;
+  closeModal: () => void;
+}
 
-const UserEditForm = ({ userId, token, closeModal }) => {
+const UserEditForm = ({ userId, token, closeModal }: UserEditFormProps) => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -14,9 +19,14 @@ const UserEditForm = ({ userId, token, closeModal }) => {
     password: "",
     currentPassword: "",
   });
-  const [originalData, setOriginalData] = useState({});
+  const [originalData, setOriginalData] = useState({
+    name: "",
+    email: "",
+    address: "",
+    phone: "",
+  });
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (!userId) {
@@ -54,7 +64,7 @@ const UserEditForm = ({ userId, token, closeModal }) => {
     fetchUserData();
   }, [userId, token]);
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
@@ -62,7 +72,7 @@ const UserEditForm = ({ userId, token, closeModal }) => {
     }));
   };
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const result = await Swal.fire({
@@ -80,7 +90,17 @@ const UserEditForm = ({ userId, token, closeModal }) => {
       return;
     }
 
-    const dataToSend = {};
+    interface DataToSend {
+      name?: string;
+      email?: string;
+      address?: string;
+      phone?: string;
+      password?: string;
+      currentPassword?: string;
+    }
+
+    const dataToSend: DataToSend = {};
+
     if (formData.name && formData.name !== originalData.name) {
       dataToSend.name = formData.name;
     }
@@ -125,7 +145,7 @@ const UserEditForm = ({ userId, token, closeModal }) => {
       });
 
       closeModal(); // Cerrar el modal después de actualizar
-    } catch (error) {
+    } catch (error: any) {
       if (error.response) {
         console.error("Error al actualizar el usuario:", error.response.data);
         setError(
