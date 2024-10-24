@@ -1,6 +1,7 @@
 "use client";
 
 import { AuthContext } from "@/contexts/authContext";
+import Button from "../Button/Button";
 import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState, useRef } from "react";
 import {
@@ -76,9 +77,9 @@ const Dashboard = () => {
           const updatedUser = {
             ...user,
             user: {
-              ...user.user,
+              ...user?.user,
               imgProfile:
-                updatedUserResponse.data.imgProfile || user.user.imgProfile,
+                updatedUserResponse.data.imgProfile || user?.user.imgProfile,
             },
           };
 
@@ -90,6 +91,11 @@ const Dashboard = () => {
         }
       } catch (error) {
         console.error("Error al subir la imagen:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "Hubo un problema al subir la imagen. Inténtalo de nuevo.",
+        });
       } finally {
         setUploading(false);
       }
@@ -115,12 +121,12 @@ const Dashboard = () => {
       const updatedUser = {
         ...user,
         user: {
-          ...user.user,
-          ...updatedUserResponse.data, // Actualizar con los datos recibidos
+          ...user?.user,
+          ...updatedUserResponse.data,
         },
       };
 
-      setUser(updatedUser); // Actualizar el estado del usuario
+      setUser(updatedUser);
     } catch (error) {
       console.error("Error al obtener el usuario actualizado:", error);
     }
@@ -128,31 +134,29 @@ const Dashboard = () => {
 
   const closeModal = () => {
     setShowEditModal(false);
-    updateUserInfo(); // Actualizar los datos del usuario cuando se cierre el modal
+    updateUserInfo();
   };
 
   return (
-    <div className="max-w-4xl mt-16 mb-16 mx-auto bg-primary rounded-xl shadow-lg overflow-hidden">
-      <div className="bg-primary p-6 text-secondary flex items-center justify-center border-b border-b-secondary">
+    <div className="max-w-4xl mt-16 mb-16 mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
+      <div className="bg-primary p-6 text-secondary flex items-center justify-center border-b border-gray-200">
         <h1 className="text-3xl font-bold text-secondary">Mi Cuenta</h1>
       </div>
 
-      <div className="bg-primary p-6 text-secondary flex flex-col items-center justify-center border-b border-b-secondary">
-        <h2 className="text-2xl font-bold text-secondary">
-          Información de la Cuenta
-        </h2>
-        <div className="flex flex-col items-center mt-4">
+      <div className="flex flex-col md:flex-row p-6">
+        {/* Avatar - Columna izquierda */}
+        <div className="flex flex-col items-center md:items-start md:w-1/3 p-4">
           <div className="relative">
-            <Image
-              src={user?.user.imgProfile || "/assets/DevNavigator.png"}
-              alt="Foto de Perfil"
-              width={200} // Ancho fijo
-              height={200} // Alto fijo
-              className="rounded-full border-2 border-secondary object-cover" // Ajusta la imagen al contenedor
-              style={{ width: "200px", height: "200px" }} // Tamaño fijo adicional
-            />
-            <label className="absolute bottom-0 right-0 cursor-pointer z-10">
-              <FaCamera className="text-secondary bg-white p-1 h-10 w-10" />
+            <div className="relative w-52 h-52 rounded-full overflow-hidden border-2 border-secondary">
+              <Image
+                src={user?.user.imgProfile || "/assets/DevNavigator.png"}
+                alt="Foto de Perfil"
+                layout="fill"
+                className="object-cover"
+              />
+            </div>
+            <label className="absolute bottom-0 right-0 cursor-pointer">
+              <FaCamera className="text-secondary bg-white p-1 h-8 w-8 rounded-full" />
               <input
                 ref={fileInputRef}
                 type="file"
@@ -162,115 +166,73 @@ const Dashboard = () => {
               />
             </label>
           </div>
+
           {file && (
-            <div className="mt-4">
+            <div className="mt-5 flex items-center">
+              <Button onClick={handleUpload} disabled={uploading}>
+                {uploading ? "Cargando..." : "Subir"}
+              </Button>
               <button
-                className={`bg-secondary text-white p-2 rounded ${
-                  uploading ? "opacity-50 cursor-not-allowed" : ""
-                }`}
-                onClick={handleUpload}
-                disabled={uploading}>
-                {uploading ? "Cargando..." : "Subir Imagen"}
-              </button>
-              <button
-                className="ml-4 bg-red-500 text-white p-2 rounded"
+                className="ml-4 bg-red-500 p-2 px-5 rounded-3xl border border-transparent text-primary transition-all hover:bg-primary hover:text-red-500 hover:border-red-500 hover:border hover:scale-110 active:scale-95 ease-in-out duration-300"
                 onClick={() => {
                   setFile(null);
                   if (fileInputRef.current) {
                     fileInputRef.current.value = "";
                   }
-                }}>
+                }}
+              >
                 Cancelar
               </button>
             </div>
           )}
-          <div className="w-auto mt-4 items-center bg-gray-50 p-4 rounded-lg shadow-md">
-            <div className="flex items-center p-1">
-              <FaUser className="text-lg mr-4 text-secondary" />
-              <span className="text-lg text-secondary font-medium">
-                {user?.user.name}
-              </span>
+        </div>
+
+        {/* Información del usuario - Columna derecha */}
+        <div className="flex-1 p-4">
+          <h2 className="text-2xl font-semibold text-gray-700 mb-6">
+            Información de la Cuenta
+          </h2>
+          <div className="space-y-4">
+            <div className="flex items-center text-gray-600">
+              <FaUser className="mr-3 text-xl" />
+              <span>{user?.user.name}</span>
             </div>
-            <div className="flex items-center p-1">
-              <FaEnvelope className="text-lg mr-4 text-secondary" />
-              <span className="text-lg text-secondary font-medium">
-                {user?.user.email}
-              </span>
+            <div className="flex items-center text-gray-600">
+              <FaEnvelope className="mr-3 text-xl" />
+              <span>{user?.user.email}</span>
             </div>
-            <div className="flex items-center p-1">
-              <FaLocationDot className="text-lg mr-4 text-secondary" />
-              <span className="text-lg text-secondary font-medium">
-                {user?.user.address}
-              </span>
+            <div className="flex items-center text-gray-600">
+              <FaLocationDot className="mr-3 text-xl" />
+              <span>{user?.user.address}</span>
             </div>
-            <div className="flex items-center p-1">
-              <FaPhone className="text-lg mr-4 text-secondary" />
-              <span className="text-lg text-secondary font-medium">
-                {user?.user.phone}
-              </span>
+            <div className="flex items-center text-gray-600">
+              <FaPhone className="mr-3 text-xl" />
+              <span>{user?.user.phone}</span>
             </div>
-            <button
-              className="mt-4 bg-secondary text-white p-2 rounded"
-              onClick={handleEditUser}>
-              Modificar Información
-            </button>
           </div>
+          <Button className="mt-10" onClick={handleEditUser}>
+            Modificar Información
+          </Button>
         </div>
       </div>
-      {/* Rutas disponibles tanto para Admin como SuperAdmin */}
-      {(isAdmin || isSuperAdmin) && (
-        <div className="bg-primary p-6 text-secondary flex flex-col items-center justify-center border-b border-b-secondary">
-          <h2 className="text-2xl font-bold text-secondary">
-            Panel de Administración
-          </h2>
-          <div className="w-full mt-4">
-            <button className="bg-secondary text-white p-2 rounded">
-              Gestionar Usuarios
-            </button>
-            <button className="bg-secondary text-white p-2 rounded ml-4">
-              Crear Cursos
-            </button>
-            <button className="bg-secondary text-white p-2 rounded ml-4">
-              Crear Suscripción
-            </button>
-          </div>
-        </div>
-      )}
-      {/* Panel exclusivo para SuperAdmin */}
-      {isSuperAdmin && (
-        <div className="bg-primary p-6 text-secondary flex flex-col items-center justify-center border-b border-b-secondary">
-          <h2 className="text-2xl font-bold text-secondary">
-            Panel de SuperAdmin
-          </h2>
-          <div className="w-full mt-4">
-            <button className="bg-secondary text-white p-2 rounded">
-              Gestionar Usuarios Admin
-            </button>
-            <button className="bg-secondary text-white p-2 rounded ml-4">
-              Dar de baja a un usuario
-            </button>
-            <button className="bg-secondary text-white p-2 rounded ml-4">
-              Cancelar Suscripción usuario
-            </button>
-          </div>
-        </div>
-      )}
 
-      {/* Submodal para editar información del usuario */}
       {showEditModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
             <h2 className="text-2xl font-bold mb-4">Editar Información</h2>
             <UserEditForm
-              userId={user.user.id}
-              token={user.token}
-              closeModal={closeModal} // Pasar la función para cerrar el modal
+              userId={user?.user.id}
+              token={user?.token}
+              closeModal={closeModal}
             />
-            <button
-              className="mt-4 bg-red-500 text-white p-2 rounded"
-              onClick={closeModal}>
-              Cerrar
-            </button>
+            <div className="flex items-center justify-center mt-4">
+              <button
+                className="flex text-center justify-center items-center bg-red-500 p-2 px-5 rounded-3xl border border-transparent text-primary transition-all hover:bg-primary hover:text-red-500 hover:border-red-500 hover:border hover:scale-110 active:scale-95 ease-in-out duration-300"
+                onClick={closeModal}
+              >
+                Cerrar
+              </button>
+            </div>
           </div>
         </div>
       )}

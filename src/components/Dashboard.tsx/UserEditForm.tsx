@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
+import Button from "../Button/Button";
 
 const UserEditForm = ({ userId, token, closeModal }) => {
   const [formData, setFormData] = useState({
@@ -53,15 +54,15 @@ const UserEditForm = ({ userId, token, closeModal }) => {
     fetchUserData();
   }, [userId, token]);
 
-  const handleChange = e => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prevData => ({
+    setFormData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
   };
 
-  const handleSubmit = async event => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     const result = await Swal.fire({
@@ -214,11 +215,9 @@ const UserEditForm = ({ userId, token, closeModal }) => {
           className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
         />
       </div>
-      <button
-        type="submit"
-        className="bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600">
-        Guardar Cambios
-      </button>
+      <div className="text-center">
+        <Button type="submit">Guardar Cambios</Button>
+      </div>
       {error && <p className="text-red-500">{error}</p>}
     </form>
   );
