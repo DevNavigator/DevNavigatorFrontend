@@ -19,15 +19,15 @@ export interface IRegisterForm extends ILoginForm {
 }
 
 export interface IUserSession {
-  success: boolean;
+  success?: boolean;
   user: {
-    id: string;
-    name: string;
-    email: string;
-    address: string;
-    phone: string;
-    imgProfile: string;
-    typeUser: string;
+    id?: string;
+    name?: string;
+    email?: string;
+    address?: string;
+    phone?: string;
+    imgProfile?: string;
+    typeUser?: string;
   };
-  token: string;
+  token?: string;
 }
