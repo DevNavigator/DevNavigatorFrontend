@@ -24,6 +24,7 @@ const Dashboard = () => {
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState<boolean>(false);
   const [showEditModal, setShowEditModal] = useState<boolean>(false);
+  const [showUsers, setShowUsers] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -104,6 +105,10 @@ const Dashboard = () => {
 
   const handleEditUser = () => {
     setShowEditModal(true);
+    setShowUsers(false);
+  };
+  const handleShowUsers = () => {
+    setShowUsers(true);
   };
 
   const updateUserInfo = async () => {
@@ -134,6 +139,7 @@ const Dashboard = () => {
 
   const closeModal = () => {
     setShowEditModal(false);
+    setShowUsers(false);
     updateUserInfo();
   };
 
@@ -210,25 +216,28 @@ const Dashboard = () => {
               <span>{user?.user.phone}</span>
             </div>
           </div>
-          <Button className="mt-10" onClick={handleEditUser}>
-            Modificar Información
-          </Button>
+          <div>
+            <Button className="mt-10" onClick={handleEditUser}>
+              Modificar Información
+            </Button>
+          </div>
+
+          {isAdmin && (
+            <div className="flex items-center justify-center m-5">
+              <Button onClick={handleShowUsers} className="m-2">
+                Ver Usuarios
+              </Button>
+            </div>
+          )}
+          {isSuperAdmin && (
+            <div className="flex mt-5">
+              <Button className="" onClick={handleShowUsers}>
+                Ver Usuarios
+              </Button>
+            </div>
+          )}
         </div>
       </div>
-      {isAdmin && (
-        <div className="flex items-center justify-center m-5">
-          <Button className="m-2">Ver Usuarios</Button>
-          <Button className="m-2">Crear Usuario</Button>
-          <Button className="m-2">Editar Usuario</Button>
-        </div>
-      )}
-      {isSuperAdmin && (
-        <div className="flex items-center justify-center m-5">
-          <Button className="m-2">Ver Usuarios</Button>
-          <Button className="m-2">Crear Usuario</Button>
-          <Button className="m-2">Editar Usuario</Button>
-        </div>
-      )}
       {showEditModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
@@ -241,6 +250,94 @@ const Dashboard = () => {
             <div className="flex items-center justify-center mt-4">
               <button
                 className="flex text-center justify-center items-center bg-red-500 p-2 px-5 rounded-3xl border border-transparent text-primary transition-all hover:bg-primary hover:text-red-500 hover:border-red-500 hover:border hover:scale-110 active:scale-95 ease-in-out duration-300"
+                onClick={closeModal}
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showUsers && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+            <h2 className="text-2xl font-bold mb-4">Lista de Usuarios</h2>
+            <div className="flex justify-around items-center mb-4">
+              usuario1: admin
+              <button
+                onClick={handleEditUser}
+                className="bg-secondary text-white rounded-lg p-1 hover:transition-all hover:scale-110 active:scale-95 ease-in-out duration-300"
+              >
+                Editar
+              </button>
+              <button className=" bg-red-500 text-white rounded-lg p-1 hover:transition-all hover:scale-110 active:scale-95 ease-in-out duration-300">
+                Eliminar
+              </button>
+            </div>
+            <div className="flex justify-around items-center mb-4">
+              usuario1: admin
+              <button
+                onClick={handleEditUser}
+                className="bg-secondary text-white rounded-lg p-1 hover:transition-all hover:scale-110 active:scale-95 ease-in-out duration-300"
+              >
+                Editar
+              </button>
+              <button className=" bg-red-500 text-white rounded-lg p-1 hover:transition-all hover:scale-110 active:scale-95 ease-in-out duration-300">
+                Eliminar
+              </button>
+            </div>
+            <div className="flex justify-around items-center mb-4">
+              usuario1: admin
+              <button
+                onClick={handleEditUser}
+                className="bg-secondary text-white rounded-lg p-1 hover:transition-all hover:scale-110 active:scale-95 ease-in-out duration-300"
+              >
+                Editar
+              </button>
+              <button className=" bg-red-500 text-white rounded-lg p-1 hover:transition-all hover:scale-110 active:scale-95 ease-in-out duration-300">
+                Eliminar
+              </button>
+            </div>
+            <div className="flex justify-around items-center mb-4">
+              usuario1: admin
+              <button
+                onClick={handleEditUser}
+                className="bg-secondary text-white rounded-lg p-1 hover:transition-all hover:scale-110 active:scale-95 ease-in-out duration-300"
+              >
+                Editar
+              </button>
+              <button className=" bg-red-500 text-white rounded-lg p-1 hover:transition-all hover:scale-110 active:scale-95 ease-in-out duration-300">
+                Eliminar
+              </button>
+            </div>
+            <div className="flex justify-around items-center mb-4">
+              usuario1: admin
+              <button
+                onClick={handleEditUser}
+                className="bg-secondary text-white rounded-lg p-1 hover:transition-all hover:scale-110 active:scale-95 ease-in-out duration-300"
+              >
+                Editar
+              </button>
+              <button className=" bg-red-500 text-white rounded-lg p-1 hover:transition-all hover:scale-110 active:scale-95 ease-in-out duration-300">
+                Eliminar
+              </button>
+            </div>
+            <div className="flex justify-around items-center mb-4">
+              usuario1: admin
+              <button
+                onClick={handleEditUser}
+                className="bg-secondary text-white rounded-lg p-1 hover:transition-all hover:scale-110 active:scale-95 ease-in-out duration-300"
+              >
+                Editar
+              </button>
+              <button className=" bg-red-500 text-white rounded-lg p-1 hover:transition-all hover:scale-110 active:scale-95 ease-in-out duration-300">
+                Eliminar
+              </button>
+            </div>
+
+            <div className="flex items-center justify-center mt-4">
+              <button
+                className="flex text-center mt-5 justify-center items-center bg-red-500 p-2 px-5 rounded-3xl border border-transparent text-primary transition-all hover:bg-primary hover:text-red-500 hover:border-red-500 hover:border hover:scale-110 active:scale-95 ease-in-out duration-300"
                 onClick={closeModal}
               >
                 Cerrar
