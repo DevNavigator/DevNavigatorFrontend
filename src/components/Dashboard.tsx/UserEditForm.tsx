@@ -134,7 +134,6 @@ const UserEditForm = ({ userId, token, closeModal }: UserEditFormProps) => {
           },
         }
       );
-      console.log("Usuario actualizado:", response.data);
 
       // Mostrar mensaje de éxito
       await Swal.fire({
@@ -147,10 +146,13 @@ const UserEditForm = ({ userId, token, closeModal }: UserEditFormProps) => {
       closeModal(); // Cerrar el modal después de actualizar
     } catch (error: any) {
       if (error.response) {
-        console.error("Error al actualizar el usuario:", error.response.data);
-        setError(
-          "Error al actualizar el usuario: " + error.response.data.message
-        );
+        closeModal();
+        await Swal.fire({
+          title: "¡Error!",
+          text: "Error al actualizar el usuario, intentalo nuevamente",
+          icon: "error",
+          confirmButtonText: "OK",
+        });
       } else {
         console.error("Error:", error.message);
         setError("Error de conexión");
