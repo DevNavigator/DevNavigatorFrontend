@@ -32,6 +32,7 @@ const Dashboard = () => {
     } else if (user.token) {
       const decodedToken = jwtDecode(user.token);
       setUserType(decodedToken.types);
+      console.log(setUserType);
     }
   }, [user, router]);
 
