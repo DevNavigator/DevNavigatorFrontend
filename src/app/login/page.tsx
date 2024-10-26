@@ -1,6 +1,6 @@
 import Button from "@/components/Button/Button";
 import LoginForm from "@/components/LoginForm/LoginForm";
-
+import ButtonGoogle from "@/components/ButtonGoogle/ButtonGoogle";
 const page = () => {
   return (
     <div className={`container !mt-24`}>
@@ -10,6 +10,10 @@ const page = () => {
         <div className="mx-auto text-center mt-7">
           <p className="mb-3">¿No tienes cuenta?</p>
           <Button href="/register">Registrate</Button>
+        </div>
+        <div className="mx-auto text-center mt-3 flex flex-col items-center">
+          <h3 className="text-center">--------- ó ---------</h3>
+          <ButtonGoogle />
         </div>
       </div>
     </div>
