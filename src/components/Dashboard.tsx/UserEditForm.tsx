@@ -1,5 +1,5 @@
 "use client";
-
+import { UserData } from "@/interfaces/userData";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -18,12 +18,14 @@ const UserEditForm = ({ userId, token, closeModal }: UserEditFormProps) => {
     phone: "",
     password: "",
     currentPassword: "",
+    statusUser: true,
   });
   const [originalData, setOriginalData] = useState({
     name: "",
     email: "",
     address: "",
     phone: "",
+    statusUser: true,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -45,6 +47,7 @@ const UserEditForm = ({ userId, token, closeModal }: UserEditFormProps) => {
           }
         );
         const { name, email, address, phone } = response.data;
+
         setFormData({
           name,
           email,
@@ -52,8 +55,9 @@ const UserEditForm = ({ userId, token, closeModal }: UserEditFormProps) => {
           phone,
           password: "",
           currentPassword: "",
+          statusUser: true,
         });
-        setOriginalData({ name, email, address, phone });
+        setOriginalData({ name, email, address, phone, statusUser: true });
       } catch (err) {
         setError("Error al cargar los datos del usuario");
       } finally {
@@ -90,28 +94,24 @@ const UserEditForm = ({ userId, token, closeModal }: UserEditFormProps) => {
       return;
     }
 
-    interface DataToSend {
-      name?: string;
-      email?: string;
-      address?: string;
-      phone?: string;
-      password?: string;
-      currentPassword?: string;
-    }
 
-    const dataToSend: DataToSend = {};
+
+    const userData: UserData = {};
 
     if (formData.name && formData.name !== originalData.name) {
-      dataToSend.name = formData.name;
+      userData.name = formData.name;
     }
     if (formData.email && formData.email !== originalData.email) {
-      dataToSend.email = formData.email;
+      userData.email = formData.email;
     }
     if (formData.address && formData.address !== originalData.address) {
-      dataToSend.address = formData.address;
+      userData.address = formData.address;
     }
     if (formData.phone && formData.phone !== originalData.phone) {
-      dataToSend.phone = formData.phone;
+      userData.phone = formData.phone;
+    }
+    if (formData.statusUser && formData.statusUser !== originalData.statusUser) {
+      userData.statusUser = formData.statusUser;
     }
     if (formData.password) {
       if (!formData.currentPassword) {
@@ -120,14 +120,14 @@ const UserEditForm = ({ userId, token, closeModal }: UserEditFormProps) => {
         );
         return;
       }
-      dataToSend.password = formData.password;
-      dataToSend.currentPassword = formData.currentPassword;
+      userData.password = formData.password;
+      userData.currentPassword = formData.currentPassword;
     }
 
     try {
       const response = await axios.patch(
         `http://localhost:3001/user/userupdate/${userId}`,
-        dataToSend,
+        userData,
         {
           headers: {
             Authorization: `Bearer ${token}`,
