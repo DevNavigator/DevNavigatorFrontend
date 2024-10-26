@@ -28,6 +28,7 @@ export interface IUserSession {
     phone?: string;
     imgProfile?: string;
     typeUser?: string;
+    statusUser?: boolean;
   };
   token?: string;
 }
