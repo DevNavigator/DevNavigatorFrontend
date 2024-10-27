@@ -31,7 +31,7 @@ const LoginForm = () => {
     if (response.success) {
       //alert("Login correcto");
       MySwal.fire({
-        title: `${response.username.toLocaleUpperCase()} ¡Bienvenido a DevNavigator!`,
+        title: `${response.user.name.toLocaleUpperCase()} ¡Bienvenido a DevNavigator!`,
         icon: 'success',
         showConfirmButton: false,
         timer: 3000,

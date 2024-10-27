@@ -3,11 +3,12 @@ export interface ILoginForm {
   password: string;
 }
 
- export interface IOrder {
-   id: number;
-   status: string;
-   date: string;
- }
+export interface IOrder {
+  id: number;
+  status: string;
+  date: string;
+}
+
 export interface IRegisterForm extends ILoginForm {
   name: string;
   address: string;
@@ -15,10 +16,19 @@ export interface IRegisterForm extends ILoginForm {
   confirmPassword: string;
   userId?: number;
   orders?: IOrder[];
-
 }
+
 export interface IUserSession {
-  success: boolean;
-  user: IRegisterForm;
-  token: string;
+  success?: boolean;
+  user: {
+    id?: string;
+    name?: string;
+    email?: string;
+    address?: string;
+    phone?: string;
+    imgProfile?: string;
+    typeUser?: string;
+    statusUser?: boolean;
+  };
+  token?: string;
 }
