@@ -294,8 +294,10 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    fetchAllUsers();
-  }, [fetchAllUsers]);
+    if (isADMIN || isSUPER_ADMIN) {
+      fetchAllUsers();
+    }
+  }, [fetchAllUsers, isADMIN, isSUPER_ADMIN]);
 
   return (
     <div className="flex flex-col md:flex-row max-w-6xl mx-auto mt-12 mb-16 bg-white shadow-lg rounded-lg overflow-hidden">
