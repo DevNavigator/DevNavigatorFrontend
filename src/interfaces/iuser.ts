@@ -7,6 +7,6 @@ export interface IUser {
   address?: string;
   phone?: string;
   imgProfile?: string;
-  UserType?: UserType;
   statusUser?: boolean;
+  UserType?: UserType;
 }

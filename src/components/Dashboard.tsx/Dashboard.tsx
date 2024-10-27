@@ -10,13 +10,15 @@ import axios from "axios";
 import UserEditForm from "./UserEditForm";
 import Swal from "sweetalert2";
 import { IUser } from "@/interfaces/iuser";
+import { UserType } from "@/interfaces/userData";
 import ChangePasswordForm from "./ChangePasswordForm ";
+import ChangeUserTypeModal from "./admin dashboard/changeUserTypeModal";
 
 interface JwtPayload {
   id: string;
   email: string;
   name: string;
-  types: string; // Asegúrate de que esta propiedad esté aquí
+  types: string;
 }
 
 const Dashboard = () => {
@@ -33,6 +35,10 @@ const Dashboard = () => {
   const [selectedUserId, setSelectedUserId] = useState<string>("");
   const [showActiveUsers, setShowActiveUsers] = useState<boolean>(true);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [showChangeUserTypeModal, setShowChangeUserTypeModal] = useState(false);
+  const [selectedUserType, setSelectedUserType] = useState<UserType | null>(
+    null
+  );
 
   useEffect(() => {
     if (user?.success && user.token) {
@@ -64,6 +70,37 @@ const Dashboard = () => {
       console.error("Error al obtener los usuarios:", error);
     }
   }, [user]);
+
+  const handleChangeUserType = (userId: string, currentType: UserType) => {
+    setSelectedUserId(userId);
+    setSelectedUserType(currentType);
+    setShowChangeUserTypeModal(true);
+  };
+
+  const saveUserType = async (newType: UserType) => {
+    const url = "http://localhost:3001";
+    if (!selectedUserId) return;
+    try {
+      await axios.patch(
+        `${url}/user/userType/${selectedUserId}`,
+        { userType: newType },
+        {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+          },
+        }
+      );
+      Swal.fire(
+        "Éxito",
+        "Tipo de usuario actualizado correctamente",
+        "success"
+      );
+      fetchAllUsers();
+    } catch (error) {
+      console.error("Error al actualizar el tipo de usuario:", error);
+      Swal.fire("Error", "No se pudo actualizar el tipo de usuario", "error");
+    }
+  };
 
   const handleActivateUser = async (userId: string) => {
     const url = "http://localhost:3001";
@@ -104,7 +141,6 @@ const Dashboard = () => {
     if (file) {
       const formData = new FormData();
       formData.append("file", file);
-
       setUploading(true);
       try {
         const response = await axios.post(
@@ -197,26 +233,22 @@ const Dashboard = () => {
       });
 
       if (result.isConfirmed) {
-        if (user?.user.id) {
-          await axios.patch(
-            `${url}/user/changeStatus/${userId}`,
-            {
-              statusUser: false,
+        await axios.patch(
+          `${url}/user/changeStatus/${userId}`,
+          { statusUser: false },
+          {
+            headers: {
+              Authorization: `Bearer ${user?.token}`,
             },
-            {
-              headers: {
-                Authorization: `Bearer ${user?.token}`,
-              },
-            }
-          );
+          }
+        );
 
-          fetchAllUsers(); // Actualizar la lista de inactivos
-          Swal.fire(
-            "¡Usuario dado de baja!",
-            "El usuario ha sido eliminado.",
-            "success"
-          );
-        }
+        fetchAllUsers();
+        Swal.fire(
+          "¡Usuario dado de baja!",
+          "El usuario ha sido eliminado.",
+          "success"
+        );
       }
     } catch (error) {
       console.error("Error al eliminar el usuario:", error);
@@ -333,6 +365,7 @@ const Dashboard = () => {
             <Button
               onClick={() => {
                 setShowActiveUsers(true);
+                fetchAllUsers(); // Obtener usuarios activos
                 setShowUsersPanel(true);
                 setShowEditPanel(false);
                 setShowChangePasswordPanel(false);
@@ -343,6 +376,7 @@ const Dashboard = () => {
             <Button
               onClick={() => {
                 setShowActiveUsers(false);
+                fetchAllUsers(); // Obtener usuarios inactivos
                 setShowUsersPanel(true);
                 setShowEditPanel(false);
                 setShowChangePasswordPanel(false);
@@ -396,15 +430,31 @@ const Dashboard = () => {
                   <div
                     key={user.id}
                     className="flex justify-between items-center mb-4">
-                    <span className="flex-grow">
-                      <div className="font-bold">{user.name}</div>{" "}
-                      {user.UserType}
+                    <span className="flex-grow flex items-center">
+                      <Image
+                        src={user.imgProfile || "/assets/DevNavigator.png"} // Ruta de la imagen de perfil
+                        alt={`${user.name}'s profile`}
+                        width={40} // Ajusta el tamaño según sea necesario
+                        height={40} // Ajusta el tamaño según sea necesario
+                        className="rounded-full mr-2" // Estilo para que sea redonda
+                      />
+                      <div className="font-bold">{user.email}</div>{" "}
+                      {/* Muestra el correo electrónico */}
+                      <div>{user.UserType}</div>{" "}
+                      {/* Muestra el tipo de usuario */}
                     </span>
                     <div className="flex items-center">
                       <Button
                         onClick={handleEditUser(user.id)}
                         className="mr-2 px-3">
                         Editar
+                      </Button>
+                      <Button
+                        onClick={() =>
+                          handleChangeUserType(user.id, user.UserType)
+                        }
+                        className="mr-2 px-3  bg-slate-600 text-white">
+                        Cambiar Tipo usuario
                       </Button>
                       <button
                         onClick={handleDeleteUser(user.id)}
@@ -422,13 +472,23 @@ const Dashboard = () => {
                 <div
                   key={user.id}
                   className="flex justify-between items-center mb-4">
-                  <span className="flex-grow">
-                    <div className="font-bold">{user.name}</div> {user.UserType}
+                  <span className="flex-grow flex items-center">
+                    <Image
+                      src={user.imgProfile || "/assets/DevNavigator.png"} // Ruta de la imagen de perfil
+                      alt={`${user.name}'s profile`}
+                      width={40} // Ajusta el tamaño según sea necesario
+                      height={40} // Ajusta el tamaño según sea necesario
+                      className="rounded-full mr-2" // Estilo para que sea redonda
+                    />
+                    <div className="font-bold">{user.name}</div>{" "}
+                    {/* Muestra el nombre */}
+                    <div>{user.UserType}</div>{" "}
+                    {/* Muestra el tipo de usuario */}
                   </span>
                   <div className="flex items-center">
                     <Button
                       onClick={() => handleActivateUser(user.id)}
-                      className="mr-2 px-3 bg-green-600 text-white">
+                      className="mr-2 px-3 bg-green-500 text-white">
                       Activar Usuario
                     </Button>
                     <Button
@@ -450,6 +510,16 @@ const Dashboard = () => {
           </div>
         )}
       </div>
+
+      {/* Modal para Cambiar Tipo de Usuario */}
+      <ChangeUserTypeModal
+        isOpen={showChangeUserTypeModal}
+        onClose={() => setShowChangeUserTypeModal(false)}
+        userId={selectedUserId}
+        currentType={selectedUserType ?? UserType}
+        token={user?.token}
+        onSave={saveUserType}
+      />
     </div>
   );
 };
