@@ -1,4 +1,4 @@
-import { typeUser } from "./userData";
+import { UserType } from "./userData";
 
 export interface IUser {
   id: string;
@@ -7,6 +7,6 @@ export interface IUser {
   address?: string;
   phone?: string;
   imgProfile?: string;
-  typeUser?: typeUser;
+  UserType?: UserType;
   statusUser?: boolean;
 }

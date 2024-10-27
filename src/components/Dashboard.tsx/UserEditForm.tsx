@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
 import Button from "../Button/Button";
+
 interface UserEditFormProps {
   userId: string | undefined;
   token: string | undefined;
@@ -16,8 +17,6 @@ const UserEditForm = ({ userId, token, closeModal }: UserEditFormProps) => {
     email: "",
     address: "",
     phone: "",
-    password: "",
-    currentPassword: "",
     statusUser: true,
   });
   const [originalData, setOriginalData] = useState({
@@ -53,8 +52,6 @@ const UserEditForm = ({ userId, token, closeModal }: UserEditFormProps) => {
           email,
           address,
           phone,
-          password: "",
-          currentPassword: "",
           statusUser: true,
         });
         setOriginalData({ name, email, address, phone, statusUser: true });
@@ -70,7 +67,7 @@ const UserEditForm = ({ userId, token, closeModal }: UserEditFormProps) => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
+    setFormData(prevData => ({
       ...prevData,
       [name]: value,
     }));
@@ -94,9 +91,7 @@ const UserEditForm = ({ userId, token, closeModal }: UserEditFormProps) => {
       return;
     }
 
-
-
-    const userData: UserData = {};
+    const userData: Partial<UserData> = {}; // Cambia a Partial para evitar errores de propiedades faltantes
 
     if (formData.name && formData.name !== originalData.name) {
       userData.name = formData.name;
@@ -110,23 +105,10 @@ const UserEditForm = ({ userId, token, closeModal }: UserEditFormProps) => {
     if (formData.phone && formData.phone !== originalData.phone) {
       userData.phone = formData.phone;
     }
-    if (formData.statusUser && formData.statusUser !== originalData.statusUser) {
-      userData.statusUser = formData.statusUser;
-    }
-    if (formData.password) {
-      if (!formData.currentPassword) {
-        setError(
-          "La contraseña actual es obligatoria para actualizar la información."
-        );
-        return;
-      }
-      userData.password = formData.password;
-      userData.currentPassword = formData.currentPassword;
-    }
 
     try {
       const response = await axios.patch(
-        `http://localhost:3001/user/userupdate/${userId}`,
+        `http://localhost:3001/user/update/${userId}`,
         userData,
         {
           headers: {
@@ -146,7 +128,6 @@ const UserEditForm = ({ userId, token, closeModal }: UserEditFormProps) => {
       closeModal(); // Cerrar el modal después de actualizar
     } catch (error: any) {
       if (error.response) {
-        closeModal();
         await Swal.fire({
           title: "¡Error!",
           text: "Error al actualizar el usuario, intentalo nuevamente",
@@ -209,30 +190,6 @@ const UserEditForm = ({ userId, token, closeModal }: UserEditFormProps) => {
           type="tel"
           name="phone"
           value={formData.phone}
-          onChange={handleChange}
-          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-        />
-      </div>
-      <div className="mb-4">
-        <label className="block text-gray-700" htmlFor="currentPassword">
-          Contraseña Actual
-        </label>
-        <input
-          type="password"
-          name="currentPassword"
-          value={formData.currentPassword}
-          onChange={handleChange}
-          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-        />
-      </div>
-      <div className="mb-4">
-        <label className="block text-gray-700" htmlFor="password">
-          Nueva Contraseña
-        </label>
-        <input
-          type="password"
-          name="password"
-          value={formData.password}
           onChange={handleChange}
           className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
         />
