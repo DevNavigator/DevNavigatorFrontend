@@ -532,7 +532,7 @@ const Dashboard = () => {
                   <div className="flex items-center">
                     <Button
                       onClick={() => handleActivateUser(user.id)}
-                      className="mr-2 px-3 bg-green-600 text-white hover:bg-white hover:text-green-600 hover:border hover:border-green-600 transition-all hover:scale-110 active:scale-95 ease-in-out duration-300"
+                      className="mr-2 px-3 bg-green-500 text-white hover:bg-white hover:text-green-500 hover:border hover:border-green-500 transition-all hover:scale-110 active:scale-95 ease-in-out duration-300"
                     >
                       <FaUserCheck className="w-6 h-6" />
                     </Button>
