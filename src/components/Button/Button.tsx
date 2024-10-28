@@ -1,4 +1,3 @@
-import { button } from 'framer-motion/client';
 
 interface IButton {
   children: React.ReactNode;
