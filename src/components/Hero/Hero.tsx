@@ -16,6 +16,7 @@ const Hero = () => {
             fill
             alt="Image"
             src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExOXBvZjhrMHk3bmZvc2d4c3pkdHl3a2t6bzA0ajI5dWE3czJreWttMCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/qgQUggAC3Pfv687qPC/giphy.gif"
+            unoptimized
           />
         </div>
       </div>
@@ -56,7 +57,7 @@ const Hero = () => {
           </div>
           <div className=" flex justify-center md:justify-normal items-center mt-4">
             <Link href="/courses">
-              <Button >Ver Oferta Académica</Button>
+              <Button>Ver Oferta Académica</Button>
             </Link>
           </div>
         </div>

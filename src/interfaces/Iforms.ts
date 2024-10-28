@@ -4,9 +4,9 @@ export interface ILoginForm {
 }
 
 export interface IOrder {
-  id: number;
-  status: string;
-  date: string;
+  userId: string;
+  //status: string;
+  status_sub?: boolean;
 }
 
 export interface IRegisterForm extends ILoginForm {
@@ -15,9 +15,18 @@ export interface IRegisterForm extends ILoginForm {
   phone: string;
   confirmPassword: string;
   userId?: number;
-  orders?: IOrder[];
+  //orders?: IOrder[];
 }
 
+// Mantiene la estructura de ISubscription
+export interface ISubscription {
+  end_sub: Date;
+  id: string;
+  start_sub: Date;
+  status_sub: boolean;
+}
+
+// Ajusta IUserSession para que incluya ISubscription como Subscription en user
 export interface IUserSession {
   success?: boolean;
   user: {
@@ -29,6 +38,8 @@ export interface IUserSession {
     imgProfile?: string;
     typeUser?: string;
     statusUser?: boolean;
+    status_sub?: boolean;
+    Subscription?: ISubscription | null; // Aquí, el campo Subscription de tipo ISubscription o null
   };
   token?: string;
 }

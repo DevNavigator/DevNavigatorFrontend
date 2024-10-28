@@ -20,8 +20,8 @@ const BuyButton = ({ course }: BuyButtonProps) => {
   const { addToCart, cart } = useContext(CartContext);
   const router = useRouter();
 
-  const handleBuy = () => {
-    if (!user?.login) {
+  const handleBuy: any = () => {
+    if (!user?.success) {
       router.push('/login');
     } else {
       if (!cart.some((p: ICourse) => p.id === course.id)) {
@@ -36,7 +36,7 @@ const BuyButton = ({ course }: BuyButtonProps) => {
           position: 'center',
         }).then((result) => {
           if (result.isConfirmed) {
-            router.push('/products');
+            router.push('/courses');
           }
         });
       } else {
@@ -50,7 +50,7 @@ const BuyButton = ({ course }: BuyButtonProps) => {
           position: 'center',
         }).then((result) => {
           if (result.isConfirmed) {
-            router.push('/products');
+            router.push('/courses');
           }
         });
       }
