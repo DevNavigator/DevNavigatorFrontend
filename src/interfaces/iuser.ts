@@ -8,5 +8,5 @@ export interface IUser {
   phone?: string;
   imgProfile?: string;
   statusUser?: boolean;
-  UserType?: UserType;
+  userType?: UserType;
 }
