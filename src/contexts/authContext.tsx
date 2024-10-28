@@ -1,8 +1,9 @@
-"use client";
-import { IUserSession } from "@/interfaces/Iforms";
-import { createContext, useEffect, useState } from "react";
-import Swal from "sweetalert2";
-import withReactContent from "sweetalert2-react-content";
+'use client';
+import { IUserSession } from '@/interfaces/Iforms';
+import { createContext, useEffect, useState } from 'react';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+import { useSession, signOut } from 'next-auth/react';
 
 const MySwal = withReactContent(Swal);
 
@@ -24,38 +25,40 @@ export const AuthContext = createContext<IAuthContextProps>({
 
 export const AuthProvider = ({ children }: IAuthProviderProps) => {
   const [user, setUser] = useState<IUserSession | null>(null);
+  const { data: session } = useSession();
 
   useEffect(() => {
-    if (user) {
-      localStorage.setItem("user", JSON.stringify({ user }));
+    if (user || session?.user) {
+      localStorage.setItem('user', JSON.stringify({ user, session }));
     }
-  }, [user]);
+  }, [user, session]);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && window.localStorage) {
-      const localUser = JSON.parse(localStorage.getItem("user")!);
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const localUser = JSON.parse(localStorage.getItem('user')!);
       setUser(localUser?.user);
     }
   }, []);
 
-  const logout = () => {
-    MySwal.fire({
-      title: "¿Deseas cerrar sesión?",
-      icon: "warning",
+  const logout = async () => {
+    const result = await MySwal.fire({
+      title: '¿Deseas cerrar sesión?',
+      icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: "Si",
-      cancelButtonText: "No",
+      confirmButtonText: 'Si',
+      cancelButtonText: 'No',
       backdrop: true,
       toast: true,
-      position: "center",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        MySwal.fire("Sesion cerrada", "", "success");
-        localStorage.removeItem("user");
-        setUser(null);
-        window.location.href = "/";
-      }
+      position: 'center',
     });
+
+    if (result.isConfirmed) {
+      await signOut({ redirect: false }); // No redirigir automáticamente
+      MySwal.fire('Sesión cerrada', '', 'success');
+      localStorage.removeItem('user');
+      setUser(null);
+      window.location.href = '/'; // Redirección manual
+    }
   };
 
   return (

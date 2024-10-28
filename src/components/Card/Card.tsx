@@ -27,6 +27,16 @@ const Card = ({ course }: ProductProps) => {
             {course.title}
           </h3>
           <p className="text-secondary text-base">
+            <span className="text-">Tipo de curso: </span>
+            {(course.type ?? '').charAt(0).toUpperCase() +
+              (course.type ?? '').slice(1)}
+          </p>
+          <p className="text-secondary text-base">
+            Dificultad:{' '}
+            {(course.difficulty ?? '').charAt(0).toUpperCase() +
+              (course.difficulty ?? '').slice(1)}
+          </p>
+          <p className="text-secondary text-base">
             Más Información {course.status_courses}
           </p>
         </div>
