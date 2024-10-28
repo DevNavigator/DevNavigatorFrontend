@@ -13,5 +13,5 @@ export interface UserData {
   password?: string;
   currentPassword?: string;
   statusUser?: boolean;
-  UserType?: UserType;
+  userType?: UserType;
 }
