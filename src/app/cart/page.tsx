@@ -7,7 +7,7 @@ import { CartContext } from '@/contexts/CartContext';
 import { ICourse } from '@/interfaces/Icourse';
 
 import { useRouter } from 'next/navigation';
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { FaShoppingCart, FaShoppingBag } from 'react-icons/fa';
 import {
   FaCircleCheck,
@@ -27,13 +27,31 @@ const Page = () => {
   const { user, setUser } = useContext(AuthContext);
   const router = useRouter();
   const { data: session } = useSession();
+  const [loading, setLoading] = useState(true);
 
   // Redirige a la página de inicio de sesión si el usuario no está autenticado
+  // useEffect(() => {
+  //   if (!user || (!session?.user || session?.user === null)) {
+  //     router.push('/login');
+  //   }
+  // }, [user, router]);
+
   useEffect(() => {
-    if (!user || !session?.user) {
-      router.push('/login');
+    if (user || session?.user) {
+      setLoading(false);
     }
-  }, [user, router]);
+  }, [user, session]);
+
+  if (loading) {
+    return <div>Cargando...</div>; // O algún spinner de carga
+  }
+
+  // useEffect(() => {
+  //   if (!user || !session?.user) {
+  //     router.push('/login');
+  //   }
+  // }, [user, router, session]);
+
 
   const handleRemove = (productId: number, productName: string) => {
     MySwal.fire({
@@ -179,7 +197,7 @@ const Page = () => {
                 </div>
               ))}
               <div className="bg-gray-50 p-4 rounded-lg flex flex-col sm:flex-row items-center justify-between">
-                <div className="flex flex-col sm:flex-row items-center mb-4 sm:mb-0">
+                {/* <div className="flex flex-col sm:flex-row items-center mb-4 sm:mb-0">
                   <div className="flex items-center mr-8 mb-2 sm:mb-0">
                     <FaShoppingBag className="text-3xl mr-4" />
                     <span className="font-bold text-secondary">
@@ -189,7 +207,7 @@ const Page = () => {
                       </span>
                     </span>
                   </div>
-                </div>
+                </div> */}
                 <div className="flex space-x-4">
                   <Button
                     onClick={handleOrder}
