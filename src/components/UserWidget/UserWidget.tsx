@@ -11,14 +11,16 @@ import { FaUserGraduate } from 'react-icons/fa6';
 import { CartContext } from '@/contexts/CartContext';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
+import { useSession, signOut } from 'next-auth/react';
 
 const MySwal = withReactContent(Swal);
 
 const UserWidget = () => {
   const { user, logout } = useContext(AuthContext);
   const { cart } = useContext(CartContext);
+  const { data: session } = useSession();
 
-  if (user?.success) {
+  if (user?.success || session?.user) {
     return (
       <div className="flex justify-center items-center gap-4 ">
         <div className="hover:bg-secondary hover:text-white rounded-lg p-2">
@@ -42,7 +44,10 @@ const UserWidget = () => {
           </Link>
         </div>
         <div className="hover:bg-secondary hover:text-white rounded-lg p-2">
-          <button onClick={logout}>
+          <button
+            // onClick={logout}
+            onClick={logout}
+          >
             <Link href="/">
               <FaSignInAlt />
             </Link>
@@ -54,11 +59,11 @@ const UserWidget = () => {
 
   return (
     <div className="flex justify-center items-center gap-4 ">
-        <Link href="/login">
-      <div className="hover:bg-secondary hover:text-white rounded-lg p-2">
+      <Link href="/login">
+        <div className="hover:bg-secondary hover:text-white rounded-lg p-2">
           <FaRegUser />
-      </div>
-        </Link>
+        </div>
+      </Link>
     </div>
   );
 };

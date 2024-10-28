@@ -9,7 +9,8 @@ import { useRouter } from 'next/navigation';
 import { AuthContext } from '@/contexts/authContext';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-import { FaCircleXmark, FaCircleCheck } from 'react-icons/fa6';// Para mostrar iconos
+import { FaCircleXmark, FaCircleCheck } from 'react-icons/fa6'; // Para mostrar iconos
+import { useSession, signOut } from 'next-auth/react';
 
 const MySwal = withReactContent(Swal);
 
@@ -22,16 +23,20 @@ const LoginForm = () => {
   const [errors, setErrors] = useState(initialData);
   const [dirty, setDirty] = useState(initialDirty);
   const [valid, setValid] = useState(initialDirty); // Nuevo estado para validez
+  const { data: session } = useSession();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     const response = await loginService(apiUrl + '/auth/signIn', data);
 
-    if (response.success) {
+    if (response.success || session?.user || session?.user === null) {
       //alert("Login correcto");
       MySwal.fire({
-        title: `${response.user.name.toLocaleUpperCase()} ¡Bienvenido a DevNavigator!`,
+        title: `${
+          response.user.name.toLocaleUpperCase() ||
+          session?.user?.name?.toLocaleUpperCase()
+        } ¡Bienvenido a DevNavigator!`,
         icon: 'success',
         showConfirmButton: false,
         timer: 3000,
@@ -73,20 +78,16 @@ const LoginForm = () => {
   }, [data]);
   useEffect(() => {
     setErrors({
-    
       email: validateEmail(data.email),
-      password: validatePassword(data.password),    
-     
+      password: validatePassword(data.password),
     });
 
     // Actualiza validez basada en errores
-    setValid({    
+    setValid({
       email: !validateEmail(data.email),
-      password: !validatePassword(data.password),  
-   
+      password: !validatePassword(data.password),
     });
   }, [data]);
-
 
   return (
     <form
@@ -119,7 +120,7 @@ const LoginForm = () => {
           >
             {valid.email ? (
               <>
-                <FaCircleCheck className="h-4 w-4 mr-1" /> 
+                <FaCircleCheck className="h-4 w-4 mr-1" />
               </>
             ) : (
               <>

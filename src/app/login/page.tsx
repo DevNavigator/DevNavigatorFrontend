@@ -1,6 +1,10 @@
-import Button from "@/components/Button/Button";
-import LoginForm from "@/components/LoginForm/LoginForm";
-import ButtonGoogle from "@/components/ButtonGoogle/ButtonGoogle";
+import Button from '@/components/Button/Button';
+import ButtonGoogle from '@/components/ButtonGoogle/ButtonGoogle';
+import LoginForm from '@/components/LoginForm/LoginForm';
+import { signIn, useSession } from 'next-auth/react';
+
+// import { LoginButton } from "@/components/LoginButton/LoginButton";
+
 const page = () => {
   return (
     <div className={`container !mt-24`}>

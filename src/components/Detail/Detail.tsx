@@ -5,8 +5,8 @@ import BuyButton from '../BuyButton/BuyButton';
 
 const Detail = (course: ICourse) => {
   return (
-    <div className="container grid grid-cols-1 justify-center !mt-20 ">
-      <h1 className="text-center">{course.title}</h1>
+    <div className="container grid grid-cols-1 justify-center !mt-20 bg-primary border-2 text-secondary rounded-3xl p-4 shadow-lg shadow-gray-700/40 ">
+      <h1 className="text-center mt-5">{course.title}</h1>
       <div className="mx-auto mb-16 ">
         <Image
           className="mix-blend-multiply object-contain mx-auto rounded-2xl mt-5"
@@ -18,9 +18,30 @@ const Detail = (course: ICourse) => {
 
         <div className=" md:w-[800px]">
           {/* <p className="text-2xl font-bold text-end">{course.title}</p> */}
-          <p className="py-4 text-xl text-center">{course.description}</p>
-          <div className="text-center ">       
-            <BuyButton course={course} />
+          <p className="py-7 font-bold text-xl text-center">
+            {course.description}
+          </p>
+          <div className="flex flex-col  justify-between items-center ">
+            <p className="py-1 text-xl text-center">
+              Tipo de Curso:{' '}
+              {(course.type ?? '').charAt(0).toUpperCase() +
+                (course.type ?? '').slice(1)}
+            </p>
+            <p className="py-1 text-xl text-center">
+              {' '}
+              Dificultad:{' '}
+              {(course.difficulty ?? '').charAt(0).toUpperCase() +
+                (course.difficulty ?? '').slice(1)}
+            </p>
+            <p className="py-1 text-xl text-center">
+              Duración : {course.duration} horas
+            </p>
+            <p className="py-1 text-xl text-center">
+              Instructor: {course.instructor}
+            </p>
+            <div className="text-center ">
+              <BuyButton course={course} />
+            </div>
           </div>
         </div>
       </div>
@@ -29,35 +50,3 @@ const Detail = (course: ICourse) => {
 };
 
 export default Detail;
-
-// import { ICourse } from '@/interfaces/Icourse';
-// import Image from 'next/image';
-// import BuyButton from '../BuyButton/BuyButton';
-
-// const Detail = (course: ICourse) => {
-//   return (
-//     <div className="container !mt-24">
-//       <h1>{course.title}</h1>
-//       <div className="flex flex-col gap-24 mb-16 md:flex-row">
-//         <Image
-//           className="mix-blend-multiply object-contain rounded mt-5"
-//           src={course.image_url}
-//           alt={course.image_url}
-//           width={320}
-//           height={320}
-//         />
-
-//         <div className="flex flex-col gap-4 md:w-[800px]">
-//           <p className="text-2xl font-bold text-end">U$S {product.name}</p>
-//           <div className="flex justify-between items-center ">
-//             <p className="text-end font-bold pr-1 ">{} uni. En stock</p>
-//             <BuyButton corse={} />
-//           </div>
-//           <p className="py-4 text-xl">{product.description}</p>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default Detail;

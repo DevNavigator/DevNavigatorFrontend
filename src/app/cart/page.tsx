@@ -3,11 +3,11 @@
 import Button from '@/components/Button/Button';
 import { AuthContext } from '@/contexts/authContext';
 import { CartContext } from '@/contexts/CartContext';
-import { IOrder } from '@/interfaces/Iforms';
+// import { IOrderSuscription } from '@/interfaces/Iforms';
 import { ICourse } from '@/interfaces/Icourse';
 
 import { useRouter } from 'next/navigation';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect } from 'react';
 import { FaShoppingCart, FaShoppingBag } from 'react-icons/fa';
 import {
   FaCircleCheck,
@@ -15,93 +15,102 @@ import {
   FaDollarSign,
   FaRegTrashCan,
 } from 'react-icons/fa6';
-import styles from './Cart.module.css'
+import styles from './Cart.module.css';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-import { course } from '@/mock/products';
+import { useSession, signOut } from 'next-auth/react';
 
 const MySwal = withReactContent(Swal);
 
 const Page = () => {
   const { cart, clearCart, removeFromCart } = useContext(CartContext);
-  const { user } = useContext(AuthContext);
+  const { user, setUser } = useContext(AuthContext);
   const router = useRouter();
+  const { data: session } = useSession();
+
   // Redirige a la página de inicio de sesión si el usuario no está autenticado
   useEffect(() => {
-    if (!user) {
+    if (!user || !session?.user) {
       router.push('/login');
     }
   }, [user, router]);
 
-  const totalPrice = cart.reduce((total, product) => total + product.price, 0);
-  const handleRemove = (productId: number, ProducName: string) => {
-      MySwal.fire({
-        title: `Estas seguro que quieres eliminar ${ProducName}? `,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Aceptar',
-        cancelButtonText: 'Cancelar',
-        backdrop: true,
-        toast: true,
-        position: 'center',
-      }).then((result) => {
-        if (result.isConfirmed) {
-          removeFromCart(productId, ProducName);
-        }
-      });
-    
+  const handleRemove = (productId: number, productName: string) => {
+    MySwal.fire({
+      title: `¿Estás seguro que quieres eliminar ${productName}?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Aceptar',
+      cancelButtonText: 'Cancelar',
+      backdrop: true,
+      toast: true,
+      position: 'center',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        removeFromCart(productId, productName);
+      }
+    });
   };
+
   const handleClearCart = () => {
-     MySwal.fire({
-       title: `Estas seguro que quieres vaciar el carrito? `,
-       icon: 'warning',
-       showCancelButton: true,
-       confirmButtonColor: '#3085d6',
-       cancelButtonColor: '#d33',
-       confirmButtonText: 'Aceptar',
-       cancelButtonText: 'Cancelar',
-       backdrop: true,
-       toast: true,
-       position: 'center',
-     }).then((result) => {
-       if (result.isConfirmed) {
-         clearCart();         
-       }
-     });
+    MySwal.fire({
+      title: `¿Estás seguro que quieres vaciar el carrito?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Aceptar',
+      cancelButtonText: 'Cancelar',
+      backdrop: true,
+      toast: true,
+      position: 'center',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        clearCart();
+      }
+    });
   };
 
   const handleOrder = () => {
-    const url =
-      process.env.NEXT_PUBLIC_API_URL + '/orders' ||
-      'http://localhost:3001/orders';
-    const products = cart.map((course: ICourse) => course.id);
+    const userId = user?.user.id;
+    const url = `http://localhost:3001/subscriptions/${userId}`;
+    console.log(user?.token);
 
     fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: user?.token as string,
+        Authorization: `Bearer ${user?.token}`,
       },
       body: JSON.stringify({
-        userId: user?.user.userId,
-        course: course,
+        userId,
       }),
     })
       .then((res) => res.json())
       .then((json) => {
         console.log(json);
-        clearCart();
-        const userWithNewOrder = user;
-        userWithNewOrder?.user.orders?.push({
-          id: json.id,
-          date: json.date,
-        } as IOrder);
-        //     alert('Success!!');
-       // alert('Order placed successfully!');
+        const subscriptionId = json.status_sub;
+        console.log(subscriptionId);
+
+        // Actualiza el estado del usuario con la nueva suscripción
+        if (subscriptionId) {
+          setUser({
+            ...user,
+            user: {
+              ...user?.user,
+              Subscription: {
+                id: json.id,
+                start_sub: json.start_sub,
+                end_sub: json.end_sub,
+                status_sub: json.status_sub,
+              },
+            },
+          });
+        }
         MySwal.fire({
-          title: '¡Pedido realizado con éxito!',
+          title: '¡Te has suscripto con éxito!',
           icon: 'success',
           confirmButtonText: 'Aceptar',
           backdrop: true,
@@ -111,18 +120,18 @@ const Page = () => {
       })
       .catch((error) => {
         console.error('Error placing order:', error);
-       //alert('There was an error placing your order. Please try again.');
-          MySwal.fire({
-            title:
-              'Se ha producido un error al realizar el pedido. Por favor, inténtelo de nuevo.',
-            icon: 'error',
-            confirmButtonText: 'Aceptar',
-            backdrop: true,
-            toast: true,
-            position: 'center',
-          });
+        MySwal.fire({
+          title:
+            'Se ha producido un error al realizar el pedido. Por favor, inténtelo de nuevo.',
+          icon: 'error',
+          confirmButtonText: 'Aceptar',
+          backdrop: true,
+          toast: true,
+          position: 'center',
+        });
       });
   };
+
   return (
     <div
       className="container"
@@ -137,7 +146,7 @@ const Page = () => {
           {cart.length === 0 ? (
             <div className="text-center text-secondary py-8">
               <FaShoppingCart className="mx-auto mb-4 text-5xl" />
-              <p className="text-xl"> Tú carrito esta vacío</p>
+              <p className="text-xl">Tu carrito está vacío</p>
               <Button
                 onClick={() => router.push('/products')}
                 className="mt-4"
@@ -159,11 +168,8 @@ const Page = () => {
                     </span>
                   </div>
                   <div className="flex items-center">
-                    <span className="text-lg text-secondary font-medium">
-                      U$S {course.id.toFixed(2)}
-                    </span>
                     <Button
-                      onClick={() => handleRemove(course.id, course.title)}
+                      // onClick={() => handleRemove(course.id, course.title)}
                       className={styles.buttonClearUnit}
                       aria-label={`Remove ${course.title} from cart`}
                     >
@@ -172,7 +178,7 @@ const Page = () => {
                   </div>
                 </div>
               ))}
-              <div className=" bg-gray-50 p-4 rounded-lg flex flex-col sm:flex-row items-center justify-between">
+              <div className="bg-gray-50 p-4 rounded-lg flex flex-col sm:flex-row items-center justify-between">
                 <div className="flex flex-col sm:flex-row items-center mb-4 sm:mb-0">
                   <div className="flex items-center mr-8 mb-2 sm:mb-0">
                     <FaShoppingBag className="text-3xl mr-4" />
@@ -180,17 +186,6 @@ const Page = () => {
                       Cantidad de Productos:{' '}
                       <span className="text-secondary/70 font-medium">
                         {cart.length}
-                      </span>
-                    </span>
-                  </div>
-                  <div className="flex items-center">
-                    <FaDollarSign className="text-secondary mr-2 text-lg" />
-                    <span className="text-lg text-secondary font-bold">
-                      Precio Total:{' '}
-                      <span className="text-secondary/70 font-medium">
-                        {' '}
-                        U$S
-                        {totalPrice.toFixed(2)}
                       </span>
                     </span>
                   </div>
