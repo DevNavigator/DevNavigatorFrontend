@@ -13,6 +13,9 @@ import { IUser } from "@/interfaces/iuser";
 import { UserType } from "@/interfaces/userData";
 import ChangePasswordForm from "./ChangePasswordForm ";
 import ChangeUserTypeModal from "./admin dashboard/changeUserTypeModal";
+import { FaUserCheck, FaUserEdit } from "react-icons/fa";
+import { PiUserSwitchFill } from "react-icons/pi";
+import { MdDeleteForever } from "react-icons/md";
 
 interface JwtPayload {
   id: string;
@@ -201,9 +204,9 @@ const Dashboard = () => {
 
   const handleDeleteUser = (userId: string) => async () => {
     const url = "http://localhost:3001";
-    const userToDelete = allUsers.find(user => user.id === userId);
+    const userToDelete = allUsers.find((user) => user.id === userId);
 
-    if (userToDelete?.UserType === "SUPER_ADMIN") {
+    if (userToDelete?.userType === "SUPER_ADMIN") {
       Swal.fire({
         icon: "error",
         title: "Acción no permitida",
@@ -305,7 +308,8 @@ const Dashboard = () => {
         <div className="flex justify-center items-center mb-4 w-full">
           <div
             className="relative w-48 h-48 rounded-full overflow-hidden shadow-lg cursor-pointer flex justify-center items-center"
-            onClick={() => fileInputRef.current?.click()}>
+            onClick={() => fileInputRef.current?.click()}
+          >
             <Image
               src={user?.user.imgProfile || "/assets/DevNavigator.png"}
               alt="Foto de Perfil"
@@ -358,7 +362,8 @@ const Dashboard = () => {
             setShowEditPanel(false);
             setShowUsersPanel(false);
           }}
-          className="mt-4 w-full">
+          className="mt-4 w-full"
+        >
           Cambiar Contraseña
         </Button>
 
@@ -372,7 +377,8 @@ const Dashboard = () => {
                 setShowEditPanel(false);
                 setShowChangePasswordPanel(false);
               }}
-              className="w-full mb-2">
+              className="w-full mb-2"
+            >
               Ver Usuarios Activos
             </Button>
             <Button
@@ -383,7 +389,8 @@ const Dashboard = () => {
                 setShowEditPanel(false);
                 setShowChangePasswordPanel(false);
               }}
-              className="w-full mb-4">
+              className="w-full mb-4"
+            >
               Ver Usuarios Inactivos
             </Button>
           </div>
@@ -391,7 +398,8 @@ const Dashboard = () => {
 
         <button
           onClick={handleDeleteUser(user?.user.id)}
-          className="mt-4 w-full bg-red-500 text-white p-2 px-3 rounded-3xl hover:bg-primary hover:text-red-500 hover:border hover:border-red-500 transition-all hover:scale-110 active:scale-95 ease-in-out duration-300">
+          className="mt-4 w-full bg-red-500 text-white p-2 px-3 rounded-3xl hover:bg-primary hover:text-red-500 hover:border hover:border-red-500 transition-all hover:scale-110 active:scale-95 ease-in-out duration-300"
+        >
           Darse de baja
         </button>
       </div>
@@ -428,40 +436,59 @@ const Dashboard = () => {
 
             {showActiveUsers ? (
               allUsers.length > 0 ? (
-                allUsers.map(user => (
+                allUsers.map((user) => (
                   <div
                     key={user.id}
-                    className="flex justify-between items-center mb-4">
+                    className="flex justify-between items-center mb-4"
+                  >
                     <span className="flex-grow flex items-center">
-                      <Image
-                        src={user.imgProfile || "/assets/DevNavigator.png"} // Ruta de la imagen de perfil
-                        alt={`${user.name}'s profile`}
-                        width={40} // Ajusta el tamaño según sea necesario
-                        height={40} // Ajusta el tamaño según sea necesario
-                        className="rounded-full mr-2" // Estilo para que sea redonda
-                      />
-                      <div className="font-bold">{user.email}</div>{" "}
-                      {/* Muestra el correo electrónico */}
-                      <div>{user.UserType}</div>{" "}
-                      {/* Muestra el tipo de usuario */}
+                      {" "}
+                      {/* Flexbox en fila para alinear imagen y texto */}
+                      <div className="w-10 h-10 overflow-hidden rounded-full border-2 border-gray-300 shadow-lg mr-2">
+                        {" "}
+                        {/* Contenedor de la imagen con margen derecho */}
+                        <Image
+                          src={user.imgProfile || "/DevNavigator.png"} // Ruta de la imagen de perfil
+                          alt={`${user.name}'s profile`}
+                          width={40} // Ajusta el tamaño según sea necesario
+                          height={40} // Ajusta el tamaño según sea necesario
+                          className="object-cover w-full h-full" // Asegura que la imagen llene el contenedor
+                        />
+                      </div>
+                      <div className="flex-grow text-left">
+                        {" "}
+                        {/* Flex-grow para que el texto use el espacio disponible */}
+                        <div className="font-bold text-gray-800">
+                          {user.email}
+                        </div>{" "}
+                        {/* Correo electrónico */}
+                        <div className="text-sm text-gray-600">
+                          {user.userType}
+                        </div>{" "}
+                        {/* Tipo de usuario */}
+                      </div>
                     </span>
+
                     <div className="flex items-center">
                       <Button
                         onClick={handleEditUser(user.id)}
-                        className="mr-2 px-3">
-                        Editar
+                        className="mr-2 px-3"
+                      >
+                        <FaUserEdit className="w-6 h-6" />
                       </Button>
                       <Button
                         onClick={() =>
-                          handleChangeUserType(user.id, user.UserType)
+                          handleChangeUserType(user.id, user.userType)
                         }
-                        className="mr-2 px-3  bg-slate-600 text-white">
-                        Cambiar Tipo usuario
+                        className="mr-2 px-3  bg-slate-600 text-white"
+                      >
+                        <PiUserSwitchFill className="w-6 h-6" />
                       </Button>
                       <button
                         onClick={handleDeleteUser(user.id)}
-                        className="bg-red-500 text-white p-2 px-3 rounded-3xl hover:bg-primary hover:text-red-500 hover:border hover:border-red-500 transition-all hover:scale-110 active:scale-95 ease-in-out duration-300">
-                        Dar de baja
+                        className="bg-red-500 text-white p-2 px-3 rounded-3xl hover:bg-primary hover:text-red-500 hover:border hover:border-red-500 transition-all hover:scale-110 active:scale-95 ease-in-out duration-300"
+                      >
+                        <MdDeleteForever className="w-8 h-6" />
                       </button>
                     </div>
                   </div>
@@ -470,33 +497,50 @@ const Dashboard = () => {
                 <div>No hay usuarios activos.</div>
               )
             ) : inactiveUsers.length > 0 ? (
-              inactiveUsers.map(user => (
+              inactiveUsers.map((user) => (
                 <div
                   key={user.id}
-                  className="flex justify-between items-center mb-4">
+                  className="flex justify-between items-center mb-4"
+                >
                   <span className="flex-grow flex items-center">
-                    <Image
-                      src={user.imgProfile || "/assets/DevNavigator.png"} // Ruta de la imagen de perfil
-                      alt={`${user.name}'s profile`}
-                      width={40} // Ajusta el tamaño según sea necesario
-                      height={40} // Ajusta el tamaño según sea necesario
-                      className="rounded-full mr-2" // Estilo para que sea redonda
-                    />
-                    <div className="font-bold">{user.name}</div>{" "}
-                    {/* Muestra el nombre */}
-                    <div>{user.UserType}</div>{" "}
-                    {/* Muestra el tipo de usuario */}
+                    {" "}
+                    {/* Flexbox en fila para alinear imagen y texto */}
+                    <div className="w-10 h-10 overflow-hidden rounded-full border-2 border-gray-300 shadow-lg mr-2">
+                      {" "}
+                      {/* Contenedor de la imagen con margen derecho */}
+                      <Image
+                        src={user.imgProfile || "/DevNavigator.png"} // Ruta de la imagen de perfil
+                        alt={`${user.name}'s profile`}
+                        width={40} // Ajusta el tamaño según sea necesario
+                        height={40} // Ajusta el tamaño según sea necesario
+                        className="object-cover w-full h-full" // Asegura que la imagen llene el contenedor
+                      />
+                    </div>
+                    <div className="flex-grow text-left">
+                      {" "}
+                      {/* Flex-grow para que el texto use el espacio disponible */}
+                      <div className="font-bold text-gray-800">
+                        {user.email}
+                      </div>{" "}
+                      {/* Correo electrónico */}
+                      <div className="text-sm text-gray-600">
+                        {user.userType}
+                      </div>{" "}
+                      {/* Tipo de usuario */}
+                    </div>
                   </span>
                   <div className="flex items-center">
                     <Button
                       onClick={() => handleActivateUser(user.id)}
-                      className="mr-2 px-3 bg-green-500 text-white">
-                      Activar Usuario
+                      className="mr-2 px-3 bg-green-600 text-white hover:bg-white hover:text-green-600 hover:border hover:border-green-600 transition-all hover:scale-110 active:scale-95 ease-in-out duration-300"
+                    >
+                      <FaUserCheck className="w-6 h-6" />
                     </Button>
                     <Button
                       onClick={handleEditUser(user.id)}
-                      className="mr-2 px-3">
-                      Editar
+                      className="mr-2 px-3"
+                    >
+                      <FaUserEdit className="w-6 h-6" />
                     </Button>
                   </div>
                 </div>
