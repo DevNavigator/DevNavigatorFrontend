@@ -91,11 +91,25 @@ const Page = () => {
     });
   };
 
-  const handleOrder = () => {
-    const userId = user?.user.id;
-    const url = `http://localhost:3001/subscriptions/${userId}`;
-    console.log(user?.token);
+const handleOrder = async () => {
+  const userId = user?.user.id;
+  const url = `http://localhost:3001/subscriptions/${userId}`;
+  console.log(user?.token);
 
+  // Preguntar al usuario si desea confirmar la suscripción
+  const result = await MySwal.fire({
+    title: '¿Deseas abonar la suscripción?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sí',
+    cancelButtonText: 'No',
+    backdrop: true,
+    toast: false, // Cambiado a false para que no sea un toast
+    position: 'center',
+  });
+
+  // Si el usuario confirma, proceder con la solicitud de suscripción
+  if (result.isConfirmed) {
     fetch(url, {
       method: 'POST',
       headers: {
@@ -135,20 +149,83 @@ const Page = () => {
           toast: true,
           position: 'center',
         });
+        // hacer un useRouter para redirigir al usuario a la página del curso
+        //? router.back();
+        // router.push('/courses');
       })
       .catch((error) => {
-        console.error('Error placing order:', error);
+        console.error('Error al procesar la suscripción:', error);
         MySwal.fire({
-          title:
-            'Se ha producido un error al realizar el pedido. Por favor, inténtelo de nuevo.',
+          title: 'Error',
+          text: 'No se pudo procesar la suscripción.',
           icon: 'error',
           confirmButtonText: 'Aceptar',
           backdrop: true,
-          toast: true,
           position: 'center',
         });
       });
-  };
+  }
+};
+
+
+  // const handleOrder = () => {
+  //   const userId = user?.user.id;
+  //   const url = `http://localhost:3001/subscriptions/${userId}`;
+  //   console.log(user?.token);
+
+  //   fetch(url, {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //       Authorization: `Bearer ${user?.token}`,
+  //     },
+  //     body: JSON.stringify({
+  //       userId,
+  //     }),
+  //   })
+  //     .then((res) => res.json())
+  //     .then((json) => {
+  //       console.log(json);
+  //       const subscriptionId = json.status_sub;
+  //       console.log(subscriptionId);
+
+  //       // Actualiza el estado del usuario con la nueva suscripción
+  //       if (subscriptionId) {
+  //         setUser({
+  //           ...user,
+  //           user: {
+  //             ...user?.user,
+  //             Subscription: {
+  //               id: json.id,
+  //               start_sub: json.start_sub,
+  //               end_sub: json.end_sub,
+  //               status_sub: json.status_sub,
+  //             },
+  //           },
+  //         });
+  //       }
+  //       MySwal.fire({
+  //         title: '¡Te has suscripto con éxito!',
+  //         icon: 'success',
+  //         confirmButtonText: 'Aceptar',
+  //         backdrop: true,
+  //         toast: true,
+  //         position: 'center',
+  //       });
+  //     })
+  //     .catch((error) => {
+  //       console.error('Error placing order:', error);
+  //       MySwal.fire({
+  //         title:
+  //           'Se ha producido un error al realizar el pedido. Por favor, inténtelo de nuevo.',
+  //         icon: 'error',
+  //         confirmButtonText: 'Aceptar',
+  //         backdrop: true,
+  //         toast: true,
+  //         position: 'center',
+  //       });
+  //     });
+  // };
 
   return (
     <div
@@ -182,7 +259,7 @@ const Page = () => {
                   <div className="flex items-center">
                     <FaShoppingBag className="text-3xl mr-4" />
                     <span className="text-lg text-secondary font-medium">
-                      {course.title}
+                      Suscribite para iniciar el curso {course.title}
                     </span>
                   </div>
                   <div className="flex items-center">
@@ -215,7 +292,7 @@ const Page = () => {
                     className={styles.buttonFinish}
                   >
                     <FaCircleCheck className="text-lg mr-2" />
-                    Finalizar Orden
+                    Abonar Suscripcion
                   </Button>
                   <Button
                     className={styles.buttonClearCart}
