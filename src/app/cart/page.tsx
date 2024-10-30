@@ -53,7 +53,7 @@ const Page = () => {
   // }, [user, router, session]);
 
 
-  const handleRemove = (productId: number, productName: string) => {
+  const handleRemove = (productId: string, productName: string) => {
     MySwal.fire({
       title: `¿Estás seguro que quieres eliminar ${productName}?`,
       icon: 'warning',
@@ -94,7 +94,7 @@ const Page = () => {
 const handleOrder = async () => {
   const userId = user?.user.id;
   const url = `http://localhost:3001/subscriptions/${userId}`;
-  console.log(user?.token);
+ // console.log(user?.token);
 
   // Preguntar al usuario si desea confirmar la suscripción
   const result = await MySwal.fire({
@@ -118,6 +118,8 @@ const handleOrder = async () => {
       },
       body: JSON.stringify({
         userId,
+        status_sub: true,
+        typeSubscription:'MENSUAL',
       }),
     })
       .then((res) => res.json())
@@ -141,7 +143,7 @@ const handleOrder = async () => {
             },
           });
         }
-        MySwal.fire({
+       MySwal.fire({
           title: '¡Te has suscripto con éxito!',
           icon: 'success',
           confirmButtonText: 'Aceptar',
@@ -150,8 +152,9 @@ const handleOrder = async () => {
           position: 'center',
         });
         // hacer un useRouter para redirigir al usuario a la página del curso
-        //? router.back();
-        // router.push('/courses');
+         clearCart();
+       router.back();
+        //router.push('/courses');
       })
       .catch((error) => {
         console.error('Error al procesar la suscripción:', error);
@@ -233,20 +236,27 @@ const handleOrder = async () => {
       style={{ marginTop: '5rem' }}
     >
       <div className="max-w-4xl mt-16 mb-16 mx-auto bg-primary rounded-xl shadow-lg overflow-hidden ">
-        <div className="bg-primary p-6 text-secondary flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-secondary">Carrito</h1>
-          <FaShoppingCart className="text-3xl" />
+        <div className="bg-primary p-6 text-secondary flex items-center justify-center">
+          <h1 className="text-3xl font-bold text-secondary text-center">Suscríbete a Dev {'</>'} Navigator</h1>
+          {/* <p>{session?.user?.name ?? 'Unknown'}</p>
+          <p>{session?.user?.email ?? 'Unknown'}</p>
+          <img
+            src={session?.user?.image ?? ''}
+            alt=""
+          /> */}
+
+          {/* <FaShoppingCart className="text-3xl" /> */}
         </div>
         <div className="p-6">
           {cart.length === 0 ? (
             <div className="text-center text-secondary py-8">
               <FaShoppingCart className="mx-auto mb-4 text-5xl" />
-              <p className="text-xl">Tu carrito está vacío</p>
+              <p className="text-xl">No hay cursos en el carrito</p>
               <Button
-                onClick={() => router.push('/products')}
+                onClick={() => router.push('/courses')}
                 className="mt-4"
               >
-                Ir a la tienda
+                Ir a cursos
               </Button>
             </div>
           ) : (
@@ -264,7 +274,7 @@ const handleOrder = async () => {
                   </div>
                   <div className="flex items-center">
                     <Button
-                      // onClick={() => handleRemove(course.id, course.title)}
+                      onClick={() => handleRemove(course.id, course.title)}
                       className={styles.buttonClearUnit}
                       aria-label={`Remove ${course.title} from cart`}
                     >
