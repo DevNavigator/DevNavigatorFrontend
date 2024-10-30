@@ -49,7 +49,7 @@ const BuyButton = ({ course }: BuyButtonProps) => {
         position: 'center',
       }).then((result) => {
         if (result.isConfirmed) {
-          router.push('/courses');
+          router.push('/cart');
         }
       });
     } else {
