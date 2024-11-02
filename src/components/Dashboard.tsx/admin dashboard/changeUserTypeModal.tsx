@@ -69,5 +69,5 @@ const ChangeUserTypeModal = ({
     </div>
   );
 };
-
+// 
 export default ChangeUserTypeModal;
