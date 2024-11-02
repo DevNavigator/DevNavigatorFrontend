@@ -347,9 +347,11 @@ const Dashboard = () => {
         </div>
 
         {file && (
-          <Button onClick={handleUpload} disabled={uploading} className="mb-4">
-            {uploading ? "Cargando..." : "Subir"}
-          </Button>
+          <div className="flex justify-center items-center w-full h-full">
+            <Button onClick={handleUpload} disabled={uploading} className="m-4">
+              {uploading ? "Cargando..." : "Subir"}
+            </Button>
+          </div>
         )}
 
         <input
