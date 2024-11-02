@@ -29,7 +29,7 @@ export interface ISubscription {
 // Ajusta IUserSession para que incluya ISubscription como Subscription en user
 export interface IUserSession {
   success?: boolean;
-  user: {
+  userPayload: {
     id?: string;
     name?: string;
     email?: string;
@@ -40,6 +40,38 @@ export interface IUserSession {
     statusUser?: boolean;
     status_sub?: boolean;
     Subscription?: ISubscription | null; // Aquí, el campo Subscription de tipo ISubscription o null
+  };
+  token?: string;
+}
+
+export interface IUserLogin {
+  success?: boolean;
+  userPayload: {
+    id?: string;
+    email?: string;
+    address?: string | null;
+    phone?: string | null;
+    imgProfile?: string;
+    typeUser?: string;
+    statusUser?: boolean;
+    status_sub?: boolean;
+  };
+  token?: string;
+}
+
+export interface IUserNavigator {
+  success?: boolean;
+  userPayload?: {
+    id?: string | null;
+    name?: string | null;
+    email?: string | null;
+    address?: string | null;
+    phone?: string | null;
+    imgProfile?: string | null;
+    typeUser?: string | null;
+    statusUser?: boolean | null;
+    status_sub?: boolean | null;
+    Subscription?: ISubscription | null;
   };
   token?: string;
 }

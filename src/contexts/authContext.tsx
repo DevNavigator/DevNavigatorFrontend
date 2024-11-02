@@ -1,9 +1,11 @@
-'use client';
-import { IUserSession } from '@/interfaces/Iforms';
-import { createContext, useEffect, useState } from 'react';
-import Swal from 'sweetalert2';
-import withReactContent from 'sweetalert2-react-content';
-import { useSession, signOut } from 'next-auth/react';
+"use client";
+import { IUserLogin, IUserSession, IUserNavigator } from "@/interfaces/Iforms";
+import { createContext, useEffect, useState, useRef } from "react";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+import { useSession, signOut } from "next-auth/react";
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 
 const MySwal = withReactContent(Swal);
 
@@ -12,57 +14,171 @@ interface IAuthProviderProps {
 }
 
 interface IAuthContextProps {
-  user: IUserSession | null;
-  setUser: (user: IUserSession | null) => void;
+  user: IUserNavigator | null;
+  userExternal: IUserNavigator | null;
+  setUser: (user: IUserNavigator | null) => void;
+  setUserExternal: (user: IUserNavigator | null) => void;
   logout: () => void;
 }
 
 export const AuthContext = createContext<IAuthContextProps>({
   user: null,
+  userExternal: null,
   setUser: () => {},
+  setUserExternal: () => {},
   logout: () => {},
 });
 
 export const AuthProvider = ({ children }: IAuthProviderProps) => {
-  const [user, setUser] = useState<IUserSession | null>(null);
+  const [user, setUser] = useState<IUserNavigator | null>(null);
+  const [userExternal, setUserExternal] = useState<IUserNavigator | null>(null);
   const { data: session } = useSession();
+  const userCreatedRef = useRef(false);
+
+  const createUserExternal = async () => {
+    const url = "http://localhost:3001";
+
+    if (session?.user && !userCreatedRef.current) {
+      userCreatedRef.current = true;
+
+      const existingUser = JSON.parse(
+        sessionStorage.getItem("userDevNavigator")!
+      );
+      if (!existingUser) {
+        const response = await axios.post(`${url}/auth/create-user`, {
+          email: session.user.email,
+          name: session.user.name,
+          imgProfile: session.user.image,
+        });
+
+        if (response.data) {
+          sessionStorage.setItem(
+            "userDevNavigator",
+            JSON.stringify(response.data)
+          );
+          setUserExternal(response.data);
+        }
+      }
+    }
+  };
+
+  const checkTokenExpiration = () => {
+    // Chequeo para el usuario externo
+    const userDevNavigator = JSON.parse(
+      sessionStorage.getItem("userDevNavigator")!
+    );
+    const tokenExternal = userDevNavigator?.token;
+
+    if (tokenExternal) {
+      const decodedExternal: any = jwtDecode(tokenExternal);
+      const expExternal = decodedExternal.exp * 1000;
+      const now = Date.now();
+
+      if (now >= expExternal) {
+        console.warn(
+          "Se cierra sesión debido a que el token de usuario externo ha expirado"
+        );
+        sessionStorage.removeItem("userDevNavigator");
+        forceLogout();
+      }
+    }
+
+    // Chequeo para el usuario normal
+    const usersessionStorage = JSON.parse(sessionStorage.getItem("user")!);
+    const tokenUser = usersessionStorage?.token;
+
+    if (tokenUser) {
+      const decodedUser: any = jwtDecode(tokenUser);
+      const expUser = decodedUser.exp * 1000;
+      const now = Date.now();
+
+      if (now >= expUser) {
+        console.warn(
+          "Se cierra sesión debido a que el token de usuario normal ha expirado"
+        );
+        sessionStorage.removeItem("user");
+        forceLogout();
+      }
+    }
+  };
 
   useEffect(() => {
-    if (user || session?.user) {
-      localStorage.setItem('user', JSON.stringify({ user, session }));
+    if (user) {
+      sessionStorage.setItem("user", JSON.stringify(user));
     }
+
+    if (session?.user) {
+      createUserExternal();
+    }
+
+    const intervalId = setInterval(checkTokenExpiration, 60000);
+
+    return () => clearInterval(intervalId);
   }, [user, session]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      const localUser = JSON.parse(localStorage.getItem('user')!);
-      setUser(localUser?.user);
+    if (typeof window !== "undefined" && window.sessionStorage) {
+      const localUserExternal = JSON.parse(
+        sessionStorage.getItem("userDevNavigator")!
+      );
+      const localUserNormal = JSON.parse(sessionStorage.getItem("user")!);
+
+      if (localUserExternal) {
+        if (localUserExternal.success && localUserExternal.user) {
+          setUser(null); // No establecer user si hay un usuario externo
+          setUserExternal(localUserExternal as IUserNavigator);
+        }
+      } else if (localUserNormal) {
+        setUser(localUserNormal as IUserSession);
+        setUserExternal(null); // No establecer userExternal si hay un usuario normal
+      }
     }
   }, []);
 
   const logout = async () => {
     const result = await MySwal.fire({
-      title: '¿Deseas cerrar sesión?',
-      icon: 'warning',
+      title: "¿Deseas cerrar sesión?",
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonText: 'Si',
-      cancelButtonText: 'No',
+      confirmButtonText: "Si",
+      cancelButtonText: "No",
       backdrop: true,
       toast: true,
-      position: 'center',
+      position: "center",
     });
 
     if (result.isConfirmed) {
-      await signOut({ redirect: false }); // No redirigir automáticamente
-      MySwal.fire('Sesión cerrada', '', 'success');
-      localStorage.removeItem('user');
+      await signOut({ redirect: false });
+      MySwal.fire("Sesión cerrada", "", "success");
+      sessionStorage.removeItem("user");
+      sessionStorage.removeItem("userDevNavigator");
       setUser(null);
-      window.location.href = '/'; // Redirección manual
+      setUserExternal(null);
+      window.location.href = "/";
     }
   };
 
+  const forceLogout = async () => {
+    await signOut({ redirect: false });
+    sessionStorage.removeItem("user");
+    sessionStorage.removeItem("userDevNavigator");
+    setUser(null);
+    setUserExternal(null);
+    await MySwal.fire({
+      title: "Cierre forzado de DevNavigator💙💻",
+      text: "Se ha cerrado sesión por seguridad de tus datos, por favor inicia sesión nuevamente para seguir estudiando.",
+      icon: "info",
+      confirmButtonText: "cerrar",
+      backdrop: true,
+      toast: false,
+      position: "center",
+    });
+    window.location.href = "/";
+  };
+
   return (
-    <AuthContext.Provider value={{ user, setUser, logout }}>
+    <AuthContext.Provider
+      value={{ user, userExternal, setUser, setUserExternal, logout }}>
       {children}
     </AuthContext.Provider>
   );
