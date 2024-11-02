@@ -5,7 +5,7 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { useSession, signOut } from "next-auth/react";
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
+import jwtDecode from "jwt-decode";
 
 const MySwal = withReactContent(Swal);
 
@@ -38,13 +38,14 @@ export const AuthProvider = ({ children }: IAuthProviderProps) => {
   const createUserExternal = async () => {
     const url = "http://localhost:3001";
 
-    if (session?.user && !userCreatedRef.current) {
-      userCreatedRef.current = true;
+    // Si ya se creó o ya existe en sessionStorage, no crear de nuevo
+    const existingUser = JSON.parse(sessionStorage.getItem("userDevNavigator"));
+    if (existingUser || userCreatedRef.current) return;
 
-      const existingUser = JSON.parse(
-        sessionStorage.getItem("userDevNavigator")!
-      );
-      if (!existingUser) {
+    if (session?.user) {
+      userCreatedRef.current = true; // Evita duplicados al establecerlo antes de crear
+
+      try {
         const response = await axios.post(`${url}/auth/create-user`, {
           email: session.user.email,
           name: session.user.name,
@@ -58,6 +59,9 @@ export const AuthProvider = ({ children }: IAuthProviderProps) => {
           );
           setUserExternal(response.data);
         }
+      } catch (error) {
+        console.error("Error al crear usuario externo:", error);
+        userCreatedRef.current = false; // Restablece en caso de error
       }
     }
   };
@@ -84,7 +88,7 @@ export const AuthProvider = ({ children }: IAuthProviderProps) => {
     }
 
     // Chequeo para el usuario normal
-    const usersessionStorage = JSON.parse(sessionStorage.getItem("user")!);
+    const usersessionStorage = JSON.parse(sessionStorage.getItem("userLocal")!);
     const tokenUser = usersessionStorage?.token;
 
     if (tokenUser) {
@@ -96,7 +100,7 @@ export const AuthProvider = ({ children }: IAuthProviderProps) => {
         console.warn(
           "Se cierra sesión debido a que el token de usuario normal ha expirado"
         );
-        sessionStorage.removeItem("user");
+        sessionStorage.removeItem("userLocal");
         forceLogout();
       }
     }
@@ -104,7 +108,7 @@ export const AuthProvider = ({ children }: IAuthProviderProps) => {
 
   useEffect(() => {
     if (user) {
-      sessionStorage.setItem("user", JSON.stringify(user));
+      sessionStorage.setItem("userLocal", JSON.stringify(user));
     }
 
     if (session?.user) {
@@ -121,7 +125,7 @@ export const AuthProvider = ({ children }: IAuthProviderProps) => {
       const localUserExternal = JSON.parse(
         sessionStorage.getItem("userDevNavigator")!
       );
-      const localUserNormal = JSON.parse(sessionStorage.getItem("user")!);
+      const localUserNormal = JSON.parse(sessionStorage.getItem("userLocal")!);
 
       if (localUserExternal) {
         if (localUserExternal.success && localUserExternal.user) {
@@ -150,7 +154,7 @@ export const AuthProvider = ({ children }: IAuthProviderProps) => {
     if (result.isConfirmed) {
       await signOut({ redirect: false });
       MySwal.fire("Sesión cerrada", "", "success");
-      sessionStorage.removeItem("user");
+      sessionStorage.removeItem("userLocal");
       sessionStorage.removeItem("userDevNavigator");
       setUser(null);
       setUserExternal(null);
@@ -160,7 +164,7 @@ export const AuthProvider = ({ children }: IAuthProviderProps) => {
 
   const forceLogout = async () => {
     await signOut({ redirect: false });
-    sessionStorage.removeItem("user");
+    sessionStorage.removeItem("userLocal");
     sessionStorage.removeItem("userDevNavigator");
     setUser(null);
     setUserExternal(null);
@@ -178,7 +182,8 @@ export const AuthProvider = ({ children }: IAuthProviderProps) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, userExternal, setUser, setUserExternal, logout }}>
+      value={{ user, userExternal, setUser, setUserExternal, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );

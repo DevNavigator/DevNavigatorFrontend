@@ -46,32 +46,25 @@ export interface IUserSession {
 
 export interface IUserLogin {
   success?: boolean;
-  userPayload: {
-    id?: string;
-    email?: string;
-    address?: string | null;
-    phone?: string | null;
-    imgProfile?: string;
-    typeUser?: string;
-    statusUser?: boolean;
-    status_sub?: boolean;
-  };
+  user?: IUser;
   token?: string;
+}
+
+export interface IUser {
+  id?: string;
+  name?: string;
+  email?: string;
+  address?: string | null;
+  phone?: string | null;
+  imgProfile?: string | null;
+  typeUser?: string;
+  statusUser?: boolean;
+  status_sub?: boolean;
+  Subscription?: ISubscription | null;
 }
 
 export interface IUserNavigator {
   success?: boolean;
-  userPayload?: {
-    id?: string | null;
-    name?: string | null;
-    email?: string | null;
-    address?: string | null;
-    phone?: string | null;
-    imgProfile?: string | null;
-    typeUser?: string | null;
-    statusUser?: boolean | null;
-    status_sub?: boolean | null;
-    Subscription?: ISubscription | null;
-  };
+  user?: IUser;
   token?: string;
 }
