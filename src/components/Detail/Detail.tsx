@@ -4,7 +4,7 @@ import { ICourse } from "@/interfaces/Icourse";
 import Image from "next/image";
 import Button from "../Button/Button";
 import BuyButton from "../BuyButton/BuyButton";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "@/contexts/authContext";
 import { useRouter } from "next/navigation"; // Asegúrate de importar useRouter
 import { fetchUserData } from "@/services/userService";
@@ -16,6 +16,7 @@ const Detail = (course: ICourse) => {
   const router = useRouter(); // Inicializa el router
   const userId = user?.user?.id;
   const token = user?.token;
+  const [isUserInscript, setIsUserInscript] = useState(false);
 
   useEffect(() => {
     const refreshUser = async () => {
@@ -23,7 +24,13 @@ const Detail = (course: ICourse) => {
 
       const data = await fetchUserData(userId, token);
 
-      setUser({
+      if (data.Courses) {
+        const isUserAlreadyInscript = data.Courses.some(
+          (userCourse: { id: string }) => userCourse.id === course.id
+        );
+        setIsUserInscript(isUserAlreadyInscript);
+      }
+      const updatedUser = {
         ...user,
         user: {
           ...user?.user,
@@ -36,10 +43,11 @@ const Detail = (course: ICourse) => {
               }
             : null,
         },
-      });
+      };
+      setUser(updatedUser);
     };
     refreshUser();
-  }, [userId, user, setUser, token]);
+  }, [userId, token, setUser]);
 
   const handleOnClick = async () => {
     try {
@@ -98,9 +106,13 @@ const Detail = (course: ICourse) => {
             </p>
             <div className="text-center">
               {isUserSubscribed ? (
-                <Button disabled onClick={handleOnClick}>
-                  Inscribirme
-                </Button>
+                isUserInscript ? (
+                  <Button onClick={() => router.push(`/study/${course.id}`)}>
+                    Ver Curso
+                  </Button>
+                ) : (
+                  <Button onClick={handleOnClick}>Inscribirme</Button>
+                )
               ) : (
                 <>
                   {isUserLoggedIn ? (
