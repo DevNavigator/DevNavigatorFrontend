@@ -15,7 +15,8 @@ const GoogleLoginButton = () => {
           callbackUrl: "/",
         });
       }}
-      className="flex flex-row justify-center items-center w-[225px] ">
+      className="flex flex-row justify-center items-center w-[225px] "
+    >
       <span className="me-2">
         <FaGoogle />
       </span>

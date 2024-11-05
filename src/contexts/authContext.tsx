@@ -158,6 +158,7 @@ export const AuthProvider = ({ children }: IAuthProviderProps) => {
       MySwal.fire("Sesión cerrada", "", "success");
       sessionStorage.removeItem("userLocal");
       sessionStorage.removeItem("userDevNavigator");
+      localStorage.removeItem("user");
       setUser(null);
       setUserExternal(null);
       window.location.href = "/";
@@ -168,6 +169,7 @@ export const AuthProvider = ({ children }: IAuthProviderProps) => {
     await signOut({ redirect: false });
     sessionStorage.removeItem("userLocal");
     sessionStorage.removeItem("userDevNavigator");
+    localStorage.removeItem("user");
     setUser(null);
     setUserExternal(null);
     await MySwal.fire({

@@ -1,7 +1,10 @@
 "use client"; // Añade esta línea al principio del archivo
 
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useParams } from "next/navigation"; // Usa useParams para obtener parámetros de la URL
+import { useRouter } from "next/router";
+import { useSession } from "next-auth/react";
+import { AuthContext } from "@/contexts/authContext";
 
 interface Video {
   url: string;
