@@ -11,18 +11,32 @@ import { fetchUserData } from "@/services/userService";
 import axios from "axios";
 
 const Detail = (course: ICourse) => {
-  const { user, setUser } = useContext(AuthContext);
-  const isUserLoggedIn = !!user; // Verifica si el usuario está logueado
+  const { user, userExternal, setUserExternal, setUser } =
+    useContext(AuthContext);
+  const isUserLoggedIn = !!user || !!userExternal;
   const router = useRouter(); // Inicializa el router
-  const userId = user?.user?.id;
-  const token = user?.token;
   const [isUserInscript, setIsUserInscript] = useState(false);
+  let userId = user?.user?.id;
+  let token = user?.token;
+  let isUserExternal = false;
+
+  if (user?.user?.id) {
+    userId = user.user.id;
+    token = user?.token;
+  } else {
+    if (userExternal?.user?.id) {
+      isUserExternal = true;
+      userId = userExternal.user.id;
+      token = userExternal.token;
+    }
+  }
 
   useEffect(() => {
     const refreshUser = async () => {
       if (!userId || !token) return;
 
       const data = await fetchUserData(userId, token);
+      console.log(data);
 
       if (data.Courses) {
         const isUserAlreadyInscript = data.Courses.some(
@@ -30,35 +44,59 @@ const Detail = (course: ICourse) => {
         );
         setIsUserInscript(isUserAlreadyInscript);
       }
-      const updatedUser = {
-        ...user,
-        user: {
-          ...user?.user,
-          Subscription: data.Subscription
-            ? {
-                id: data.Subscription.id,
-                start_sub: data.Subscription.start_sub,
-                end_sub: data.Subscription.end_sub,
-                status_sub: data.Subscription.status_sub,
-              }
-            : null,
-        },
-      };
-      setUser(updatedUser);
+      let updatedUser;
+      if (isUserExternal) {
+        updatedUser = {
+          ...userExternal,
+          user: {
+            ...userExternal?.user,
+            Subscription: data.Subscription
+              ? {
+                  id: data.Subscription.id,
+                  start_sub: data.Subscription.start_sub,
+                  end_sub: data.Subscription.end_sub,
+                  status_sub: data.Subscription.status_sub,
+                }
+              : null,
+          },
+        };
+      } else {
+        updatedUser = {
+          ...user,
+          user: {
+            ...user?.user,
+            Subscription: data.Subscription
+              ? {
+                  id: data.Subscription.id,
+                  start_sub: data.Subscription.start_sub,
+                  end_sub: data.Subscription.end_sub,
+                  status_sub: data.Subscription.status_sub,
+                }
+              : null,
+          },
+        };
+      }
+
+      if (isUserExternal) {
+        setUserExternal(updatedUser);
+      }
+      if (!isUserExternal) {
+        setUser(updatedUser);
+      }
     };
     refreshUser();
-  }, [userId, token, setUser]);
+  }, [userId, token, isUserExternal]);
 
   const handleOnClick = async () => {
     try {
       const response = await axios.post(
         "http://localhost:3001/courses/link-user",
         {
-          userId: user?.user?.id,
+          userId,
           courseId: course.id,
         },
         {
-          headers: { Authorization: `Bearer ${user?.token}` },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
 
@@ -70,7 +108,11 @@ const Detail = (course: ICourse) => {
     }
   };
 
-  const isUserSubscribed = user?.user?.Subscription?.status_sub === true;
+  const isUserSubscribed =
+    (isUserExternal
+      ? userExternal?.user?.Subscription?.status_sub
+      : user?.user?.Subscription?.status_sub) === true;
+
   return (
     <div className="container grid grid-cols-1 justify-center !mt-20 bg-primary border-2 text-secondary rounded-3xl p-4 shadow-lg shadow-gray-700/40 ">
       <h1 className="text-center mt-5">{course?.title}</h1>

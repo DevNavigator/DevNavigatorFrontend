@@ -1,5 +1,8 @@
-import React, { useEffect, useState } from "react";
+import { AuthContext } from "@/contexts/authContext";
+import React, { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { useSession, signOut } from "next-auth/react";
+import { useRouter } from "next/router";
 
 interface Video {
   url: string;

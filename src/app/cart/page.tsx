@@ -26,23 +26,23 @@ const MySwal = withReactContent(Swal);
 
 const Page = () => {
   const { cart, clearCart, removeFromCart } = useContext(CartContext);
-  const { user, setUser } = useContext(AuthContext);
+  const { user, userExternal, setUser } = useContext(AuthContext);
   const router = useRouter();
   const { data: session } = useSession();
   const [loading, setLoading] = useState(true);
 
   // Redirige a la página de inicio de sesión si el usuario no está autenticado
-  // useEffect(() => {
-  //   if (!user || (!session?.user || session?.user === null)) {
-  //     router.push('/login');
-  //   }
-  // }, [user, router]);
+  useEffect(() => {
+    if (!user && !userExternal) {
+      router.push("/login");
+    }
+  }, [user, userExternal, router]);
 
   useEffect(() => {
-    if (user || session?.user) {
+    if (user || userExternal) {
       setLoading(false);
     }
-  }, [user, session]);
+  }, [user, userExternal]);
 
   if (loading) {
     return <div>Cargando...</div>; // O algún spinner de carga
@@ -94,9 +94,16 @@ const Page = () => {
 
   const handleOrderMercadopago = async () => {
     const suscription = await fetchSubscriptionTypes();
-    const course = cart[0]; // si es una unica suscripcion cart no deberia ser un array
+    const course = cart[0];
+    let userId = null; // si es una unica suscripcion cart no deberia ser un array
 
-    const userId = user?.user?.id;
+    if (user?.user?.id) {
+      userId = user?.user?.id;
+    } else {
+      userId = userExternal?.user?.id;
+    }
+    console.log(userId);
+
     if (!userId) {
       console.error("Usuario no autenticado");
       return;
