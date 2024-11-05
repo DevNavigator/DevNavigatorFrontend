@@ -228,7 +228,7 @@ const Dashboard = () => {
 
   const handleDeleteUser = (userId: string) => async () => {
     const url = "http://localhost:3001";
-    const userToDelete = allUsers.find((user) => user.id === userId);
+    const userToDelete = allUsers.find(user => user.id === userId);
 
     if (userToDelete?.userType === "SUPER_ADMIN") {
       Swal.fire({
@@ -305,6 +305,8 @@ const Dashboard = () => {
     // }
 
     try {
+      console.log("USUARIO ERROR", user);
+      console.log("USUARIO ERROR", userExternal);
       const updatedUserResponse = await axios.get(
         `${url}/user/${user?.user?.id || userExternal?.user?.id}`,
         {
@@ -316,12 +318,12 @@ const Dashboard = () => {
 
       const updatedData = updatedUserResponse.data;
       if (user && user?.user?.id === updatedData.id) {
-        setUser((prev) => ({
+        setUser(prev => ({
           ...prev,
           user: { ...prev.user, ...updatedData },
         }));
       } else if (userExternal && userExternal?.user?.id === updatedData.id) {
-        setUserExternal((prev) => ({
+        setUserExternal(prev => ({
           ...prev,
           user: { ...prev.user, ...updatedData },
         }));
@@ -350,8 +352,7 @@ const Dashboard = () => {
         <div className="flex justify-center items-center mb-4 w-full">
           <div
             className="relative w-48 h-48 rounded-full overflow-hidden shadow-lg cursor-pointer flex justify-center items-center"
-            onClick={() => fileInputRef.current?.click()}
-          >
+            onClick={() => fileInputRef.current?.click()}>
             <Image
               src={
                 user?.user?.imgProfile ||
@@ -402,8 +403,7 @@ const Dashboard = () => {
 
         <Button
           className="mt-6 w-full"
-          onClick={handleEditUser(user?.user?.id || userExternal?.user?.id)}
-        >
+          onClick={handleEditUser(user?.user?.id || userExternal?.user?.id)}>
           Modificar Información
         </Button>
         {user ? (
@@ -413,8 +413,7 @@ const Dashboard = () => {
               setShowEditPanel(false);
               setShowUsersPanel(false);
             }}
-            className="mt-4 w-full"
-          >
+            className="mt-4 w-full">
             Cambiar Contraseña
           </Button>
         ) : null}
@@ -428,8 +427,7 @@ const Dashboard = () => {
                 setShowEditPanel(false);
                 setShowChangePasswordPanel(false);
               }}
-              className="w-full mb-2"
-            >
+              className="w-full mb-2">
               Ver Usuarios Activos
             </Button>
             <Button
@@ -440,8 +438,7 @@ const Dashboard = () => {
                 setShowEditPanel(false);
                 setShowChangePasswordPanel(false);
               }}
-              className="w-full mb-4"
-            >
+              className="w-full mb-4">
               Ver Usuarios Inactivos
             </Button>
           </div>
@@ -449,8 +446,7 @@ const Dashboard = () => {
 
         <button
           onClick={handleDeleteUser(user?.user?.id || userExternal?.user?.id)}
-          className="mt-4 w-full bg-red-500 text-white p-2 px-3 rounded-3xl hover:bg-primary hover:text-red-500 hover:border hover:border-red-500 transition-all hover:scale-110 active:scale-95 ease-in-out duration-300"
-        >
+          className="mt-4 w-full bg-red-500 text-white p-2 px-3 rounded-3xl hover:bg-primary hover:text-red-500 hover:border hover:border-red-500 transition-all hover:scale-110 active:scale-95 ease-in-out duration-300">
           Darse de baja
         </button>
       </div>
@@ -462,7 +458,7 @@ const Dashboard = () => {
             <h2 className="text-2xl font-bold mb-4">Editar Información</h2>
             <UserEditForm
               userId={selectedUserId}
-              token={user?.token}
+              token={user?.token || userExternal?.token}
               closeModal={closePanels}
             />
             <Button onClick={closePanels} className="mt-4">
@@ -487,11 +483,10 @@ const Dashboard = () => {
 
             {showActiveUsers ? (
               allUsers.length > 0 ? (
-                allUsers.map((user) => (
+                allUsers.map(user => (
                   <div
                     key={user.id}
-                    className="flex justify-between items-center mb-4"
-                  >
+                    className="flex justify-between items-center mb-4">
                     <span className="flex-grow flex items-center">
                       {" "}
                       {/* Flexbox en fila para alinear imagen y texto */}
@@ -523,22 +518,19 @@ const Dashboard = () => {
                     <div className="flex items-center">
                       <Button
                         onClick={handleEditUser(user.id)}
-                        className="mr-2 px-3"
-                      >
+                        className="mr-2 px-3">
                         <FaUserEdit className="w-6 h-6" />
                       </Button>
                       <Button
                         onClick={() =>
                           handleChangeUserType(user.id, user.userType)
                         }
-                        className="mr-2 px-3  bg-slate-600 text-white"
-                      >
+                        className="mr-2 px-3  bg-slate-600 text-white">
                         <PiUserSwitchFill className="w-6 h-6" />
                       </Button>
                       <button
                         onClick={handleDeleteUser(user.id)}
-                        className="bg-red-500 text-white p-2 px-3 rounded-3xl hover:bg-primary hover:text-red-500 hover:border hover:border-red-500 transition-all hover:scale-110 active:scale-95 ease-in-out duration-300"
-                      >
+                        className="bg-red-500 text-white p-2 px-3 rounded-3xl hover:bg-primary hover:text-red-500 hover:border hover:border-red-500 transition-all hover:scale-110 active:scale-95 ease-in-out duration-300">
                         <MdDeleteForever className="w-8 h-6" />
                       </button>
                     </div>
@@ -548,11 +540,10 @@ const Dashboard = () => {
                 <div>No hay usuarios activos.</div>
               )
             ) : inactiveUsers.length > 0 ? (
-              inactiveUsers.map((user) => (
+              inactiveUsers.map(user => (
                 <div
                   key={user.id}
-                  className="flex justify-between items-center mb-4"
-                >
+                  className="flex justify-between items-center mb-4">
                   <span className="flex-grow flex items-center">
                     {" "}
                     {/* Flexbox en fila para alinear imagen y texto */}
@@ -583,14 +574,12 @@ const Dashboard = () => {
                   <div className="flex items-center">
                     <Button
                       onClick={() => handleActivateUser(user.id)}
-                      className="mr-2 px-3 bg-green-500 text-white hover:bg-white hover:text-green-500 hover:border hover:border-green-500 transition-all hover:scale-110 active:scale-95 ease-in-out duration-300"
-                    >
+                      className="mr-2 px-3 bg-green-500 text-white hover:bg-white hover:text-green-500 hover:border hover:border-green-500 transition-all hover:scale-110 active:scale-95 ease-in-out duration-300">
                       <FaUserCheck className="w-6 h-6" />
                     </Button>
                     <Button
                       onClick={handleEditUser(user.id)}
-                      className="mr-2 px-3"
-                    >
+                      className="mr-2 px-3">
                       <FaUserEdit className="w-6 h-6" />
                     </Button>
                   </div>
