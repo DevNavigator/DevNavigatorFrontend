@@ -16,6 +16,7 @@ import ChangeUserTypeModal from "./admin dashboard/changeUserTypeModal";
 import { FaUserCheck, FaUserEdit } from "react-icons/fa";
 import { PiUserSwitchFill } from "react-icons/pi";
 import { MdDeleteForever } from "react-icons/md";
+import { IUserNavigator } from "@/interfaces/Iforms";
 
 interface JwtPayload {
   id: string;
@@ -25,7 +26,9 @@ interface JwtPayload {
 }
 
 const Dashboard = () => {
-  const { user, setUser } = useContext(AuthContext);
+  const { user, setUser, userExternal, setUserExternal } =
+    useContext(AuthContext);
+  // const [currentUser, setCurrentUser] = useState<IUserNavigator | null>(null);
   const [userType, setUserType] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState<boolean>(false);
@@ -47,8 +50,25 @@ const Dashboard = () => {
     if (user?.success && user.token) {
       const decodedToken = jwtDecode<JwtPayload>(user.token);
       setUserType(decodedToken.types);
+      setUser(user);
+    } else if (userExternal?.success && userExternal.token) {
+      const decodedToken = jwtDecode<JwtPayload>(userExternal.token);
+      setUserType(decodedToken.types);
+      setUserExternal(userExternal);
+    } else {
+      setUser(null);
+      setUserExternal(null);
     }
-  }, [user]);
+  }, [user, userExternal, setUser, setUserExternal]);
+
+  // const getUserProperty = (property) => {
+  //   return currentUser?.user?.[property] || currentUser?.user?.[property];
+  // };
+
+  console.log("Usuario actual:", user, "normal", userExternal, "external");
+  console.log("Usuario actual 2:", user?.success || userExternal?.success);
+  console.log("Usuario actual 5:", user?.user || userExternal?.user);
+  console.log("Usuario actual 3:", user?.token || userExternal?.token);
 
   const isADMIN = userType === "ADMIN";
   const isSUPER_ADMIN = userType === "SUPER_ADMIN";
@@ -58,7 +78,7 @@ const Dashboard = () => {
     try {
       const response = await axios.get(`${url}/user`, {
         headers: {
-          Authorization: `Bearer ${user?.token}`,
+          Authorization: `Bearer ${user?.token || userExternal?.token}`,
         },
       });
       const activeUsers = response.data.filter(
@@ -72,7 +92,7 @@ const Dashboard = () => {
     } catch (error) {
       console.error("Error al obtener los usuarios:", error);
     }
-  }, [user]);
+  }, [user, userExternal]);
 
   const handleChangeUserType = (userId: string, currentType: UserType) => {
     setSelectedUserId(userId);
@@ -89,7 +109,7 @@ const Dashboard = () => {
         { userType: newType },
         {
           headers: {
-            Authorization: `Bearer ${user?.token}`,
+            Authorization: `Bearer ${user?.token || userExternal?.token}`,
           },
         }
       );
@@ -113,7 +133,7 @@ const Dashboard = () => {
         { statusUser: true },
         {
           headers: {
-            Authorization: `Bearer ${user?.token}`,
+            Authorization: `Bearer ${user?.token || userExternal?.token}`,
           },
         }
       );
@@ -147,11 +167,11 @@ const Dashboard = () => {
       setUploading(true);
       try {
         const response = await axios.post(
-          `${url}/files/imgprofile/${user?.user.id}`,
+          `${url}/files/imgprofile/${user?.user?.id || userExternal?.user?.id}`,
           formData,
           {
             headers: {
-              Authorization: `Bearer ${user?.token}`,
+              Authorization: `Bearer ${user?.token || userExternal?.token}`,
               "Content-Type": "multipart/form-data",
             },
           }
@@ -159,24 +179,28 @@ const Dashboard = () => {
 
         if (response.status === 200) {
           const updatedUserResponse = await axios.get(
-            `${url}/user/${user?.user.id}`,
+            `${url}/user/${user?.user?.id || userExternal?.user?.id}`,
             {
               headers: {
-                Authorization: `Bearer ${user?.token}`,
+                Authorization: `Bearer ${user?.token || userExternal?.token}`,
               },
             }
           );
 
           const updatedUser = {
-            ...user,
+            ...(user || userExternal),
             user: {
-              ...user?.user,
+              ...(user?.user || userExternal?.user),
               imgProfile:
-                updatedUserResponse.data.imgProfile || user?.user.imgProfile,
+                updatedUserResponse.data.imgProfile ||
+                user?.user?.imgProfile ||
+                userExternal?.user?.imgProfile,
             },
           };
 
           setUser(updatedUser);
+          setUserExternal(updatedUser);
+
           setFile(null);
           if (fileInputRef.current) {
             fileInputRef.current.value = "";
@@ -204,7 +228,7 @@ const Dashboard = () => {
 
   const handleDeleteUser = (userId: string) => async () => {
     const url = "http://localhost:3001";
-    const userToDelete = allUsers.find((user) => user.id === userId);
+    const userToDelete = allUsers.find(user => user.id === userId);
 
     if (userToDelete?.userType === "SUPER_ADMIN") {
       Swal.fire({
@@ -215,7 +239,10 @@ const Dashboard = () => {
       return;
     }
 
-    if (userId === user?.user.id && (isADMIN || isSUPER_ADMIN)) {
+    if (
+      userId === user?.user?.id ||
+      (userId === userExternal?.user?.id && (isADMIN || isSUPER_ADMIN))
+    ) {
       Swal.fire({
         icon: "warning",
         title: "Acción no permitida",
@@ -241,7 +268,7 @@ const Dashboard = () => {
           { statusUser: false },
           {
             headers: {
-              Authorization: `Bearer ${user?.token}`,
+              Authorization: `Bearer ${user?.token || userExternal?.token}`,
             },
           }
         );
@@ -265,25 +292,42 @@ const Dashboard = () => {
 
   const updateUserInfo = async () => {
     const url = "http://localhost:3001";
+
+    // const userUpdate = allUsers.find((user) => user.id === userId);
+
+    // if (userUpdate?.userType === "SUPER_ADMIN") {
+    //   Swal.fire({
+    //     icon: "error",
+    //     title: "Acción no permitida",
+    //     text: "No puedes modificar al SUPER_ADMIN.",
+    //   });
+    //   return;
+    // }
+
     try {
+      console.log("USUARIO ERROR", user);
+      console.log("USUARIO ERROR", userExternal);
       const updatedUserResponse = await axios.get(
-        `${url}/user/${user?.user.id}`,
+        `${url}/user/${user?.user?.id || userExternal?.user?.id}`,
         {
           headers: {
-            Authorization: `Bearer ${user?.token}`,
+            Authorization: `Bearer ${user?.token || userExternal?.token}`,
           },
         }
       );
 
-      const updatedUser = {
-        ...user,
-        user: {
-          ...user?.user,
-          ...updatedUserResponse.data,
-        },
-      };
-
-      setUser(updatedUser);
+      const updatedData = updatedUserResponse.data;
+      if (user && user?.user?.id === updatedData.id) {
+        setUser(prev => ({
+          ...prev,
+          user: { ...prev.user, ...updatedData },
+        }));
+      } else if (userExternal && userExternal?.user?.id === updatedData.id) {
+        setUserExternal(prev => ({
+          ...prev,
+          user: { ...prev.user, ...updatedData },
+        }));
+      }
     } catch (error) {
       console.error("Error al obtener el usuario actualizado:", error);
     }
@@ -308,10 +352,13 @@ const Dashboard = () => {
         <div className="flex justify-center items-center mb-4 w-full">
           <div
             className="relative w-48 h-48 rounded-full overflow-hidden shadow-lg cursor-pointer flex justify-center items-center"
-            onClick={() => fileInputRef.current?.click()}
-          >
+            onClick={() => fileInputRef.current?.click()}>
             <Image
-              src={user?.user.imgProfile || "/assets/DevNavigator.png"}
+              src={
+                user?.user?.imgProfile ||
+                userExternal?.user?.imgProfile ||
+                "/DevNavigator.png"
+              }
               alt="Foto de Perfil"
               layout="fill"
               className="object-cover absolute inset-0"
@@ -320,9 +367,11 @@ const Dashboard = () => {
         </div>
 
         {file && (
-          <Button onClick={handleUpload} disabled={uploading} className="mb-4">
-            {uploading ? "Cargando..." : "Subir"}
-          </Button>
+          <div className="flex justify-center items-center w-full h-full">
+            <Button onClick={handleUpload} disabled={uploading} className="m-4">
+              {uploading ? "Cargando..." : "Subir"}
+            </Button>
+          </div>
         )}
 
         <input
@@ -336,37 +385,38 @@ const Dashboard = () => {
         <div className="text-gray-700 space-y-2">
           <div className="flex items-center">
             <FaUser className="mr-2 text-lg" />
-            <span>{user?.user.name}</span>
+            <span>{user?.user?.name || userExternal?.user?.name}</span>
           </div>
           <div className="flex items-center">
             <FaEnvelope className="mr-2 text-lg" />
-            <span>{user?.user.email}</span>
+            <span>{user?.user?.email || userExternal?.user?.email}</span>
           </div>
           <div className="flex items-center">
             <FaLocationDot className="mr-2 text-lg" />
-            <span>{user?.user.address}</span>
+            <span>{user?.user?.address || userExternal?.user?.address}</span>
           </div>
           <div className="flex items-center">
             <FaPhone className="mr-2 text-lg" />
-            <span>{user?.user.phone}</span>
+            <span>{user?.user?.phone || userExternal?.user?.phone}</span>
           </div>
         </div>
 
-        <Button className="mt-6 w-full" onClick={handleEditUser(user?.user.id)}>
+        <Button
+          className="mt-6 w-full"
+          onClick={handleEditUser(user?.user?.id || userExternal?.user?.id)}>
           Modificar Información
         </Button>
-
-        <Button
-          onClick={() => {
-            setShowChangePasswordPanel(true);
-            setShowEditPanel(false);
-            setShowUsersPanel(false);
-          }}
-          className="mt-4 w-full"
-        >
-          Cambiar Contraseña
-        </Button>
-
+        {user ? (
+          <Button
+            onClick={() => {
+              setShowChangePasswordPanel(true);
+              setShowEditPanel(false);
+              setShowUsersPanel(false);
+            }}
+            className="mt-4 w-full">
+            Cambiar Contraseña
+          </Button>
+        ) : null}
         {(isADMIN || isSUPER_ADMIN) && (
           <div className="mt-4 w-full">
             <Button
@@ -377,8 +427,7 @@ const Dashboard = () => {
                 setShowEditPanel(false);
                 setShowChangePasswordPanel(false);
               }}
-              className="w-full mb-2"
-            >
+              className="w-full mb-2">
               Ver Usuarios Activos
             </Button>
             <Button
@@ -389,17 +438,15 @@ const Dashboard = () => {
                 setShowEditPanel(false);
                 setShowChangePasswordPanel(false);
               }}
-              className="w-full mb-4"
-            >
+              className="w-full mb-4">
               Ver Usuarios Inactivos
             </Button>
           </div>
         )}
 
         <button
-          onClick={handleDeleteUser(user?.user.id)}
-          className="mt-4 w-full bg-red-500 text-white p-2 px-3 rounded-3xl hover:bg-primary hover:text-red-500 hover:border hover:border-red-500 transition-all hover:scale-110 active:scale-95 ease-in-out duration-300"
-        >
+          onClick={handleDeleteUser(user?.user?.id || userExternal?.user?.id)}
+          className="mt-4 w-full bg-red-500 text-white p-2 px-3 rounded-3xl hover:bg-primary hover:text-red-500 hover:border hover:border-red-500 transition-all hover:scale-110 active:scale-95 ease-in-out duration-300">
           Darse de baja
         </button>
       </div>
@@ -411,7 +458,7 @@ const Dashboard = () => {
             <h2 className="text-2xl font-bold mb-4">Editar Información</h2>
             <UserEditForm
               userId={selectedUserId}
-              token={user?.token}
+              token={user?.token || userExternal?.token}
               closeModal={closePanels}
             />
             <Button onClick={closePanels} className="mt-4">
@@ -436,11 +483,10 @@ const Dashboard = () => {
 
             {showActiveUsers ? (
               allUsers.length > 0 ? (
-                allUsers.map((user) => (
+                allUsers.map(user => (
                   <div
                     key={user.id}
-                    className="flex justify-between items-center mb-4"
-                  >
+                    className="flex justify-between items-center mb-4">
                     <span className="flex-grow flex items-center">
                       {" "}
                       {/* Flexbox en fila para alinear imagen y texto */}
@@ -472,22 +518,19 @@ const Dashboard = () => {
                     <div className="flex items-center">
                       <Button
                         onClick={handleEditUser(user.id)}
-                        className="mr-2 px-3"
-                      >
+                        className="mr-2 px-3">
                         <FaUserEdit className="w-6 h-6" />
                       </Button>
                       <Button
                         onClick={() =>
                           handleChangeUserType(user.id, user.userType)
                         }
-                        className="mr-2 px-3  bg-slate-600 text-white"
-                      >
+                        className="mr-2 px-3  bg-slate-600 text-white">
                         <PiUserSwitchFill className="w-6 h-6" />
                       </Button>
                       <button
                         onClick={handleDeleteUser(user.id)}
-                        className="bg-red-500 text-white p-2 px-3 rounded-3xl hover:bg-primary hover:text-red-500 hover:border hover:border-red-500 transition-all hover:scale-110 active:scale-95 ease-in-out duration-300"
-                      >
+                        className="bg-red-500 text-white p-2 px-3 rounded-3xl hover:bg-primary hover:text-red-500 hover:border hover:border-red-500 transition-all hover:scale-110 active:scale-95 ease-in-out duration-300">
                         <MdDeleteForever className="w-8 h-6" />
                       </button>
                     </div>
@@ -497,11 +540,10 @@ const Dashboard = () => {
                 <div>No hay usuarios activos.</div>
               )
             ) : inactiveUsers.length > 0 ? (
-              inactiveUsers.map((user) => (
+              inactiveUsers.map(user => (
                 <div
                   key={user.id}
-                  className="flex justify-between items-center mb-4"
-                >
+                  className="flex justify-between items-center mb-4">
                   <span className="flex-grow flex items-center">
                     {" "}
                     {/* Flexbox en fila para alinear imagen y texto */}
@@ -532,14 +574,12 @@ const Dashboard = () => {
                   <div className="flex items-center">
                     <Button
                       onClick={() => handleActivateUser(user.id)}
-                      className="mr-2 px-3 bg-green-500 text-white hover:bg-white hover:text-green-500 hover:border hover:border-green-500 transition-all hover:scale-110 active:scale-95 ease-in-out duration-300"
-                    >
+                      className="mr-2 px-3 bg-green-500 text-white hover:bg-white hover:text-green-500 hover:border hover:border-green-500 transition-all hover:scale-110 active:scale-95 ease-in-out duration-300">
                       <FaUserCheck className="w-6 h-6" />
                     </Button>
                     <Button
                       onClick={handleEditUser(user.id)}
-                      className="mr-2 px-3"
-                    >
+                      className="mr-2 px-3">
                       <FaUserEdit className="w-6 h-6" />
                     </Button>
                   </div>
@@ -563,7 +603,7 @@ const Dashboard = () => {
         onClose={() => setShowChangeUserTypeModal(false)}
         userId={selectedUserId}
         currentType={selectedUserType ?? UserType}
-        token={user?.token}
+        token={user?.token || userExternal?.token}
         onSave={saveUserType}
       />
     </div>

@@ -4,14 +4,16 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
 import Button from "../Button/Button";
+import { Console, log } from "console";
 
 interface UserEditFormProps {
-  userId: string | undefined;
-  token: string | undefined;
+  userId: string;
+  token: string;
   closeModal: () => void;
 }
 
 const UserEditForm = ({ userId, token, closeModal }: UserEditFormProps) => {
+  console.log("TOKEN 1", token);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -107,6 +109,8 @@ const UserEditForm = ({ userId, token, closeModal }: UserEditFormProps) => {
     }
 
     try {
+      console.log("USERDATA", userData);
+      console.log("TOKEN", token);
       const response = await axios.patch(
         `http://localhost:3001/user/update/${userId}`,
         userData,
@@ -142,7 +146,7 @@ const UserEditForm = ({ userId, token, closeModal }: UserEditFormProps) => {
   };
 
   if (loading) return <p>Cargando...</p>;
-  if (error) return <p className="text-red-500">{error}</p>;
+  // if (error) return <p className="text-red-500">{error}</p>;
 
   return (
     <form onSubmit={handleSubmit} className="p-4 bg-gray-100 rounded-lg">
