@@ -10,7 +10,7 @@ interface Video {
   title: string;
 }
 
-interface Question {
+interface Question  {
   question: string;
   options: string[];
   correctAnswer: number; // Cambiado a number para referencia de índice

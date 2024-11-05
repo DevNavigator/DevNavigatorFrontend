@@ -1,3 +1,4 @@
+/*
 "use client"; // Marca el componente como cliente
 
 import { useEffect, useState } from "react";
@@ -669,4 +670,97 @@ const Study: React.FC = () => {
   );
 };
 
+export default Study;*/
+
+"use client"; // Marca el componente como cliente
+
+import { useEffect, useState } from "react";
+
+interface Course {
+  id: string;
+  title: string;
+  description: string;
+}
+
+const Study: React.FC = () => {
+  const [activeVideo, setActiveVideo] = useState<number | null>(null);
+  const [videoCompleted, setVideoCompleted] = useState<boolean[]>(
+    new Array(10).fill(false)
+  );
+  const [showQuestions, setShowQuestions] = useState<boolean>(false);
+  const [quizCompleted, setQuizCompleted] = useState<boolean>(false);
+  const [userAnswers, setUserAnswers] = useState<number[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const videoUrls = [
+    "https://www.youtube.com/embed/qUei-wOdbnw",
+    "https://www.youtube.com/embed/cV_dFN9UFao",
+    "https://www.youtube.com/embed/jQ2ph0eP4D4",
+    "https://www.youtube.com/embed/y3UpXb2liI0",
+    "https://www.youtube.com/embed/nVm5MbmUlnA",
+    "https://www.youtube.com/embed/QAm2A3ALB1o",
+    "https://www.youtube.com/embed/Gc6hDHsSdSI",
+    "https://www.youtube.com/embed/oZep0vGtCxY",
+    "https://www.youtube.com/embed/mbE1gJH_HW4",
+    "https://www.youtube.com/embed/lqsVVH5Jb3o",
+  ];
+
+  const videoDescriptions = [
+    "1-Introducción al curso en PHP - DevNavigator.",
+    "2-Tipos de Variables y Constantes en PHP - DevNavigator.",
+    "3-Operadores en PHP - DevNavigator.",
+    "4.1-Estructuras de control en PHP - DevNavigator.",
+    "4.2-Estructuras de control en PHP - DevNavigator.",
+    "5-Arrays en PHP - DevNavigator.",
+    "6-Funciones en PHP - DevNavigator.",
+    "7-Funciones, clases y objetos en PHP - DevNavigator.",
+    "8-Funciones, clases y objetos en PHP - DevNavigator.",
+    "9-Errores y excepciones en PHP - DevNavigator.",
+  ];
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const response = await fetch('http://localhost:3001/courses');
+
+        if (!response.ok) {
+          throw new Error('Error al cargar los cursos');
+        }
+        const data = await response.json();
+        setCourses(data);
+      } catch (err) {
+        setError('No se pudieron cargar los cursos');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCourses();
+  }, []);
+
+  return (
+    <div>
+      {loading && <p>Cargando cursos...</p>}
+      {error && <p>{error}</p>}
+      {!loading && !error && courses.length === 0 && <p>No hay cursos disponibles.</p>}
+      {!loading && !error && courses.length > 0 && (
+        <div>
+          <h2>Lista de Cursos</h2>
+          <ul>
+            {courses.map((course) => (
+              <li key={course.id}>
+                <h3>{course.title}</h3>
+                <p>{course.description}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+};
+
 export default Study;
+
