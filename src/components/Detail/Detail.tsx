@@ -1,19 +1,76 @@
-'use client';
+"use client";
 
-import { ICourse } from '@/interfaces/Icourse';
-import Image from 'next/image';
-import Button from '../Button/Button';
-import BuyButton from '../BuyButton/BuyButton';
-import { useContext } from 'react';
-import { AuthContext } from '@/contexts/authContext';
-import { useRouter } from 'next/navigation'; // Asegúrate de importar useRouter
+import { ICourse } from "@/interfaces/Icourse";
+import Image from "next/image";
+import Button from "../Button/Button";
+import BuyButton from "../BuyButton/BuyButton";
+import { useContext, useEffect, useState } from "react";
+import { AuthContext } from "@/contexts/authContext";
+import { useRouter } from "next/navigation"; // Asegúrate de importar useRouter
+import { fetchUserData } from "@/services/userService";
+import axios from "axios";
 
 const Detail = (course: ICourse) => {
-  const { user } = useContext(AuthContext);
-  const isUserSubscribed = user?.user?.Subscription?.status_sub === true;
+  const { user, setUser } = useContext(AuthContext);
   const isUserLoggedIn = !!user; // Verifica si el usuario está logueado
   const router = useRouter(); // Inicializa el router
+  const userId = user?.user?.id;
+  const token = user?.token;
+  const [isUserInscript, setIsUserInscript] = useState(false);
 
+  useEffect(() => {
+    const refreshUser = async () => {
+      if (!userId || !token) return;
+
+      const data = await fetchUserData(userId, token);
+
+      if (data.Courses) {
+        const isUserAlreadyInscript = data.Courses.some(
+          (userCourse: { id: string }) => userCourse.id === course.id
+        );
+        setIsUserInscript(isUserAlreadyInscript);
+      }
+      const updatedUser = {
+        ...user,
+        user: {
+          ...user?.user,
+          Subscription: data.Subscription
+            ? {
+                id: data.Subscription.id,
+                start_sub: data.Subscription.start_sub,
+                end_sub: data.Subscription.end_sub,
+                status_sub: data.Subscription.status_sub,
+              }
+            : null,
+        },
+      };
+      setUser(updatedUser);
+    };
+    refreshUser();
+  }, [userId, token, setUser]);
+
+  const handleOnClick = async () => {
+    try {
+      const response = await axios.post(
+        "http://localhost:3001/courses/link-user",
+        {
+          userId: user?.user?.id,
+          courseId: course.id,
+        },
+        {
+          headers: { Authorization: `Bearer ${user?.token}` },
+        }
+      );
+
+      if (response.status === 201) {
+        router.push(`/study/${course.id}`);
+      }
+    } catch (error) {
+      console.error("Error al inscribir al usuario", error);
+    }
+  };
+
+  const isUserSubscribed = user?.user?.Subscription?.status_sub === true;
   return (
     <div className="container grid grid-cols-1 justify-center !mt-20 bg-primary border-2 text-secondary rounded-3xl p-4 shadow-lg shadow-gray-700/40 ">
       <h1 className="text-center mt-5">{course?.title}</h1>
@@ -32,14 +89,14 @@ const Detail = (course: ICourse) => {
           </p>
           <div className="flex flex-col justify-between items-center">
             <p className="py-1 text-xl text-center">
-              Tipo de Curso:{' '}
-              {(course.type ?? '').charAt(0).toUpperCase() +
-                (course.type ?? '').slice(1)}
+              Tipo de Curso:{" "}
+              {(course.type ?? "").charAt(0).toUpperCase() +
+                (course.type ?? "").slice(1)}
             </p>
             <p className="py-1 text-xl text-center">
-              Dificultad:{' '}
-              {(course.difficulty ?? '').charAt(0).toUpperCase() +
-                (course.difficulty ?? '').slice(1)}
+              Dificultad:{" "}
+              {(course.difficulty ?? "").charAt(0).toUpperCase() +
+                (course.difficulty ?? "").slice(1)}
             </p>
             <p className="py-1 text-xl text-center">
               Duración: {course.duration} horas
@@ -49,13 +106,19 @@ const Detail = (course: ICourse) => {
             </p>
             <div className="text-center">
               {isUserSubscribed ? (
-                <Button disabled>Inscribirme</Button>
+                isUserInscript ? (
+                  <Button onClick={() => router.push(`/study/${course.id}`)}>
+                    Ver Curso
+                  </Button>
+                ) : (
+                  <Button onClick={handleOnClick}>Inscribirme</Button>
+                )
               ) : (
                 <>
                   {isUserLoggedIn ? (
                     <BuyButton course={course} />
                   ) : (
-                    <Button onClick={() => router.push('/login')}>
+                    <Button onClick={() => router.push("/login")}>
                       Suscribirme
                     </Button>
                   )}

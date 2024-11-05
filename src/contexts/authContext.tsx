@@ -5,7 +5,7 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { useSession, signOut } from "next-auth/react";
 import axios from "axios";
-import jwtDecode from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 const MySwal = withReactContent(Swal);
 
@@ -39,7 +39,9 @@ export const AuthProvider = ({ children }: IAuthProviderProps) => {
     const url = "http://localhost:3001";
 
     // Si ya se creó o ya existe en sessionStorage, no crear de nuevo
-    const existingUser = JSON.parse(sessionStorage.getItem("userDevNavigator"));
+    const storedUser = sessionStorage.getItem("userDevNavigator");
+    const existingUser = storedUser ? JSON.parse(storedUser) : null;
+    /* const existingUser = JSON.parse(sessionStorage.getItem("userDevNavigator")); */
     if (existingUser || userCreatedRef.current) return;
 
     if (session?.user) {

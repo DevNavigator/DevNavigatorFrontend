@@ -1,24 +1,26 @@
-'use client';
+"use client";
 
-import Button from '@/components/Button/Button';
-import { AuthContext } from '@/contexts/authContext';
-import { CartContext } from '@/contexts/CartContext';
+import Button from "@/components/Button/Button";
+import { AuthContext } from "@/contexts/authContext";
+import { CartContext } from "@/contexts/CartContext";
 // import { IOrderSuscription } from '@/interfaces/Iforms';
-import { ICourse } from '@/interfaces/Icourse';
+import { ICourse } from "@/interfaces/Icourse";
 
-import { useRouter } from 'next/navigation';
-import { useContext, useEffect, useState } from 'react';
-import { FaShoppingCart, FaShoppingBag } from 'react-icons/fa';
+import { useRouter } from "next/navigation";
+import { useContext, useEffect, useState } from "react";
+import { FaShoppingCart, FaShoppingBag } from "react-icons/fa";
 import {
   FaCircleCheck,
   FaCircleXmark,
   FaDollarSign,
   FaRegTrashCan,
-} from 'react-icons/fa6';
-import styles from './Cart.module.css';
-import Swal from 'sweetalert2';
-import withReactContent from 'sweetalert2-react-content';
-import { useSession, signOut } from 'next-auth/react';
+} from "react-icons/fa6";
+import styles from "./Cart.module.css";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+import { useSession, signOut } from "next-auth/react";
+import { fetchSubscriptionTypes } from "@/services/subsService";
+import { purchaseCourse } from "@/components/MercadoPago/mercadopago";
 
 const MySwal = withReactContent(Swal);
 
@@ -52,19 +54,18 @@ const Page = () => {
   //   }
   // }, [user, router, session]);
 
-
   const handleRemove = (productId: string, productName: string) => {
     MySwal.fire({
       title: `¿Estás seguro que quieres eliminar ${productName}?`,
-      icon: 'warning',
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Aceptar',
-      cancelButtonText: 'Cancelar',
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Aceptar",
+      cancelButtonText: "Cancelar",
       backdrop: true,
       toast: true,
-      position: 'center',
+      position: "center",
     }).then((result) => {
       if (result.isConfirmed) {
         removeFromCart(productId, productName);
@@ -75,15 +76,15 @@ const Page = () => {
   const handleClearCart = () => {
     MySwal.fire({
       title: `¿Estás seguro que quieres vaciar el carrito?`,
-      icon: 'warning',
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Aceptar',
-      cancelButtonText: 'Cancelar',
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Aceptar",
+      cancelButtonText: "Cancelar",
       backdrop: true,
       toast: true,
-      position: 'center',
+      position: "center",
     }).then((result) => {
       if (result.isConfirmed) {
         clearCart();
@@ -91,85 +92,42 @@ const Page = () => {
     });
   };
 
-const handleOrder = async () => {
-  const userId = user?.user.id;
-  const url = `http://localhost:3001/subscriptions/${userId}`;
- // console.log(user?.token);
+  const handleOrderMercadopago = async () => {
+    const suscription = await fetchSubscriptionTypes();
+    const course = cart[0]; // si es una unica suscripcion cart no deberia ser un array
 
-  // Preguntar al usuario si desea confirmar la suscripción
-  const result = await MySwal.fire({
-    title: '¿Deseas abonar la suscripción?',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Sí',
-    cancelButtonText: 'No',
-    backdrop: true,
-    toast: false, // Cambiado a false para que no sea un toast
-    position: 'center',
-  });
+    const userId = user?.user?.id;
+    if (!userId) {
+      console.error("Usuario no autenticado");
+      return;
+    }
+    const url = await purchaseCourse(userId, suscription, course);
+    router.push(url);
+  };
 
-  // Si el usuario confirma, proceder con la solicitud de suscripción
-  if (result.isConfirmed) {
-    fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${user?.token}`,
-      },
-      body: JSON.stringify({
-        userId,
-        status_sub: true,
-        typeSubscription:'MENSUAL',
-      }),
-    })
-      .then((res) => res.json())
-      .then((json) => {
-        console.log(json);
-        const subscriptionId = json.status_sub;
-        console.log(subscriptionId);
+  const handleOrder = async () => {
+    /* const userId = user?.user?.id;
+    const url = `http://localhost:3001/subscriptions/${userId}`; */
+    // console.log(user?.token);
 
-        // Actualiza el estado del usuario con la nueva suscripción
-        if (subscriptionId) {
-          setUser({
-            ...user,
-            user: {
-              ...user?.user,
-              Subscription: {
-                id: json.id,
-                start_sub: json.start_sub,
-                end_sub: json.end_sub,
-                status_sub: json.status_sub,
-              },
-            },
-          });
-        }
-       MySwal.fire({
-          title: '¡Te has suscripto con éxito!',
-          icon: 'success',
-          confirmButtonText: 'Aceptar',
-          backdrop: true,
-          toast: true,
-          position: 'center',
-        });
-        // hacer un useRouter para redirigir al usuario a la página del curso
-         clearCart();
-       router.back();
-        //router.push('/courses');
-      })
-      .catch((error) => {
-        console.error('Error al procesar la suscripción:', error);
-        MySwal.fire({
-          title: 'Error',
-          text: 'No se pudo procesar la suscripción.',
-          icon: 'error',
-          confirmButtonText: 'Aceptar',
-          backdrop: true,
-          position: 'center',
-        });
-      });
-  }
-};
+    // Preguntar al usuario si desea confirmar la suscripción
+    const result = await MySwal.fire({
+      title: "¿Deseas abonar la suscripción?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Sí",
+      cancelButtonText: "No",
+      backdrop: true,
+      toast: false, // Cambiado a false para que no sea un toast
+      position: "center",
+    });
 
+    // Si el usuario confirma, proceder con la solicitud de suscripción
+    if (result.isConfirmed) {
+      handleOrderMercadopago();
+      clearCart();
+    }
+  };
 
   // const handleOrder = () => {
   //   const userId = user?.user.id;
@@ -231,13 +189,12 @@ const handleOrder = async () => {
   // };
 
   return (
-    <div
-      className="container"
-      style={{ marginTop: '5rem' }}
-    >
+    <div className="container" style={{ marginTop: "5rem" }}>
       <div className="max-w-4xl mt-16 mb-16 mx-auto bg-primary rounded-xl shadow-lg overflow-hidden ">
         <div className="bg-primary p-6 text-secondary flex items-center justify-center">
-          <h1 className="text-3xl font-bold text-secondary text-center">Suscríbete a Dev {'</>'} Navigator</h1>
+          <h1 className="text-3xl font-bold text-secondary text-center">
+            Suscríbete a Dev {"</>"} Navigator
+          </h1>
           {/* <p>{session?.user?.name ?? 'Unknown'}</p>
           <p>{session?.user?.email ?? 'Unknown'}</p>
           <img
@@ -252,10 +209,7 @@ const handleOrder = async () => {
             <div className="text-center text-secondary py-8">
               <FaShoppingCart className="mx-auto mb-4 text-5xl" />
               <p className="text-xl">No hay cursos en el carrito</p>
-              <Button
-                onClick={() => router.push('/courses')}
-                className="mt-4"
-              >
+              <Button onClick={() => router.push("/courses")} className="mt-4">
                 Ir a cursos
               </Button>
             </div>
