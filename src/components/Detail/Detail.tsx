@@ -85,7 +85,16 @@ const Detail = (course: ICourse) => {
       }
     };
     refreshUser();
-  }, [userId, token, isUserExternal]);
+  }, [
+    userId,
+    token,
+    isUserExternal,
+    course.id,
+    user,
+    userExternal,
+    setUser,
+    setUserExternal,
+  ]);
 
   const handleOnClick = async () => {
     try {

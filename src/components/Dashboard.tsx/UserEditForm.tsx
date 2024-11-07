@@ -4,11 +4,10 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
 import Button from "../Button/Button";
-import { Console, log } from "console";
 
 interface UserEditFormProps {
   userId: string;
-  token: string;
+  token: string | undefined;
   closeModal: () => void;
 }
 
@@ -34,6 +33,10 @@ const UserEditForm = ({ userId, token, closeModal }: UserEditFormProps) => {
   useEffect(() => {
     if (!userId) {
       setError("ID de usuario no válido.");
+      return;
+    }
+    if (!token) {
+      console.error("Token invalido");
       return;
     }
 
@@ -69,7 +72,7 @@ const UserEditForm = ({ userId, token, closeModal }: UserEditFormProps) => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prevData => ({
+    setFormData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
@@ -120,7 +123,6 @@ const UserEditForm = ({ userId, token, closeModal }: UserEditFormProps) => {
           },
         }
       );
-
       // Mostrar mensaje de éxito
       await Swal.fire({
         title: "¡Actualizado!",
@@ -132,6 +134,8 @@ const UserEditForm = ({ userId, token, closeModal }: UserEditFormProps) => {
       closeModal(); // Cerrar el modal después de actualizar
     } catch (error: any) {
       if (error.response) {
+        console.log(error);
+
         await Swal.fire({
           title: "¡Error!",
           text: "Error al actualizar el usuario, intentalo nuevamente",

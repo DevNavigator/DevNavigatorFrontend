@@ -2,7 +2,7 @@
 
 import React, { useContext, useEffect, useState } from "react";
 import { useParams } from "next/navigation"; // Usa useParams para obtener parámetros de la URL
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { AuthContext } from "@/contexts/authContext";
 
@@ -27,6 +27,7 @@ interface Course {
 }
 
 const StudyPage: React.FC = () => {
+  const { user, userExternal } = useContext(AuthContext);
   const { id } = useParams(); // Obtiene el ID del curso
   const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -35,6 +36,18 @@ const StudyPage: React.FC = () => {
   const [showQuestions, setShowQuestions] = useState<boolean>(false);
   const [userAnswers, setUserAnswers] = useState<number[]>([]);
   const [quizCompleted, setQuizCompleted] = useState<boolean>(false);
+  const { status } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === "loading") {
+      // Espera a que se complete la carga
+      return;
+    }
+    if (!user && !userExternal) {
+      router.push("/login");
+    }
+  }, [status, user, userExternal, router]);
 
   useEffect(() => {
     const fetchCourse = async () => {

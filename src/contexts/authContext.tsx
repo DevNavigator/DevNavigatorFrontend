@@ -1,11 +1,12 @@
 "use client";
-import { IUserLogin, IUserSession, IUserNavigator } from "@/interfaces/Iforms";
-import { createContext, useEffect, useState, useRef } from "react";
+import { IUserSession, IUserNavigator } from "@/interfaces/Iforms";
+import { createContext, useEffect, useState, useRef, useCallback } from "react";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { useSession, signOut } from "next-auth/react";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import { useRouter } from "next/router";
 
 const MySwal = withReactContent(Swal);
 
@@ -35,17 +36,15 @@ export const AuthProvider = ({ children }: IAuthProviderProps) => {
   const { data: session } = useSession();
   const userCreatedRef = useRef(false);
 
-  const createUserExternal = async () => {
+  const createUserExternal = useCallback(async () => {
     const url = "http://localhost:3001";
-
-    // Si ya se creó o ya existe en sessionStorage, no crear de nuevo
     const storedUser = sessionStorage.getItem("userDevNavigator");
     const existingUser = storedUser ? JSON.parse(storedUser) : null;
-    /* const existingUser = JSON.parse(sessionStorage.getItem("userDevNavigator")); */
+
     if (existingUser || userCreatedRef.current) return;
 
     if (session?.user) {
-      userCreatedRef.current = true; // Evita duplicados al establecerlo antes de crear
+      userCreatedRef.current = true;
 
       try {
         const response = await axios.post(`${url}/auth/create-user`, {
@@ -63,12 +62,31 @@ export const AuthProvider = ({ children }: IAuthProviderProps) => {
         }
       } catch (error) {
         console.error("Error al crear usuario externo:", error);
-        userCreatedRef.current = false; // Restablece en caso de error
+        userCreatedRef.current = false;
       }
     }
-  };
+  }, [session]);
 
-  const checkTokenExpiration = () => {
+  const forceLogout = useCallback(async () => {
+    await signOut({ redirect: false });
+    sessionStorage.removeItem("userLocal");
+    sessionStorage.removeItem("userDevNavigator");
+    localStorage.removeItem("user");
+    setUser(null);
+    setUserExternal(null);
+    await MySwal.fire({
+      title: "Cierre forzado de DevNavigator💙💻",
+      text: "Se ha cerrado sesión por seguridad de tus datos, por favor inicia sesión nuevamente para seguir estudiando.",
+      icon: "info",
+      confirmButtonText: "cerrar",
+      backdrop: true,
+      toast: false,
+      position: "center",
+    });
+    window.location.href = "/";
+  }, [setUser, setUserExternal]);
+
+  const checkTokenExpiration = useCallback(() => {
     // Chequeo para el usuario externo
     const userDevNavigator = JSON.parse(
       sessionStorage.getItem("userDevNavigator")!
@@ -106,7 +124,7 @@ export const AuthProvider = ({ children }: IAuthProviderProps) => {
         forceLogout();
       }
     }
-  };
+  }, [forceLogout]);
 
   useEffect(() => {
     if (user) {
@@ -120,7 +138,7 @@ export const AuthProvider = ({ children }: IAuthProviderProps) => {
     const intervalId = setInterval(checkTokenExpiration, 60000);
 
     return () => clearInterval(intervalId);
-  }, [user, session]);
+  }, [user, session, checkTokenExpiration, createUserExternal]);
 
   useEffect(() => {
     if (typeof window !== "undefined" && window.sessionStorage) {
@@ -163,25 +181,6 @@ export const AuthProvider = ({ children }: IAuthProviderProps) => {
       setUserExternal(null);
       window.location.href = "/";
     }
-  };
-
-  const forceLogout = async () => {
-    await signOut({ redirect: false });
-    sessionStorage.removeItem("userLocal");
-    sessionStorage.removeItem("userDevNavigator");
-    localStorage.removeItem("user");
-    setUser(null);
-    setUserExternal(null);
-    await MySwal.fire({
-      title: "Cierre forzado de DevNavigator💙💻",
-      text: "Se ha cerrado sesión por seguridad de tus datos, por favor inicia sesión nuevamente para seguir estudiando.",
-      icon: "info",
-      confirmButtonText: "cerrar",
-      backdrop: true,
-      toast: false,
-      position: "center",
-    });
-    window.location.href = "/";
   };
 
   return (

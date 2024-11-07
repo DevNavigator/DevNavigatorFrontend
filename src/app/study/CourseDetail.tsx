@@ -1,8 +1,6 @@
-import { AuthContext } from "@/contexts/authContext";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { useSession, signOut } from "next-auth/react";
-import { useRouter } from "next/router";
+import Image from "next/image";
 
 interface Video {
   url: string;
@@ -100,7 +98,7 @@ const CourseDetail: React.FC = () => {
   return (
     <div className="p-6">
       <h2 className="text-2xl font-semibold mb-2">{course.title}</h2>
-      <img
+      <Image
         src={course.image_url}
         alt={course.title}
         className="rounded-lg mb-2"

@@ -1,9 +1,6 @@
-import Button from '@/components/Button/Button';
-import ButtonGoogle from '@/components/ButtonGoogle/ButtonGoogle';
-import LoginForm from '@/components/LoginForm/LoginForm';
-import { signIn, useSession } from 'next-auth/react';
-
-// import { LoginButton } from "@/components/LoginButton/LoginButton";
+import Button from "@/components/Button/Button";
+import ButtonGoogle from "@/components/ButtonGoogle/ButtonGoogle";
+import LoginForm from "@/components/LoginForm/LoginForm";
 
 const page = () => {
   return (
