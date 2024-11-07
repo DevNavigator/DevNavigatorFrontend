@@ -52,12 +52,6 @@ const Navbar = () => {
               <div>
                 <UserWidget />
               </div>
-              <Link
-                href="/"
-                className="hover:bg-secondary hover:text-white rounded-lg p-2"
-              >
-                <NotificationBell />
-              </Link>
             </div>
           </div>
           <div className="md:hidden flex items-center">

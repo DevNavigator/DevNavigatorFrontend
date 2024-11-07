@@ -15,20 +15,13 @@ import ChangePasswordForm from "./ChangePasswordForm ";
 import ChangeUserTypeModal from "./admin dashboard/changeUserTypeModal";
 import { FaUserCheck, FaUserEdit } from "react-icons/fa";
 import { PiUserSwitchFill } from "react-icons/pi";
-import { MdDeleteForever } from "react-icons/md";
-import { IUserNavigator } from "@/interfaces/Iforms";
-
-interface JwtPayload {
-  id: string;
-  email: string;
-  name: string;
-  types: string;
-}
+import { JwtPayload } from "@/interfaces/JwtPayload";
+import UserProfileImage from "./UserImageProfile";
+import DeleteUserButton from "./DeleteUserButton";
 
 const Dashboard = () => {
   const { user, setUser, userExternal, setUserExternal } =
     useContext(AuthContext);
-  // const [currentUser, setCurrentUser] = useState<IUserNavigator | null>(null);
   const [userType, setUserType] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState<boolean>(false);
@@ -61,15 +54,6 @@ const Dashboard = () => {
     }
   }, [user, userExternal, setUser, setUserExternal]);
 
-  // const getUserProperty = (property) => {
-  //   return currentUser?.user?.[property] || currentUser?.user?.[property];
-  // };
-
-  console.log("Usuario actual:", user, "normal", userExternal, "external");
-  console.log("Usuario actual 2:", user?.success || userExternal?.success);
-  console.log("Usuario actual 5:", user?.user || userExternal?.user);
-  console.log("Usuario actual 3:", user?.token || userExternal?.token);
-
   const isADMIN = userType === "ADMIN";
   const isSUPER_ADMIN = userType === "SUPER_ADMIN";
 
@@ -100,7 +84,7 @@ const Dashboard = () => {
     setShowChangeUserTypeModal(true);
   };
 
-  const saveUserType = async (newType: UserType) => {
+  const saveUserType: any = async (newType: UserType) => {
     const url = "http://localhost:3001";
     if (!selectedUserId) return;
     try {
@@ -159,66 +143,6 @@ const Dashboard = () => {
     }
   };
 
-  const handleUpload = async () => {
-    const url = "http://localhost:3001";
-    if (file) {
-      const formData = new FormData();
-      formData.append("file", file);
-      setUploading(true);
-      try {
-        const response = await axios.post(
-          `${url}/files/imgprofile/${user?.user?.id || userExternal?.user?.id}`,
-          formData,
-          {
-            headers: {
-              Authorization: `Bearer ${user?.token || userExternal?.token}`,
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          const updatedUserResponse = await axios.get(
-            `${url}/user/${user?.user?.id || userExternal?.user?.id}`,
-            {
-              headers: {
-                Authorization: `Bearer ${user?.token || userExternal?.token}`,
-              },
-            }
-          );
-
-          const updatedUser = {
-            ...(user || userExternal),
-            user: {
-              ...(user?.user || userExternal?.user),
-              imgProfile:
-                updatedUserResponse.data.imgProfile ||
-                user?.user?.imgProfile ||
-                userExternal?.user?.imgProfile,
-            },
-          };
-
-          setUser(updatedUser);
-          setUserExternal(updatedUser);
-
-          setFile(null);
-          if (fileInputRef.current) {
-            fileInputRef.current.value = "";
-          }
-        }
-      } catch (error) {
-        console.error("Error al subir la imagen:", error);
-        Swal.fire({
-          icon: "error",
-          title: "Oops...",
-          text: "Hubo un problema al subir la imagen. Inténtalo de nuevo.",
-        });
-      } finally {
-        setUploading(false);
-      }
-    }
-  };
-
   const handleEditUser = (userId: string) => () => {
     setSelectedUserId(userId);
     setShowEditPanel(true);
@@ -226,87 +150,9 @@ const Dashboard = () => {
     setShowChangePasswordPanel(false);
   };
 
-  const handleDeleteUser = (userId: string) => async () => {
-    const url = "http://localhost:3001";
-    const userToDelete = allUsers.find(user => user.id === userId);
-
-    if (userToDelete?.userType === "SUPER_ADMIN") {
-      Swal.fire({
-        icon: "error",
-        title: "Acción no permitida",
-        text: "No puedes eliminar al SUPER_ADMIN.",
-      });
-      return;
-    }
-
-    if (
-      userId === user?.user?.id ||
-      (userId === userExternal?.user?.id && (isADMIN || isSUPER_ADMIN))
-    ) {
-      Swal.fire({
-        icon: "warning",
-        title: "Acción no permitida",
-        text: "No puedes darte de baja a ti mismo.",
-      });
-      return;
-    }
-
-    try {
-      const result = await Swal.fire({
-        title: "¿Estás seguro?",
-        text: "¡No podrás deshacer esta acción!",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Sí, eliminar",
-      });
-
-      if (result.isConfirmed) {
-        await axios.patch(
-          `${url}/user/changeStatus/${userId}`,
-          { statusUser: false },
-          {
-            headers: {
-              Authorization: `Bearer ${user?.token || userExternal?.token}`,
-            },
-          }
-        );
-
-        fetchAllUsers();
-        Swal.fire(
-          "¡Usuario dado de baja!",
-          "El usuario ha sido eliminado.",
-          "success"
-        );
-      }
-    } catch (error) {
-      console.error("Error al eliminar el usuario:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Oops...",
-        text: "Hubo un problema al eliminar el usuario. Inténtalo de nuevo.",
-      });
-    }
-  };
-
   const updateUserInfo = async () => {
     const url = "http://localhost:3001";
-
-    // const userUpdate = allUsers.find((user) => user.id === userId);
-
-    // if (userUpdate?.userType === "SUPER_ADMIN") {
-    //   Swal.fire({
-    //     icon: "error",
-    //     title: "Acción no permitida",
-    //     text: "No puedes modificar al SUPER_ADMIN.",
-    //   });
-    //   return;
-    // }
-
     try {
-      console.log("USUARIO ERROR", user);
-      console.log("USUARIO ERROR", userExternal);
       const updatedUserResponse = await axios.get(
         `${url}/user/${user?.user?.id || userExternal?.user?.id}`,
         {
@@ -315,15 +161,14 @@ const Dashboard = () => {
           },
         }
       );
-
       const updatedData = updatedUserResponse.data;
       if (user && user?.user?.id === updatedData.id) {
-        setUser(prev => ({
+        setUser((prev) => ({
           ...prev,
           user: { ...prev.user, ...updatedData },
         }));
       } else if (userExternal && userExternal?.user?.id === updatedData.id) {
-        setUserExternal(prev => ({
+        setUserExternal((prev) => ({
           ...prev,
           user: { ...prev.user, ...updatedData },
         }));
@@ -349,31 +194,12 @@ const Dashboard = () => {
   return (
     <div className="flex flex-col md:flex-row max-w-6xl mx-auto mt-12 mb-16 bg-white shadow-lg rounded-lg overflow-hidden">
       <div className="bg-gray-50 md:w-1/3 p-6 border-r border-gray-200 flex flex-col items-center md:items-start">
-        <div className="flex justify-center items-center mb-4 w-full">
-          <div
-            className="relative w-48 h-48 rounded-full overflow-hidden shadow-lg cursor-pointer flex justify-center items-center"
-            onClick={() => fileInputRef.current?.click()}>
-            <Image
-              src={
-                user?.user?.imgProfile ||
-                userExternal?.user?.imgProfile ||
-                "/DevNavigator.png"
-              }
-              alt="Foto de Perfil"
-              layout="fill"
-              className="object-cover absolute inset-0"
-            />
-          </div>
-        </div>
-
-        {file && (
-          <div className="flex justify-center items-center w-full h-full">
-            <Button onClick={handleUpload} disabled={uploading} className="m-4">
-              {uploading ? "Cargando..." : "Subir"}
-            </Button>
-          </div>
-        )}
-
+        <UserProfileImage
+          userId={user?.user?.id || userExternal?.user?.id}
+          token={user?.token || userExternal?.token}
+          imgProfile={user?.user?.imgProfile || userExternal?.user?.imgProfile}
+          onUpdate={updateUserInfo}
+        />
         <input
           ref={fileInputRef}
           type="file"
@@ -403,7 +229,8 @@ const Dashboard = () => {
 
         <Button
           className="mt-6 w-full"
-          onClick={handleEditUser(user?.user?.id || userExternal?.user?.id)}>
+          onClick={handleEditUser(user?.user?.id || userExternal?.user?.id)}
+        >
           Modificar Información
         </Button>
         {user ? (
@@ -413,7 +240,8 @@ const Dashboard = () => {
               setShowEditPanel(false);
               setShowUsersPanel(false);
             }}
-            className="mt-4 w-full">
+            className="mt-4 w-full"
+          >
             Cambiar Contraseña
           </Button>
         ) : null}
@@ -427,7 +255,8 @@ const Dashboard = () => {
                 setShowEditPanel(false);
                 setShowChangePasswordPanel(false);
               }}
-              className="w-full mb-2">
+              className="w-full mb-2"
+            >
               Ver Usuarios Activos
             </Button>
             <Button
@@ -438,17 +267,22 @@ const Dashboard = () => {
                 setShowEditPanel(false);
                 setShowChangePasswordPanel(false);
               }}
-              className="w-full mb-4">
+              className="w-full mb-4"
+            >
               Ver Usuarios Inactivos
             </Button>
           </div>
         )}
 
-        <button
-          onClick={handleDeleteUser(user?.user?.id || userExternal?.user?.id)}
-          className="mt-4 w-full bg-red-500 text-white p-2 px-3 rounded-3xl hover:bg-primary hover:text-red-500 hover:border hover:border-red-500 transition-all hover:scale-110 active:scale-95 ease-in-out duration-300">
-          Darse de baja
-        </button>
+        <DeleteUserButton
+          userId={user?.user?.id || userExternal?.user?.id}
+          userType={user?.user?.typeUser || userExternal?.user?.typeUser}
+          allUsers={allUsers}
+          fetchAllUsers={fetchAllUsers}
+          buttonText="Darse de baja" // Puedes cambiar el texto aquí si es necesario
+          buttonClass="mt-4 w-full bg-red-500 text-white p-2 px-3 rounded-3xl hover:bg-primary hover:text-red-500 hover:border hover:border-red-500 transition-all hover:scale-110 active:scale-95 ease-in-out duration-300" // Puedes personalizar los estilos aquí
+          showIcon={false}
+        />
       </div>
 
       {/* Columna Derecha: Paneles Dinámicos */}
@@ -461,9 +295,11 @@ const Dashboard = () => {
               token={user?.token || userExternal?.token}
               closeModal={closePanels}
             />
-            <Button onClick={closePanels} className="mt-4">
-              Cerrar
-            </Button>
+            <div className="flex justify-center">
+              <Button onClick={closePanels} className="mt-10">
+                Cerrar
+              </Button>
+            </div>
           </div>
         )}
 
@@ -483,10 +319,11 @@ const Dashboard = () => {
 
             {showActiveUsers ? (
               allUsers.length > 0 ? (
-                allUsers.map(user => (
+                allUsers.map((user) => (
                   <div
                     key={user.id}
-                    className="flex justify-between items-center mb-4">
+                    className="flex justify-between items-center mb-4"
+                  >
                     <span className="flex-grow flex items-center">
                       {" "}
                       {/* Flexbox en fila para alinear imagen y texto */}
@@ -518,21 +355,26 @@ const Dashboard = () => {
                     <div className="flex items-center">
                       <Button
                         onClick={handleEditUser(user.id)}
-                        className="mr-2 px-3">
+                        className="mr-2 px-3"
+                      >
                         <FaUserEdit className="w-6 h-6" />
                       </Button>
                       <Button
                         onClick={() =>
                           handleChangeUserType(user.id, user.userType)
                         }
-                        className="mr-2 px-3  bg-slate-600 text-white">
+                        className="mr-2 px-3  bg-slate-600 text-white"
+                      >
                         <PiUserSwitchFill className="w-6 h-6" />
                       </Button>
-                      <button
-                        onClick={handleDeleteUser(user.id)}
-                        className="bg-red-500 text-white p-2 px-3 rounded-3xl hover:bg-primary hover:text-red-500 hover:border hover:border-red-500 transition-all hover:scale-110 active:scale-95 ease-in-out duration-300">
-                        <MdDeleteForever className="w-8 h-6" />
-                      </button>
+                      <DeleteUserButton
+                        userId={user.id}
+                        userType={userType}
+                        allUsers={allUsers}
+                        fetchAllUsers={fetchAllUsers}
+                        showIcon={true}
+                        showText={false}
+                      />
                     </div>
                   </div>
                 ))
@@ -540,10 +382,11 @@ const Dashboard = () => {
                 <div>No hay usuarios activos.</div>
               )
             ) : inactiveUsers.length > 0 ? (
-              inactiveUsers.map(user => (
+              inactiveUsers.map((user) => (
                 <div
                   key={user.id}
-                  className="flex justify-between items-center mb-4">
+                  className="flex justify-between items-center mb-4"
+                >
                   <span className="flex-grow flex items-center">
                     {" "}
                     {/* Flexbox en fila para alinear imagen y texto */}
@@ -574,12 +417,14 @@ const Dashboard = () => {
                   <div className="flex items-center">
                     <Button
                       onClick={() => handleActivateUser(user.id)}
-                      className="mr-2 px-3 bg-green-500 text-white hover:bg-white hover:text-green-500 hover:border hover:border-green-500 transition-all hover:scale-110 active:scale-95 ease-in-out duration-300">
+                      className="mr-2 px-3 bg-green-600 text-white hover:bg-white hover:text-green-500 hover:border hover:border-green-500 transition-all hover:scale-110 active:scale-95 ease-in-out duration-300"
+                    >
                       <FaUserCheck className="w-6 h-6" />
                     </Button>
                     <Button
                       onClick={handleEditUser(user.id)}
-                      className="mr-2 px-3">
+                      className="mr-2 px-3"
+                    >
                       <FaUserEdit className="w-6 h-6" />
                     </Button>
                   </div>
