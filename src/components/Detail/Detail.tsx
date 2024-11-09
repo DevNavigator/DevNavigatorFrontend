@@ -36,8 +36,6 @@ const Detail = (course: ICourse) => {
       if (!userId || !token) return;
 
       const data = await fetchUserData(userId, token);
-      console.log(data);
-
       if (data.Courses) {
         const isUserAlreadyInscript = data.Courses.some(
           (userCourse: { id: string }) => userCourse.id === course.id
@@ -97,9 +95,10 @@ const Detail = (course: ICourse) => {
   ]);
 
   const handleOnClick = async () => {
+    const url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
     try {
       const response = await axios.post(
-        "http://localhost:3001/courses/link-user",
+        `${url}/courses/link-user`,
         {
           userId,
           courseId: course.id,

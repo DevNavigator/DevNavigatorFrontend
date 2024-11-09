@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }: IAuthProviderProps) => {
   const userCreatedRef = useRef(false);
 
   const createUserExternal = useCallback(async () => {
-    const url = "http://localhost:3001";
+    const url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
     const storedUser = sessionStorage.getItem("userDevNavigator");
     const existingUser = storedUser ? JSON.parse(storedUser) : null;
 

@@ -68,7 +68,7 @@ const Dashboard = () => {
   const isSUPER_ADMIN = userType === "SUPER_ADMIN";
 
   const fetchAllUsers = useCallback(async () => {
-    const url = "http://localhost:3001";
+    const url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
     try {
       const response = await axios.get(`${url}/user`, {
         headers: {
@@ -95,7 +95,7 @@ const Dashboard = () => {
   };
 
   const saveUserType = async (newType: UserType) => {
-    const url = "http://localhost:3001";
+    const url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
     if (!selectedUserId) return;
     try {
       await axios.patch(
@@ -120,7 +120,7 @@ const Dashboard = () => {
   };
 
   const handleActivateUser = async (userId: string) => {
-    const url = "http://localhost:3001";
+    const url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
     try {
       await axios.patch(
         `${url}/user/changeStatus/${userId}`,
@@ -154,7 +154,7 @@ const Dashboard = () => {
   };
 
   const handleUpload = async () => {
-    const url = "http://localhost:3001";
+    const url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
     if (file) {
       const formData = new FormData();
       formData.append("file", file);
@@ -229,7 +229,7 @@ const Dashboard = () => {
     if (!userId) {
       throw new Error("No existe el id del usuario");
     }
-    const url = "http://localhost:3001";
+    const url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
     const userToDelete = allUsers.find((user) => user.id === userId);
 
     if (userToDelete?.userType === "SUPER_ADMIN") {
@@ -293,7 +293,7 @@ const Dashboard = () => {
   };
 
   const updateUserInfo = async () => {
-    const url = "http://localhost:3001";
+    const url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
     // const userUpdate = allUsers.find((user) => user.id === userId);
 
@@ -309,14 +309,11 @@ const Dashboard = () => {
     try {
       const userId = user?.user?.id || userExternal?.user?.id;
       const token = user?.token || userExternal?.token;
-      const updatedUserResponse = await axios.get(
-        `http://localhost:3001/user/${userId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const updatedUserResponse = await axios.get(`${url}/user/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       const updatedData = updatedUserResponse.data;
 

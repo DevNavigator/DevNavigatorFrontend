@@ -22,7 +22,7 @@ const ChangeUserTypeModal = ({
   const [newType, setNewType] = useState(currentType);
 
   const handleChangeUserType = async () => {
-    const url = `http://localhost:3001/user/userType/${userId}`;
+    const url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
     if (!token) {
       console.error("No existe el token.");
@@ -30,7 +30,7 @@ const ChangeUserTypeModal = ({
     }
     try {
       const response = await axios.patch(
-        url,
+        `${url}/user/userType/${userId}`,
         {
           userType: newType,
         },

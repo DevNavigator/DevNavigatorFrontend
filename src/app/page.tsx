@@ -7,7 +7,7 @@ import { ICourse } from "@/interfaces/Icourse";
 import { getCourse } from "@/services/coursesServices";
 
 const page = async () => {
-  const url = `${process.env.API_URL}/courses`;
+  const url = `${process.env.NEXT_PUBLIC_API_URL}`;
   const courses = await getCourse(url);
   const fistCourses = courses.slice(0, 3);
 

@@ -102,7 +102,6 @@ const Page = () => {
     } else {
       userId = userExternal?.user?.id;
     }
-    console.log(userId);
 
     if (!userId) {
       console.error("Usuario no autenticado");
@@ -113,10 +112,6 @@ const Page = () => {
   };
 
   const handleOrder = async () => {
-    /* const userId = user?.user?.id;
-    const url = `http://localhost:3001/subscriptions/${userId}`; */
-    // console.log(user?.token);
-
     // Preguntar al usuario si desea confirmar la suscripción
     const result = await MySwal.fire({
       title: "¿Deseas abonar la suscripción?",
@@ -135,65 +130,6 @@ const Page = () => {
       clearCart();
     }
   };
-
-  // const handleOrder = () => {
-  //   const userId = user?.user.id;
-  //   const url = `http://localhost:3001/subscriptions/${userId}`;
-  //   console.log(user?.token);
-
-  //   fetch(url, {
-  //     method: 'POST',
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //       Authorization: `Bearer ${user?.token}`,
-  //     },
-  //     body: JSON.stringify({
-  //       userId,
-  //     }),
-  //   })
-  //     .then((res) => res.json())
-  //     .then((json) => {
-  //       console.log(json);
-  //       const subscriptionId = json.status_sub;
-  //       console.log(subscriptionId);
-
-  //       // Actualiza el estado del usuario con la nueva suscripción
-  //       if (subscriptionId) {
-  //         setUser({
-  //           ...user,
-  //           user: {
-  //             ...user?.user,
-  //             Subscription: {
-  //               id: json.id,
-  //               start_sub: json.start_sub,
-  //               end_sub: json.end_sub,
-  //               status_sub: json.status_sub,
-  //             },
-  //           },
-  //         });
-  //       }
-  //       MySwal.fire({
-  //         title: '¡Te has suscripto con éxito!',
-  //         icon: 'success',
-  //         confirmButtonText: 'Aceptar',
-  //         backdrop: true,
-  //         toast: true,
-  //         position: 'center',
-  //       });
-  //     })
-  //     .catch((error) => {
-  //       console.error('Error placing order:', error);
-  //       MySwal.fire({
-  //         title:
-  //           'Se ha producido un error al realizar el pedido. Por favor, inténtelo de nuevo.',
-  //         icon: 'error',
-  //         confirmButtonText: 'Aceptar',
-  //         backdrop: true,
-  //         toast: true,
-  //         position: 'center',
-  //       });
-  //     });
-  // };
 
   return (
     <div className="container" style={{ marginTop: "5rem" }}>
