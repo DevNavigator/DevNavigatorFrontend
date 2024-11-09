@@ -35,9 +35,8 @@ const CourseDetail: React.FC = () => {
   useEffect(() => {
     const fetchCourse = async () => {
       try {
-        const response = await fetch(
-          `http://localhost:3001/courses/${courseId}`
-        );
+        const url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+        const response = await fetch(`${url}/courses/${courseId}`);
         if (!response.ok) {
           throw new Error("Curso no encontrado");
         }

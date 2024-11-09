@@ -53,7 +53,9 @@ const StudyPage: React.FC = () => {
     const fetchCourse = async () => {
       if (id) {
         try {
-          const response = await fetch(`http://localhost:3001/courses/${id}`);
+          const url =
+            process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+          const response = await fetch(`${url}/courses/${id}`);
           const data: Course = await response.json();
           setCourse(data);
           setVideoCompleted(new Array(data.content.length).fill(false)); // Inicializar videoCompleted
