@@ -21,7 +21,7 @@ const UserEdit = () => {
   }, [user?.user?.id, userExternal?.user?.id]);
 
   // Verificar que el usuario esté autenticado
-  if (!user?.success) {
+  if (!user?.success && typeof window !== "undefined") {
     router.push("/login");
     return null; // Evitar renderizar antes de redirigir
   }
