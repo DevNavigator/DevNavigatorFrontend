@@ -23,8 +23,6 @@ const Dashboard = () => {
   const { user, setUser, userExternal, setUserExternal } =
     useContext(AuthContext);
   const [userType, setUserType] = useState<string | null>(null);
-  const [file, setFile] = useState<File | null>(null);
-  const [uploading, setUploading] = useState<boolean>(false);
   const [showEditPanel, setShowEditPanel] = useState<boolean>(false);
   const [showUsersPanel, setShowUsersPanel] = useState<boolean>(false);
   const [showChangePasswordPanel, setShowChangePasswordPanel] =
@@ -33,26 +31,10 @@ const Dashboard = () => {
   const [inactiveUsers, setInactiveUsers] = useState<IUser[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string>("");
   const [showActiveUsers, setShowActiveUsers] = useState<boolean>(true);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [showChangeUserTypeModal, setShowChangeUserTypeModal] = useState(false);
   const [selectedUserType, setSelectedUserType] = useState<UserType | null>(
     null
   );
-
-  useEffect(() => {
-    if (user?.success && user.token) {
-      const decodedToken = jwtDecode<JwtPayload>(user.token);
-      setUserType(decodedToken.types);
-      setUser(user);
-    } else if (userExternal?.success && userExternal.token) {
-      const decodedToken = jwtDecode<JwtPayload>(userExternal.token);
-      setUserType(decodedToken.types);
-      setUserExternal(userExternal);
-    } else {
-      setUser(null);
-      setUserExternal(null);
-    }
-  }, [user, userExternal, setUser, setUserExternal]);
 
   const isADMIN = userType === "ADMIN";
   const isSUPER_ADMIN = userType === "SUPER_ADMIN";
@@ -137,12 +119,6 @@ const Dashboard = () => {
     }
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files.length > 0) {
-      setFile(event.target.files[0]);
-    }
-  };
-
   const handleEditUser = (userId: string) => () => {
     setSelectedUserId(userId);
     setShowEditPanel(true);
@@ -150,7 +126,7 @@ const Dashboard = () => {
     setShowChangePasswordPanel(false);
   };
 
-  const updateUserInfo = async () => {
+  const updateUserInfo = useCallback(async () => {
     const url = "http://localhost:3001";
     try {
       const updatedUserResponse = await axios.get(
@@ -161,13 +137,14 @@ const Dashboard = () => {
           },
         }
       );
+
       const updatedData = updatedUserResponse.data;
-      if (user && user?.user?.id === updatedData.id) {
+      if (user && user.user?.id === updatedData.id) {
         setUser((prev) => ({
           ...prev,
           user: { ...prev.user, ...updatedData },
         }));
-      } else if (userExternal && userExternal?.user?.id === updatedData.id) {
+      } else if (userExternal && userExternal.user?.id === updatedData.id) {
         setUserExternal((prev) => ({
           ...prev,
           user: { ...prev.user, ...updatedData },
@@ -176,7 +153,23 @@ const Dashboard = () => {
     } catch (error) {
       console.error("Error al obtener el usuario actualizado:", error);
     }
-  };
+  }, [user, userExternal, setUser, setUserExternal]);
+
+  useEffect(() => {
+    if (user?.success && user.token) {
+      const decodedToken = jwtDecode<JwtPayload>(user.token);
+      setUserType(decodedToken.types);
+      setUser(user);
+    } else if (userExternal?.success && userExternal.token) {
+      const decodedToken = jwtDecode<JwtPayload>(userExternal.token);
+      setUserType(decodedToken.types);
+      setUserExternal(userExternal);
+      updateUserInfo();
+    } else {
+      setUser(null);
+      setUserExternal(null);
+    }
+  }, [user, userExternal, updateUserInfo, setUser, setUserExternal]);
 
   const closePanels = () => {
     setShowEditPanel(false);
@@ -200,14 +193,6 @@ const Dashboard = () => {
           imgProfile={user?.user?.imgProfile || userExternal?.user?.imgProfile}
           onUpdate={updateUserInfo}
         />
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          onChange={handleFileChange}
-          className="hidden"
-        />
-
         <div className="text-gray-700 space-y-2">
           <div className="flex items-center">
             <FaUser className="mr-2 text-lg" />
@@ -415,12 +400,12 @@ const Dashboard = () => {
                     </div>
                   </span>
                   <div className="flex items-center">
-                    <Button
+                    <button
                       onClick={() => handleActivateUser(user.id)}
-                      className="mr-2 px-3 bg-green-600 text-white hover:bg-white hover:text-green-500 hover:border hover:border-green-500 transition-all hover:scale-110 active:scale-95 ease-in-out duration-300"
+                      className="p-2 px-5 mr-2 rounded-3xl border border-trasparent bg-green-600  text-primary transition-all hover:bg-primary hover:text-green-600 hover:border-green-600 hover:border hover:scale-110 active:scale-95 ease-in-out duration-300"
                     >
                       <FaUserCheck className="w-6 h-6" />
-                    </Button>
+                    </button>
                     <Button
                       onClick={handleEditUser(user.id)}
                       className="mr-2 px-3"
