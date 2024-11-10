@@ -4,11 +4,10 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
 import Button from "../Button/Button";
-import { Console, log } from "console";
 
 interface UserEditFormProps {
   userId: string;
-  token: string;
+  token?: string;
   closeModal: () => void;
 }
 
@@ -69,14 +68,26 @@ const UserEditForm = ({ userId, token, closeModal }: UserEditFormProps) => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prevData => ({
+
+    // Limita la cantidad de caracteres a 30 y elimina espacios en blanco en los extremos
+    const trimmedValue = value.trimStart().slice(0, 30);
+
+    setFormData((prevData) => ({
       ...prevData,
-      [name]: value,
+      [name]: trimmedValue,
     }));
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    for (const key in formData) {
+      const value = formData[key as keyof typeof formData];
+      if (typeof value === "string" && value.trim() === "") {
+        setError("Por favor, completa todos los campos correctamente.");
+        return;
+      }
+    }
 
     const result = await Swal.fire({
       title: "¿Estás seguro?",
@@ -201,7 +212,7 @@ const UserEditForm = ({ userId, token, closeModal }: UserEditFormProps) => {
       <div className="text-center">
         <Button type="submit">Guardar Cambios</Button>
       </div>
-      {error && <p className="text-red-500">{error}</p>}
+      {error && <p className="text-center text-red-500 mt-5">{error}</p>}
     </form>
   );
 };
