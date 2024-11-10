@@ -88,7 +88,6 @@ const UserEditForm = ({ userId, token, closeModal }: UserEditFormProps) => {
         return;
       }
     }
-
     const result = await Swal.fire({
       title: "¿Estás seguro?",
       text: "¿Deseas cambiar los datos del usuario?",

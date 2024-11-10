@@ -1,3 +1,4 @@
+
 "use client";
 
 import { ICourse } from "@/interfaces/Icourse";

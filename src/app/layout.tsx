@@ -8,6 +8,7 @@ import { CartProvider } from "@/contexts/CartContext";
 import { Providers } from "./Providers";
 import Chat from "@/components/ComunityChat/Chat";
 
+
 const montserrat = Montserrat({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
@@ -38,7 +39,6 @@ export default function RootLayout({
               <header>
                 <Navbar />
               </header>
-
               <main>{children}</main>
               <Chat />
               <Footer />
