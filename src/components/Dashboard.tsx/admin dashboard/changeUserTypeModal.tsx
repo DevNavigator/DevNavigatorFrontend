@@ -14,6 +14,7 @@ const ChangeUserTypeModal = ({
 
   const handleChangeUserType = async () => {
     const url = `http://localhost:3001/user/userType/${userId}`;
+    
     try {
       const response = await axios.patch(
         url,
@@ -69,5 +70,6 @@ const ChangeUserTypeModal = ({
     </div>
   );
 };
-
+// 
 export default ChangeUserTypeModal;
+

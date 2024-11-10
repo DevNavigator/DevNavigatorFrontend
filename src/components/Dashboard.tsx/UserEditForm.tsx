@@ -6,12 +6,13 @@ import Swal from "sweetalert2";
 import Button from "../Button/Button";
 
 interface UserEditFormProps {
-  userId: string | undefined;
-  token: string | undefined;
+  userId: string;
+  token?: string;
   closeModal: () => void;
 }
 
 const UserEditForm = ({ userId, token, closeModal }: UserEditFormProps) => {
+  console.log("TOKEN 1", token);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -67,15 +68,26 @@ const UserEditForm = ({ userId, token, closeModal }: UserEditFormProps) => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prevData => ({
+
+    // Limita la cantidad de caracteres a 30 y elimina espacios en blanco en los extremos
+    const trimmedValue = value.trimStart().slice(0, 30);
+
+    setFormData((prevData) => ({
       ...prevData,
-      [name]: value,
+      [name]: trimmedValue,
     }));
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    for (const key in formData) {
+      const value = formData[key as keyof typeof formData];
+      if (typeof value === "string" && value.trim() === "") {
+        setError("Por favor, completa todos los campos correctamente.");
+        return;
+      }
+    }
     const result = await Swal.fire({
       title: "¿Estás seguro?",
       text: "¿Deseas cambiar los datos del usuario?",
@@ -107,6 +119,8 @@ const UserEditForm = ({ userId, token, closeModal }: UserEditFormProps) => {
     }
 
     try {
+      console.log("USERDATA", userData);
+      console.log("TOKEN", token);
       const response = await axios.patch(
         `http://localhost:3001/user/update/${userId}`,
         userData,
@@ -142,7 +156,7 @@ const UserEditForm = ({ userId, token, closeModal }: UserEditFormProps) => {
   };
 
   if (loading) return <p>Cargando...</p>;
-  if (error) return <p className="text-red-500">{error}</p>;
+  // if (error) return <p className="text-red-500">{error}</p>;
 
   return (
     <form onSubmit={handleSubmit} className="p-4 bg-gray-100 rounded-lg">
@@ -197,7 +211,7 @@ const UserEditForm = ({ userId, token, closeModal }: UserEditFormProps) => {
       <div className="text-center">
         <Button type="submit">Guardar Cambios</Button>
       </div>
-      {error && <p className="text-red-500">{error}</p>}
+      {error && <p className="text-center text-red-500 mt-5">{error}</p>}
     </form>
   );
 };

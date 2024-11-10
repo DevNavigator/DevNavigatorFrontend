@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { ICourse } from '@/interfaces/Icourse';
-import { AuthContext } from '@/contexts/authContext';
-import { CartContext } from '@/contexts/CartContext';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState, useContext } from 'react';
-import Button from '../Button/Button';
-import Swal from 'sweetalert2';
-import withReactContent from 'sweetalert2-react-content';
-import { useSession } from 'next-auth/react';
+import { ICourse } from "@/interfaces/Icourse";
+import { AuthContext } from "@/contexts/authContext";
+import { CartContext } from "@/contexts/CartContext";
+import { useRouter } from "next/navigation";
+import { useEffect, useState, useContext } from "react";
+import Button from "../Button/Button";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+import { useSession } from "next-auth/react";
 
 const MySwal = withReactContent(Swal);
 
@@ -25,13 +25,15 @@ const BuyButton = ({ course }: BuyButtonProps) => {
 
   useEffect(() => {
     // Espera a que se cargue la sesión
-    if (status === 'loading') return;
+    if (status === "loading") return;
 
     // Verifica si el usuario está autenticado
     if (user || session?.user) {
       setLoading(false);
     } else {
-      router.push('/login');
+      console.log("soy yo");
+
+      router.push("/login");
     }
   }, [user, session, status, router]);
 
@@ -42,27 +44,27 @@ const BuyButton = ({ course }: BuyButtonProps) => {
       addToCart(course);
       MySwal.fire({
         title: `${course.title} añadido a su carrito`,
-        icon: 'success',
-        confirmButtonText: 'Aceptar',
+        icon: "success",
+        confirmButtonText: "Aceptar",
         backdrop: true,
         toast: true,
-        position: 'center',
+        position: "center",
       }).then((result) => {
         if (result.isConfirmed) {
-          router.push('/courses');
+          router.push("/cart");
         }
       });
     } else {
       MySwal.fire({
         title: `${course.title} ya está en su carrito`,
-        icon: 'warning',
-        confirmButtonText: 'Aceptar',
+        icon: "warning",
+        confirmButtonText: "Aceptar",
         backdrop: true,
         toast: true,
-        position: 'center',
+        position: "center",
       }).then((result) => {
         if (result.isConfirmed) {
-          router.push('/courses');
+          router.push("/courses");
         }
       });
     }

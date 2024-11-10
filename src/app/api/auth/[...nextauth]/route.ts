@@ -1,5 +1,6 @@
-import NextAuth from 'next-auth';
-import GoogleProvider from 'next-auth/providers/google';
+
+import NextAuth from "next-auth";
+import GoogleProvider from "next-auth/providers/google";
 
 const handler = NextAuth({
   providers: [
@@ -8,11 +9,16 @@ const handler = NextAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
       authorization: {
         params: {
-          prompt: 'consent', // Esto forzará a Google a pedir la autenticación de nuevo
+          prompt: "consent", // Esto forzará a Google a pedir la autenticación de nuevo
         },
       },
     }),
   ],
+  callbacks: {
+    async session({ session, token }) {
+      return session;
+    },
+  },
 });
 
 export { handler as GET, handler as POST };

@@ -1,5 +1,6 @@
 
 
+
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -217,7 +218,4 @@ const StudyPage: React.FC = () => {
 };
 
 export default StudyPage;
-
-
-
 

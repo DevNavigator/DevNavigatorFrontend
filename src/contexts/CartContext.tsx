@@ -11,7 +11,7 @@ import { AuthContext } from './authContext';
 interface CartContextProps {
   cart: ICourse[];
   addToCart: (product: ICourse) => void;
-  removeFromCart: (productId: number, ProducName: string )  => void;
+  removeFromCart: (productId: string, ProducName: string )  => void;
   clearCart: () => void;
 }
 
@@ -45,7 +45,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
     localStorage.setItem('cart', JSON.stringify(updatedCart));
   };
 
-  const removeFromCart = (productId: number, ProducName: string) => {
+  const removeFromCart = (productId: string, ProducName: string) => {
     MySwal.fire({
       title: 'Eliminado',
       text: `${ProducName} ha sido eliminado del carrito`,
@@ -61,15 +61,15 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const clearCart = () => {
-     MySwal.fire({
-       title: 'Carrito vacio',
-       text: 'Todos los productos han sido eliminados del carrito',
-       icon: 'success',
-       confirmButtonText: 'Aceptar',
-       backdrop: true,
-       toast: true,
-       position: 'center',
-     });  
+    //  MySwal.fire({
+    //    title: 'Carrito vacio',
+    //    text: 'Todos los productos han sido eliminados del carrito',
+    //    icon: 'success',
+    //    confirmButtonText: 'Aceptar',
+    //    backdrop: true,
+    //    toast: true,
+    //    position: 'center',
+    //  });  
     setCart([]);
     localStorage.removeItem('cart');
   };
