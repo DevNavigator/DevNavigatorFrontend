@@ -763,7 +763,7 @@ const Study: React.FC = () => {
                 <h3 className="text-xl font-semibold text-blue-700">{course.title}</h3>
                 <p className="text-gray-600 mt-2">{course.description}</p>
 
-                {/* Videos */}
+       
                 <div className="mt-6">
                   <h4 className="font-semibold text-lg text-gray-800">Videos</h4>
                   <ul className="space-y-2 mt-2">
@@ -787,7 +787,7 @@ const Study: React.FC = () => {
             ))}
           </ul>
 
-          {/* Video Player */}
+    
           {activeVideo !== null && (
             <div className="mt-6">
               <iframe
@@ -802,7 +802,7 @@ const Study: React.FC = () => {
             </div>
           )}
 
-          {/* Cuestionario */}
+       
           {showQuestions && activeVideo !== null && (
             <div className="mt-8 w-full max-w-2xl bg-white shadow-lg rounded-lg p-4">
               <h2 className="text-2xl font-bold mb-4">Cuestionario</h2>
@@ -836,7 +836,7 @@ const Study: React.FC = () => {
                 </button>
               </form>
 
-              {/* Resultados */}
+           
               {quizCompleted && (
                 <div className="mt-4">
                   <h3 className="font-bold">Resultados:</h3>
@@ -863,5 +863,3 @@ const Study: React.FC = () => {
 };
 
 export default Study;
-
-
