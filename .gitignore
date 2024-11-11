@@ -37,9 +37,4 @@ yarn-error.log*
 next-env.d.ts
 
 
-
-#carpeta back
 /DevNavigatorBackend/
-
-#carpeta enn
-.env

@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import { AuthContext } from '@/contexts/authContext';
-import { useContext, useEffect, useState } from 'react';
-import Link from 'next/link';
-import { FaSignInAlt } from 'react-icons/fa';
-import { FaUserCheck } from 'react-icons/fa';
-import { FaRegUser } from 'react-icons/fa';
-import { FaShoppingCart } from 'react-icons/fa';
-import { FaUserGraduate } from 'react-icons/fa6';
-import { CartContext } from '@/contexts/CartContext';
-import Swal from 'sweetalert2';
-import withReactContent from 'sweetalert2-react-content';
-import { useSession, signOut } from 'next-auth/react';
+import { AuthContext } from "@/contexts/authContext";
+import { useContext, useEffect, useState } from "react";
+import Link from "next/link";
+import { FaSignInAlt } from "react-icons/fa";
+import { FaUserCheck } from "react-icons/fa";
+import { FaRegUser } from "react-icons/fa";
+import { FaShoppingCart } from "react-icons/fa";
+import { FaUserGraduate } from "react-icons/fa6";
+import { CartContext } from "@/contexts/CartContext";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+import { useSession, signOut } from "next-auth/react";
 
 const MySwal = withReactContent(Swal);
 
@@ -29,7 +29,7 @@ const UserWidget = () => {
           </Link>
         </div>
         <div className="hover:bg-secondary hover:text-white rounded-lg p-2">
-          <Link href="/study">
+          <Link href="">
             <FaUserGraduate />
           </Link>
         </div>
