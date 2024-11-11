@@ -12,7 +12,6 @@ interface UserEditFormProps {
 }
 
 const UserEditForm = ({ userId, token, closeModal }: UserEditFormProps) => {
-  console.log("TOKEN 1", token);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -35,17 +34,19 @@ const UserEditForm = ({ userId, token, closeModal }: UserEditFormProps) => {
       setError("ID de usuario no válido.");
       return;
     }
+    if (!token) {
+      console.error("Token invalido");
+      return;
+    }
 
     const fetchUserData = async () => {
+      const url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
       try {
-        const response = await axios.get(
-          `http://localhost:3001/user/${userId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await axios.get(`${url}/user/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         const { name, email, address, phone } = response.data;
 
         setFormData({
@@ -119,10 +120,9 @@ const UserEditForm = ({ userId, token, closeModal }: UserEditFormProps) => {
     }
 
     try {
-      console.log("USERDATA", userData);
-      console.log("TOKEN", token);
+      const url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
       const response = await axios.patch(
-        `http://localhost:3001/user/update/${userId}`,
+        `${url}/user/update/${userId}`,
         userData,
         {
           headers: {

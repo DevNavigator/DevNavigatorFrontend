@@ -3,6 +3,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/router";
+import Image from "next/image";
 
 interface Video {
   url: string;
@@ -37,9 +38,8 @@ const CourseDetail: React.FC = () => {
   useEffect(() => {
     const fetchCourse = async () => {
       try {
-        const response = await fetch(
-          `http://localhost:3001/courses/${courseId}`
-        );
+        const url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+        const response = await fetch(`${url}/courses/${courseId}`);
         if (!response.ok) {
           throw new Error("Curso no encontrado");
         }
@@ -100,7 +100,7 @@ const CourseDetail: React.FC = () => {
   return (
     <div className="p-6">
       <h2 className="text-2xl font-semibold mb-2">{course.title}</h2>
-      <img
+      <Image
         src={course.image_url}
         alt={course.title}
         className="rounded-lg mb-2"

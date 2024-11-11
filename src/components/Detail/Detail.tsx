@@ -1,4 +1,3 @@
-
 "use client";
 
 import { ICourse } from "@/interfaces/Icourse";
@@ -86,12 +85,22 @@ const Detail = (course: ICourse) => {
       }
     };
     refreshUser();
-  }, [userId, token, isUserExternal]);
+  }, [
+    userId,
+    token,
+    isUserExternal,
+    course.id,
+    user,
+    userExternal,
+    setUser,
+    setUserExternal,
+  ]);
 
   const handleOnClick = async () => {
     try {
+      const url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
       const response = await axios.post(
-        "http://localhost:3001/courses/link-user",
+        `${url}/courses/link-user`,
         {
           userId,
           courseId: course.id,

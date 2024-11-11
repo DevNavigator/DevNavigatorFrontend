@@ -1,10 +1,10 @@
-
-
-
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { AuthContext } from "@/contexts/authContext";
+import { useRouter } from "next/router";
 
 interface Video {
   url: string;
@@ -28,19 +28,34 @@ interface Course {
 
 const StudyPage: React.FC = () => {
   const { id } = useParams(); // Obtiene el ID del curso
+  const { user, userExternal } = useContext(AuthContext);
   const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [activeVideo, setActiveVideo] = useState<number | null>(0);
   const [videoCompleted, setVideoCompleted] = useState<boolean[]>([]);
   const [showQuestions, setShowQuestions] = useState<boolean>(false);
   const [userAnswers, setUserAnswers] = useState<number[]>([]);
+  const { status } = useSession();
+  const router = useRouter();
   const [quizCompleted, setQuizCompleted] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (status === "loading") {
+      // Espera a que se complete la carga
+      return;
+    }
+    if (!user && !userExternal) {
+      router.push("/login");
+    }
+  }, [status, user, userExternal, router]);
 
   useEffect(() => {
     const fetchCourse = async () => {
       if (id) {
         try {
-          const response = await fetch(`http://localhost:3001/courses/${id}`);
+          const url =
+            process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+          const response = await fetch(`${url}/courses/${id}`);
           const data: Course = await response.json();
           setCourse(data);
           setVideoCompleted(new Array(data.content.length).fill(false));
@@ -124,7 +139,9 @@ const StudyPage: React.FC = () => {
               key={index}
               onClick={() => handleVideoOnClick(index)}
               className={`text-secondary hover:underline mb-2 cursor-pointer transition duration-300 ${
-                videoCompleted[index] ? "hover:text-blue-700" : "opacity-50 cursor-not-allowed"
+                videoCompleted[index]
+                  ? "hover:text-blue-700"
+                  : "opacity-50 cursor-not-allowed"
               }`}
             >
               {video.title}
@@ -147,10 +164,12 @@ const StudyPage: React.FC = () => {
       {showQuestions && (
         <div className="mt-8 w-full max-w-2xl bg-white shadow-lg rounded-lg p-4">
           <h2 className="text-2xl font-bold mb-4">Cuestionario</h2>
-          <form onSubmit={(e) => {
-            e.preventDefault();
-            handleQuizSubmit();
-          }}>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleQuizSubmit();
+            }}
+          >
             {course.questions && course.questions.length > 0 ? (
               course.questions.map((q, index) => (
                 <div key={index} className="mb-4">
@@ -168,7 +187,11 @@ const StudyPage: React.FC = () => {
                           onChange={() => handleAnswerChange(index, optIndex)}
                           className="mr-2 text-blue-600 focus:ring-blue-500"
                         />
-                        <span className={isSelected ? "text-blue-600" : "text-black"}>
+                        <span
+                          className={
+                            isSelected ? "text-blue-600" : "text-black"
+                          }
+                        >
                           {option}
                         </span>
                       </label>
@@ -200,10 +223,16 @@ const StudyPage: React.FC = () => {
                   <div key={index} className="mb-2">
                     <span className="font-semibold">{q.question}:</span>{" "}
                     {isCorrect ? (
-                      <span className="text-blue-600">Correcta: {correctAnswer}</span>
+                      <span className="text-blue-600">
+                        Correcta: {correctAnswer}
+                      </span>
                     ) : (
                       <span className="text-red-600">
-                        Incorrecta: {userAnswer} <span className="text-blue-600"> (Respuesta correcta: {correctAnswer})</span>
+                        Incorrecta: {userAnswer}{" "}
+                        <span className="text-blue-600">
+                          {" "}
+                          (Respuesta correcta: {correctAnswer})
+                        </span>
                       </span>
                     )}
                   </div>
@@ -218,4 +247,3 @@ const StudyPage: React.FC = () => {
 };
 
 export default StudyPage;
-

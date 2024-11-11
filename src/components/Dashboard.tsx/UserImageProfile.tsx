@@ -29,7 +29,7 @@ const UserProfileImage = ({
 
   const handleUpload = async () => {
     if (!file) return;
-    const url = "http://localhost:3001";
+    const url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
     const formData = new FormData();
     formData.append("file", file);
     setUploading(true);

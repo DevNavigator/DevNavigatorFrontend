@@ -40,7 +40,7 @@ const Dashboard = () => {
   const isSUPER_ADMIN = userType === "SUPER_ADMIN";
 
   const fetchAllUsers = useCallback(async () => {
-    const url = "http://localhost:3001";
+    const url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
     try {
       const response = await axios.get(`${url}/user`, {
         headers: {
@@ -67,7 +67,7 @@ const Dashboard = () => {
   };
 
   const saveUserType: any = async (newType: UserType) => {
-    const url = "http://localhost:3001";
+    const url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
     if (!selectedUserId) return;
     try {
       await axios.patch(
@@ -92,7 +92,7 @@ const Dashboard = () => {
   };
 
   const handleActivateUser = async (userId: string) => {
-    const url = "http://localhost:3001";
+    const url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
     try {
       await axios.patch(
         `${url}/user/changeStatus/${userId}`,
@@ -119,7 +119,11 @@ const Dashboard = () => {
     }
   };
 
-  const handleEditUser = (userId: string) => () => {
+  const handleEditUser = () => () => {
+    const userId = user?.user?.id || userExternal?.user?.id;
+    if (!userId) {
+      throw new Error("No existe el id del usuario");
+    }
     setSelectedUserId(userId);
     setShowEditPanel(true);
     setShowUsersPanel(false);
@@ -127,28 +131,37 @@ const Dashboard = () => {
   };
 
   const updateUserInfo = useCallback(async () => {
-    const url = "http://localhost:3001";
+    const url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
     try {
-      const updatedUserResponse = await axios.get(
-        `${url}/user/${user?.user?.id || userExternal?.user?.id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${user?.token || userExternal?.token}`,
-          },
-        }
-      );
+      const userId = user?.user?.id || userExternal?.user?.id;
+      const token = user?.token || userExternal?.token;
+      const updatedUserResponse = await axios.get(`${url}/user/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       const updatedData = updatedUserResponse.data;
-      if (user && user.user?.id === updatedData.id) {
-        setUser((prev) => ({
-          ...prev,
-          user: { ...prev.user, ...updatedData },
-        }));
-      } else if (userExternal && userExternal.user?.id === updatedData.id) {
-        setUserExternal((prev) => ({
-          ...prev,
-          user: { ...prev.user, ...updatedData },
-        }));
+
+      let newUser;
+      if (userId === updatedData.id) {
+        newUser = {
+          ...user,
+          user: {
+            ...user?.user,
+            ...updatedData,
+          },
+        };
+        setUser(newUser);
+      } else if (userId === updatedData.id) {
+        newUser = {
+          ...userExternal,
+          user: {
+            ...userExternal?.user,
+            ...updatedData,
+          },
+        };
+        setUserExternal(newUser);
       }
     } catch (error) {
       console.error("Error al obtener el usuario actualizado:", error);
@@ -169,7 +182,7 @@ const Dashboard = () => {
       setUser(null);
       setUserExternal(null);
     }
-  }, [user, userExternal, updateUserInfo, setUser, setUserExternal]);
+  }, [user, userExternal, setUser, setUserExternal, updateUserInfo]);
 
   const closePanels = () => {
     setShowEditPanel(false);
@@ -212,10 +225,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <Button
-          className="mt-6 w-full"
-          onClick={handleEditUser(user?.user?.id || userExternal?.user?.id)}
-        >
+        <Button className="mt-6 w-full" onClick={handleEditUser()}>
           Modificar Información
         </Button>
         {user ? (
@@ -338,15 +348,15 @@ const Dashboard = () => {
                     </span>
 
                     <div className="flex items-center">
-                      <Button
-                        onClick={handleEditUser(user.id)}
-                        className="mr-2 px-3"
-                      >
+                      <Button onClick={handleEditUser()} className="mr-2 px-3">
                         <FaUserEdit className="w-6 h-6" />
                       </Button>
                       <Button
                         onClick={() =>
-                          handleChangeUserType(user.id, user.userType)
+                          handleChangeUserType(
+                            user.id,
+                            user.userType || UserType.User
+                          )
                         }
                         className="mr-2 px-3  bg-slate-600 text-white"
                       >
@@ -406,10 +416,7 @@ const Dashboard = () => {
                     >
                       <FaUserCheck className="w-6 h-6" />
                     </button>
-                    <Button
-                      onClick={handleEditUser(user.id)}
-                      className="mr-2 px-3"
-                    >
+                    <Button onClick={handleEditUser()} className="mr-2 px-3">
                       <FaUserEdit className="w-6 h-6" />
                     </Button>
                   </div>
@@ -432,7 +439,7 @@ const Dashboard = () => {
         isOpen={showChangeUserTypeModal}
         onClose={() => setShowChangeUserTypeModal(false)}
         userId={selectedUserId}
-        currentType={selectedUserType ?? UserType}
+        currentType={selectedUserType ?? UserType.User}
         token={user?.token || userExternal?.token}
         onSave={saveUserType}
       />

@@ -1,6 +1,6 @@
 "use client";
 import { IUserLogin, IUserSession, IUserNavigator } from "@/interfaces/Iforms";
-import { createContext, useEffect, useState, useRef } from "react";
+import { createContext, useEffect, useState, useRef, useCallback } from "react";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { useSession, signOut } from "next-auth/react";
@@ -35,8 +35,8 @@ export const AuthProvider = ({ children }: IAuthProviderProps) => {
   const { data: session } = useSession();
   const userCreatedRef = useRef(false);
 
-  const createUserExternal = async () => {
-    const url = "http://localhost:3001";
+  const createUserExternal = useCallback(async () => {
+    const url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
     // Si ya se creó o ya existe en sessionStorage, no crear de nuevo
     const storedUser = sessionStorage.getItem("userDevNavigator");
@@ -66,9 +66,30 @@ export const AuthProvider = ({ children }: IAuthProviderProps) => {
         userCreatedRef.current = false; // Restablece en caso de error
       }
     }
-  };
+  }, [session]);
 
-  const checkTokenExpiration = () => {
+  const forceLogout = useCallback(async () => {
+    await signOut({ redirect: false });
+    sessionStorage.removeItem("userLocal");
+    sessionStorage.removeItem("userDevNavigator");
+    localStorage.removeItem("user");
+    setUser(null);
+    setUserExternal(null);
+    await MySwal.fire({
+      title: "Cierre forzado de DevNavigator💙💻",
+      text: "Se ha cerrado sesión por seguridad de tus datos, por favor inicia sesión nuevamente para seguir estudiando.",
+      icon: "info",
+      confirmButtonText: "cerrar",
+      backdrop: true,
+      toast: false,
+      position: "center",
+    });
+    if (typeof window !== "undefined") {
+      window.location.href = "/";
+    }
+  }, [setUser, setUserExternal]);
+
+  const checkTokenExpiration = useCallback(() => {
     // Chequeo para el usuario externo
     const userDevNavigator = JSON.parse(
       sessionStorage.getItem("userDevNavigator")!
@@ -106,7 +127,7 @@ export const AuthProvider = ({ children }: IAuthProviderProps) => {
         forceLogout();
       }
     }
-  };
+  }, [forceLogout]);
 
   useEffect(() => {
     if (user) {
@@ -120,7 +141,7 @@ export const AuthProvider = ({ children }: IAuthProviderProps) => {
     const intervalId = setInterval(checkTokenExpiration, 60000);
 
     return () => clearInterval(intervalId);
-  }, [user, session]);
+  }, [user, session, checkTokenExpiration, createUserExternal]);
 
   useEffect(() => {
     if (typeof window !== "undefined" && window.sessionStorage) {
@@ -161,27 +182,10 @@ export const AuthProvider = ({ children }: IAuthProviderProps) => {
       localStorage.removeItem("user");
       setUser(null);
       setUserExternal(null);
-      window.location.href = "/";
+      if (typeof window !== "undefined") {
+        window.location.href = "/";
+      }
     }
-  };
-
-  const forceLogout = async () => {
-    await signOut({ redirect: false });
-    sessionStorage.removeItem("userLocal");
-    sessionStorage.removeItem("userDevNavigator");
-    localStorage.removeItem("user");
-    setUser(null);
-    setUserExternal(null);
-    await MySwal.fire({
-      title: "Cierre forzado de DevNavigator💙💻",
-      text: "Se ha cerrado sesión por seguridad de tus datos, por favor inicia sesión nuevamente para seguir estudiando.",
-      icon: "info",
-      confirmButtonText: "cerrar",
-      backdrop: true,
-      toast: false,
-      position: "center",
-    });
-    window.location.href = "/";
   };
 
   return (
