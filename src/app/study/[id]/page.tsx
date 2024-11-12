@@ -4,7 +4,8 @@ import React, { useContext, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { AuthContext } from "@/contexts/authContext";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
+import axios from "axios";
 
 interface Video {
   url: string;
@@ -35,13 +36,13 @@ const StudyPage: React.FC = () => {
   const [videoCompleted, setVideoCompleted] = useState<boolean[]>([]);
   const [showQuestions, setShowQuestions] = useState<boolean>(false);
   const [userAnswers, setUserAnswers] = useState<number[]>([]);
+  const [points, setPoints] = useState(0);
   const { status } = useSession();
   const router = useRouter();
   const [quizCompleted, setQuizCompleted] = useState<boolean>(false);
 
   useEffect(() => {
-    if (status === "loading") {
-      // Espera a que se complete la carga
+    if (status === "loading" && typeof window === "undefined") {
       return;
     }
     if (!user && !userExternal) {
@@ -85,9 +86,35 @@ const StudyPage: React.FC = () => {
   };
 
   const handleQuizSubmit = () => {
+    let calculatedPoints = 0;
+
+    if (!course) return;
+    course.questions.forEach((q, index) => {
+      if (userAnswers[index] === q.correct) {
+        calculatedPoints += 10;
+      }
+    });
+
+    let total = points;
+    let pointsToBack = total + calculatedPoints;
+    setPoints(calculatedPoints + total);
+    sendPoint(pointsToBack);
     setQuizCompleted(true);
   };
 
+  const sendPoint = async (pointBack: number) => {
+    const userId = user?.user?.id || userExternal?.user?.id;
+    try {
+      const url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+      const response = await axios.patch(`${url}/statistics/${userId}/update`, {
+        points: pointBack,
+        achievements: [{ title: course?.title, date: new Date() }],
+      });
+      console.log(response);
+    } catch (error) {
+      console.error(error);
+    }
+  };
   const handleVideoOnClick = (index: number) => {
     if (index === 0 || videoCompleted[index - 1]) {
       setActiveVideo(index);
@@ -100,6 +127,7 @@ const StudyPage: React.FC = () => {
   const handleShowQuestionsClick = () => {
     if (videoCompleted.every((completed) => completed)) {
       setShowQuestions(true);
+      setPoints(100);
     }
   };
 

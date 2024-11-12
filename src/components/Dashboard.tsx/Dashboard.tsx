@@ -18,6 +18,7 @@ import { PiUserSwitchFill } from "react-icons/pi";
 import { JwtPayload } from "@/interfaces/JwtPayload";
 import UserProfileImage from "./UserImageProfile";
 import DeleteUserButton from "./DeleteUserButton";
+import UserStatistics from "./UserStatistics ";
 
 const Dashboard = () => {
   const { user, setUser, userExternal, setUserExternal } =
@@ -215,14 +216,22 @@ const Dashboard = () => {
             <FaEnvelope className="mr-2 text-lg" />
             <span>{user?.user?.email || userExternal?.user?.email}</span>
           </div>
-          <div className="flex items-center">
-            <FaLocationDot className="mr-2 text-lg" />
-            <span>{user?.user?.address || userExternal?.user?.address}</span>
-          </div>
-          <div className="flex items-center">
-            <FaPhone className="mr-2 text-lg" />
-            <span>{user?.user?.phone || userExternal?.user?.phone}</span>
-          </div>
+          {userExternal?.user?.address || user?.user?.address ? (
+            <div className="flex items-center">
+              <FaLocationDot className="mr-2 text-lg" />
+              <span>{user?.user?.address || userExternal?.user?.address}</span>
+            </div>
+          ) : (
+            <></>
+          )}
+          {userExternal?.user?.phone || user?.user?.phone ? (
+            <div className="flex items-center">
+              <FaPhone className="mr-2 text-lg" />
+              <span>{user?.user?.phone || userExternal?.user?.phone}</span>
+            </div>
+          ) : (
+            <></>
+          )}
         </div>
 
         <Button className="mt-6 w-full" onClick={handleEditUser()}>
@@ -282,21 +291,23 @@ const Dashboard = () => {
 
       {/* Columna Derecha: Paneles Dinámicos */}
       <div className="flex-1 p-6">
-        {showEditPanel && (
-          <div className="bg-white p-6 rounded-lg shadow-md transition duration-300 ease-in-out">
-            <h2 className="text-2xl font-bold mb-4">Editar Información</h2>
-            <UserEditForm
-              userId={selectedUserId}
-              token={user?.token || userExternal?.token}
-              closeModal={closePanels}
-            />
-            <div className="flex justify-center">
-              <Button onClick={closePanels} className="mt-10">
-                Cerrar
-              </Button>
+        {showEditPanel &&
+          selectedUserId &&
+          (user?.token || userExternal?.token) && (
+            <div className="bg-white p-6 rounded-lg shadow-md transition duration-300 ease-in-out">
+              <h2 className="text-2xl font-bold mb-4">Editar Información</h2>
+              <UserEditForm
+                userId={selectedUserId}
+                token={user?.token || userExternal?.token}
+                closeModal={closePanels}
+              />
+              <div className="flex justify-center">
+                <Button onClick={closePanels} className="mt-10">
+                  Cerrar
+                </Button>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
         {showChangePasswordPanel && (
           <div className="bg-white p-6 rounded-lg shadow-md transition duration-300 ease-in-out">
@@ -432,6 +443,10 @@ const Dashboard = () => {
             </div>
           </div>
         )}
+      </div>
+      {/* Componente de Estadísticas del Usuario */}
+      <div className="md:w-1/3 p-6">
+        <UserStatistics />
       </div>
 
       {/* Modal para Cambiar Tipo de Usuario */}

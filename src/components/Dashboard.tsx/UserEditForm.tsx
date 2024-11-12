@@ -48,7 +48,6 @@ const UserEditForm = ({ userId, token, closeModal }: UserEditFormProps) => {
           },
         });
         const { name, email, address, phone } = response.data;
-
         setFormData({
           name,
           email,

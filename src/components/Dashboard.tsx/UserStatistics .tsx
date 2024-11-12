@@ -4,30 +4,39 @@ import axios from "axios";
 import { useContext } from "react";
 import { AuthContext } from "@/contexts/authContext";
 
-const UserStatistics = ({ userId }) => {
+interface IAchievements {
+  id: string;
+  title: string;
+  date: Date;
+}
+
+const UserStatistics = () => {
   const { user, userExternal } = useContext(AuthContext);
   const [points, setPoints] = useState(0);
-  const [achievements, setAchievements] = useState([]);
+  const [achievements, setAchievements] = useState<IAchievements[]>([]);
 
+  const token = user?.token || userExternal?.token;
+  const userId = user?.user?.id || userExternal?.user?.id;
   useEffect(() => {
     const fetchUserStatistics = async () => {
+      if (!userId) return;
       const url = `http://localhost:3001/statistics/${userId}`;
       try {
         const response = await axios.get(url, {
           headers: {
-            Authorization: `Bearer ${user?.token || userExternal?.token}`,
+            Authorization: `Bearer ${token}`,
           },
         });
         console.log("Statistics Response", response.data);
-        setPoints(response.data.totalPoints); // Asumiendo que el backend devuelve el campo `totalPoints`
-        setAchievements(response.data.achievements); // Asumiendo que el backend devuelve el campo `achievements`
+        setPoints(response.data.totalPoints);
+        setAchievements(response.data.achievements);
       } catch (error) {
         console.error("Error fetching user statistics:", error);
       }
     };
 
     fetchUserStatistics();
-  }, [userId, user, userExternal]);
+  }, [token, userId]);
 
   return (
     <div className="bg-white p-4 rounded-lg shadow-md">
@@ -37,7 +46,12 @@ const UserStatistics = ({ userId }) => {
       <ul>
         {achievements.map((achievement, index) => (
           <li key={index} className="text-sm text-gray-600">
-            {achievement.title} - {achievement.date}
+            {achievement.title} -{" "}
+            {new Date(achievement.date).toLocaleDateString("es-ES", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })}
           </li>
         ))}
       </ul>
