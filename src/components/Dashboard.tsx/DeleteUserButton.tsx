@@ -31,7 +31,7 @@ const DeleteUserButton: React.FC<DeleteUserButtonProps> = ({
   const isSUPER_ADMIN = userType === "SUPER_ADMIN";
 
   const handleDeleteUser = async () => {
-    const url = "http://localhost:3001";
+    const url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
     const userToDelete = allUsers.find((user) => user.id === userId);
 
     if (userToDelete?.userType === "SUPER_ADMIN") {

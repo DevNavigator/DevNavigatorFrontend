@@ -5,11 +5,12 @@ import UserWidget from "../UserWidget/UserWidget";
 import { useContext, useEffect, useState } from "react";
 import Image from "next/image";
 import imgLogo from "@/assets/DevNavigator.png";
-import NotificationBell from "../Widget/NotificationBell";
+import { AuthContext } from "@/contexts/authContext";
+// import NotificationBell from "../Widget/NotificationBell";
 
 const Navbar = () => {
   const [isClick, setIsClick] = useState(false);
-
+ 
   const toggleNavbar = (): void => {
     setIsClick(!isClick);
   };
@@ -17,7 +18,7 @@ const Navbar = () => {
   const closeNavbar = (): void => {
     setIsClick(false);
   };
-
+ 
   return (
     <nav className={style.nav}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -52,6 +53,12 @@ const Navbar = () => {
               <div>
                 <UserWidget />
               </div>
+              <Link
+                href="/"
+                className="hover:bg-secondary hover:text-white rounded-lg p-2"
+              >
+                {/* <NotificationBell /> */}
+              </Link>
             </div>
           </div>
           <div className="md:hidden flex items-center">

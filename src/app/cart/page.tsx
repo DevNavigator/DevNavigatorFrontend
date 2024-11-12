@@ -26,12 +26,19 @@ const MySwal = withReactContent(Swal);
 
 const Page = () => {
   const { cart, clearCart, removeFromCart } = useContext(CartContext);
+
   const { user, userExternal, setUser } = useContext(AuthContext);
   const router = useRouter();
   const { data: session } = useSession();
   const [loading, setLoading] = useState(true);
 
   // Redirige a la página de inicio de sesión si el usuario no está autenticado
+  // useEffect(() => {
+  //   if (!user || (!session?.user || session?.user === null)) {
+  //     router.push('/login');
+  //   }
+  // }, [user, router]);
+
   useEffect(() => {
     if (!user && !userExternal) {
       router.push("/login");
@@ -91,6 +98,7 @@ const Page = () => {
       }
     });
   };
+
 
   const handleOrderMercadopago = async () => {
     const suscription = await fetchSubscriptionTypes();
@@ -235,7 +243,7 @@ const Page = () => {
                   </div>
                   <div className="flex items-center">
                     <Button
-                      onClick={() => handleRemove(course.id, course.title)}
+                      // onClick={() => handleRemove(course.id, course.title)}
                       className={styles.buttonClearUnit}
                       aria-label={`Remove ${course.title} from cart`}
                     >

@@ -35,10 +35,15 @@ const ChangePasswordForm = ({ token, closeModal }: ChangePasswordFormProps) => {
       return;
     }
 
+    const id = user?.user?.id;
+    if (!id) {
+      console.error("Id no existe");
+      return;
+    }
     try {
-      const url = "http://localhost:3001";
+      const url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
       const response = await axios.patch(
-        `${url}/user/changePassword/${user?.user?.id}`,
+        `${url}/user/changePassword/${user?.user?.id}`, 
         {
           currentPassword: formData.currentPassword,
           password: formData.newPassword,
