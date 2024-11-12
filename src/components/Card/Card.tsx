@@ -1,6 +1,7 @@
 import { ICourse } from '@/interfaces/Icourse';
 import Link from 'next/link';
 import Image from 'next/image';
+import Button from '../Button/Button';
 
 interface ProductProps {
   course: ICourse;
@@ -36,9 +37,9 @@ const Card = ({ course }: ProductProps) => {
             {(course.difficulty ?? '').charAt(0).toUpperCase() +
               (course.difficulty ?? '').slice(1)}
           </p>
-          <p className="text-secondary text-base">
+          <Button className="hover:scale-95">
             Más Información {course.status_courses}
-          </p>
+          </Button>
         </div>
       </Link>
     </div>

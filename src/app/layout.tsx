@@ -6,7 +6,7 @@ import Footer from "@/components/Footer/Footer";
 import { AuthProvider } from "@/contexts/authContext";
 import { CartProvider } from "@/contexts/CartContext";
 import { Providers } from "./Providers";
-import Chat from "@/components/ComunityChat/Chat";
+// import Chat from "@/components/ComunityChat/Chat";
 
 
 const montserrat = Montserrat({
@@ -40,7 +40,7 @@ export default function RootLayout({
                 <Navbar />
               </header>
               <main>{children}</main>
-              <Chat />
+              {/* <Chat /> */}
               <Footer />
             </body>
           </html>
