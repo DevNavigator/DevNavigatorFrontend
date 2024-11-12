@@ -11,7 +11,7 @@ import UserEditForm from "./UserEditForm";
 import Swal from "sweetalert2";
 import { IUser } from "@/interfaces/iuser";
 import { UserType } from "@/interfaces/userData";
-import ChangePasswordForm from "./ChangePasswordForm ";
+import ChangePasswordForm from "./ChangePasswordForm";
 import ChangeUserTypeModal from "./admin dashboard/changeUserTypeModal";
 import { FaUserCheck, FaUserEdit } from "react-icons/fa";
 import { PiUserSwitchFill } from "react-icons/pi";

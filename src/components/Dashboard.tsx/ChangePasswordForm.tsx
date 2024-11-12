@@ -43,10 +43,10 @@ const ChangePasswordForm = ({ token, closeModal }: ChangePasswordFormProps) => {
     try {
       const url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
       const response = await axios.patch(
-        `${url}/user/changePassword/${id}`, // Asegúrate de usar la ruta correcta
+        `${url}/user/changePassword/${user?.user?.id}`, 
         {
           currentPassword: formData.currentPassword,
-          password: formData.newPassword, // Cambia a 'password'
+          password: formData.newPassword,
         },
         {
           headers: {
