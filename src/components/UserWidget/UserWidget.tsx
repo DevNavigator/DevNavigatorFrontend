@@ -12,6 +12,7 @@ import { CartContext } from '@/contexts/CartContext';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { useSession, signOut } from 'next-auth/react';
+import { div } from 'framer-motion/client';
 
 const MySwal = withReactContent(Swal);
 
@@ -35,7 +36,7 @@ const UserWidget = () => {
           </Link>
         </div>
         <div className="hover:bg-secondary hover:text-white rounded-lg p-2">
-          <Link href="">
+          <Link href="/study">
             <FaUserGraduate />
           </Link>
         </div>
@@ -51,7 +52,7 @@ const UserWidget = () => {
             </Link>
           </div>
         ) : (
-          <></>
+          <div className='display-none cursor-default '></div>
         )}
         <div className="hover:bg-secondary hover:text-white rounded-lg p-2">
           <button

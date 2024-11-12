@@ -1,10 +1,7 @@
-"use client";
+'use client';
 
-import React, { useContext, useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import { useSession } from "next-auth/react";
-import { AuthContext } from "@/contexts/authContext";
-import { useRouter } from "next/router";
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
 
 interface Video {
   url: string;
@@ -28,39 +25,24 @@ interface Course {
 
 const StudyPage: React.FC = () => {
   const { id } = useParams(); // Obtiene el ID del curso
-  const { user, userExternal } = useContext(AuthContext);
   const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [activeVideo, setActiveVideo] = useState<number | null>(0);
   const [videoCompleted, setVideoCompleted] = useState<boolean[]>([]);
   const [showQuestions, setShowQuestions] = useState<boolean>(false);
   const [userAnswers, setUserAnswers] = useState<number[]>([]);
-  const { status } = useSession();
-  const router = useRouter();
   const [quizCompleted, setQuizCompleted] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (status === "loading") {
-      // Espera a que se complete la carga
-      return;
-    }
-    if (!user && !userExternal) {
-      router.push("/login");
-    }
-  }, [status, user, userExternal, router]);
 
   useEffect(() => {
     const fetchCourse = async () => {
       if (id) {
         try {
-          const url =
-            process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
-          const response = await fetch(`${url}/courses/${id}`);
+          const response = await fetch(`http://localhost:3001/courses/${id}`);
           const data: Course = await response.json();
           setCourse(data);
           setVideoCompleted(new Array(data.content.length).fill(false));
         } catch (error) {
-          console.error("Error fetching course:", error);
+          console.error('Error fetching course:', error);
         } finally {
           setLoading(false);
         }
@@ -113,7 +95,7 @@ const StudyPage: React.FC = () => {
 
   return (
     <div className="grid grid-cols-1 md:flex md:flex-col items-center justify-center bg-gray-100 p-6">
-      <h1 className="text-4xl font-bold mb-6 text-center">{course.title}</h1>
+      <h1 className="text-4xl font-bold mb-6 text-center mt-20">{course.title}</h1>
       <div className="max-w-4xl w-full md:flex">
         <div className="flex-1 flex justify-center">
           {activeVideo !== null && (
@@ -140,8 +122,8 @@ const StudyPage: React.FC = () => {
               onClick={() => handleVideoOnClick(index)}
               className={`text-secondary hover:underline mb-2 cursor-pointer transition duration-300 ${
                 videoCompleted[index]
-                  ? "hover:text-blue-700"
-                  : "opacity-50 cursor-not-allowed"
+                  ? 'hover:text-blue-700'
+                  : 'opacity-50 cursor-not-allowed'
               }`}
             >
               {video.title}
@@ -172,13 +154,19 @@ const StudyPage: React.FC = () => {
           >
             {course.questions && course.questions.length > 0 ? (
               course.questions.map((q, index) => (
-                <div key={index} className="mb-4">
+                <div
+                  key={index}
+                  className="mb-4"
+                >
                   <p className="font-semibold">{q.question}</p>
                   {q.options.map((option, optIndex) => {
                     const isSelected = userAnswers[index] === optIndex;
 
                     return (
-                      <label key={optIndex} className="block mb-1">
+                      <label
+                        key={optIndex}
+                        className="block mb-1"
+                      >
                         <input
                           type="radio"
                           name={`question-${index}`}
@@ -189,7 +177,7 @@ const StudyPage: React.FC = () => {
                         />
                         <span
                           className={
-                            isSelected ? "text-blue-600" : "text-black"
+                            isSelected ? 'text-blue-600' : 'text-black'
                           }
                         >
                           {option}
@@ -220,17 +208,20 @@ const StudyPage: React.FC = () => {
                 const userAnswer = q.options[userAnswers[index]];
 
                 return (
-                  <div key={index} className="mb-2">
-                    <span className="font-semibold">{q.question}:</span>{" "}
+                  <div
+                    key={index}
+                    className="mb-2"
+                  >
+                    <span className="font-semibold">{q.question}:</span>{' '}
                     {isCorrect ? (
                       <span className="text-blue-600">
                         Correcta: {correctAnswer}
                       </span>
                     ) : (
                       <span className="text-red-600">
-                        Incorrecta: {userAnswer}{" "}
+                        Incorrecta: {userAnswer}{' '}
                         <span className="text-blue-600">
-                          {" "}
+                          {' '}
                           (Respuesta correcta: {correctAnswer})
                         </span>
                       </span>
