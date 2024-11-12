@@ -41,7 +41,7 @@ const Chat = () => {
         {open && (
           <div className="fixed bottom-28 right-8 w-96 bg-white border border-gray-300 rounded-lg shadow-lg p-4 flex flex-col">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-semibold">Chat Comunity</h2>
+              <h2 className="text-2xl font-semibold">Chat de Comunidad</h2>
             </div>
             <p className="text-sm text-gray-600">¡Bienvenid@ al chat!</p>
             <p className="text-sm text-gray-600 mt-4">
