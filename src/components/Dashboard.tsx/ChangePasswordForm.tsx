@@ -21,7 +21,7 @@ const ChangePasswordForm = ({ token, closeModal }: ChangePasswordFormProps) => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prevData => ({
+    setFormData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
@@ -38,10 +38,10 @@ const ChangePasswordForm = ({ token, closeModal }: ChangePasswordFormProps) => {
     try {
       const url = "http://localhost:3001";
       const response = await axios.patch(
-        `${url}/user/changePassword/${user?.user.id}`, // Asegúrate de usar la ruta correcta
+        `${url}/user/changePassword/${user?.user?.id}`,
         {
           currentPassword: formData.currentPassword,
-          password: formData.newPassword, // Cambia a 'password'
+          password: formData.newPassword,
         },
         {
           headers: {
