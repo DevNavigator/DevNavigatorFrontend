@@ -10,8 +10,10 @@ export const getCourse = async (url: string): Promise<ICourse[]> => {
 };
 
 export const getCourseById = async (id: string): Promise<ICourse> => {
-  const url = `${process.env.API_URL}/courses/${id}`; // Construir la URL aquí
-  const response = await fetch(url, { next: { revalidate: 0 } });
+  const url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+  const response = await fetch(`${url}/courses/${id}`, {
+    next: { revalidate: 0 },
+  });
 
   const data = await response.json();
   /* console.log(data); */ // Verificar la respuesta completa del servidor

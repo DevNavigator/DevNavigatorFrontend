@@ -33,6 +33,7 @@ const Button = ({
       type={type}
       onClick={onClick}
       className={commonClasses}
+      disabled= {disabled}
     >
       {children}
     </button>

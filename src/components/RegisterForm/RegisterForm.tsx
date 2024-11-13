@@ -1,4 +1,5 @@
 'use client';
+
 import { useEffect, useState } from 'react';
 import Button from '../Button/Button';
 import {
@@ -14,8 +15,7 @@ import { registerService } from '@/services/authServices';
 import { useRouter } from 'next/navigation';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-
-import { FaCircleXmark, FaCircleCheck } from 'react-icons/fa6';// Para mostrar iconos
+import { FaCircleXmark, FaCircleCheck } from 'react-icons/fa6'; // Para mostrar iconos
 
 const MySwal = withReactContent(Swal);
 
@@ -41,8 +41,8 @@ const RegisterForm = () => {
 
   const [data, setData] = useState(initialData);
   const [errors, setErrors] = useState(initialData);
-  const [valid, setValid] = useState(initialDirty); // Nuevo estado para validez
-  const [dirty, setDirty] = useState(initialDirty);
+  const [valid, setValid] = useState(initialDirty); // Estado para validez de los campos
+  const [dirty, setDirty] = useState(initialDirty); // Estado para saber si el campo fue tocado
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -109,6 +109,20 @@ const RegisterForm = () => {
       phone: !validatePhone(data.phone),
     });
   }, [data]);
+
+  const isFormValid =
+    valid.name &&
+    valid.email &&
+    valid.password &&
+    valid.confirmPassword &&
+    valid.address &&
+    valid.phone &&
+    data.name &&
+    data.email &&
+    data.password &&
+    data.confirmPassword &&
+    data.address &&
+    data.phone;
 
   return (
     <form
@@ -301,7 +315,7 @@ const RegisterForm = () => {
           id="phone"
           name="phone"
           value={data.phone}
-          placeholder="+542610000000"
+          placeholder="542610000000"
           onChange={handleChange}
           onBlur={handleBlur}
         />
@@ -325,7 +339,8 @@ const RegisterForm = () => {
 
         <Button
           type="submit"
-          className="mt-4 w-36 mx-auto"
+          className="mt-4 w-36 mx-auto disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:bg-secondary disabled:hover:text-white"
+          disabled={!isFormValid} // Deshabilitar el botón si el formulario no es válido
         >
           Registrarse
         </Button>

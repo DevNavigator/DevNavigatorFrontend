@@ -1,10 +1,7 @@
-"use client"; // Añade esta línea al principio del archivo
+'use client';
 
-import React, { useContext, useEffect, useState } from "react";
-import { useParams } from "next/navigation"; // Usa useParams para obtener parámetros de la URL
-import { useRouter } from "next/router";
-import { useSession } from "next-auth/react";
-import { AuthContext } from "@/contexts/authContext";
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
 
 interface Video {
   url: string;
@@ -14,7 +11,7 @@ interface Video {
 interface Question {
   question: string;
   options: string[];
-  correctAnswer: number; // Cambiado a number para referencia de índice
+  correct: number; // Usamos `correct` como índice para la respuesta correcta
 }
 
 interface Course {
@@ -30,7 +27,7 @@ const StudyPage: React.FC = () => {
   const { id } = useParams(); // Obtiene el ID del curso
   const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [activeVideo, setActiveVideo] = useState<number | null>(null);
+  const [activeVideo, setActiveVideo] = useState<number | null>(0);
   const [videoCompleted, setVideoCompleted] = useState<boolean[]>([]);
   const [showQuestions, setShowQuestions] = useState<boolean>(false);
   const [userAnswers, setUserAnswers] = useState<number[]>([]);
@@ -40,12 +37,15 @@ const StudyPage: React.FC = () => {
     const fetchCourse = async () => {
       if (id) {
         try {
-          const response = await fetch(`http://localhost:3001/courses/${id}`);
+        const url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+        const response = await fetch(`${url}/courses/${id}`);
+
+         // const response = await fetch(`http://localhost:3001/courses/${id}`);
           const data: Course = await response.json();
           setCourse(data);
-          setVideoCompleted(new Array(data.content.length).fill(false)); // Inicializar videoCompleted
+          setVideoCompleted(new Array(data.content.length).fill(false));
         } catch (error) {
-          console.error("Error fetching course:", error);
+          console.error('Error fetching course:', error);
         } finally {
           setLoading(false);
         }
@@ -60,7 +60,6 @@ const StudyPage: React.FC = () => {
       const newVideoCompleted = [...videoCompleted];
       newVideoCompleted[activeVideo] = true;
       setVideoCompleted(newVideoCompleted);
-      setShowQuestions(true);
     }
   };
 
@@ -74,6 +73,21 @@ const StudyPage: React.FC = () => {
     setQuizCompleted(true);
   };
 
+  const handleVideoOnClick = (index: number) => {
+    if (index === 0 || videoCompleted[index - 1]) {
+      setActiveVideo(index);
+      setShowQuestions(false);
+      setQuizCompleted(false);
+      setUserAnswers([]);
+    }
+  };
+
+  const handleShowQuestionsClick = () => {
+    if (videoCompleted.every((completed) => completed)) {
+      setShowQuestions(true);
+    }
+  };
+
   if (loading) {
     return <div className="text-center text-lg">Cargando curso...</div>;
   }
@@ -84,7 +98,7 @@ const StudyPage: React.FC = () => {
 
   return (
     <div className="grid grid-cols-1 md:flex md:flex-col items-center justify-center bg-gray-100 p-6">
-      <h1 className="text-4xl font-bold mb-6 text-center">{course.title}</h1>
+      <h1 className="text-4xl font-bold mb-6 text-center mt-20">{course.title}</h1>
       <div className="max-w-4xl w-full md:flex">
         <div className="flex-1 flex justify-center">
           {activeVideo !== null && (
@@ -97,7 +111,7 @@ const StudyPage: React.FC = () => {
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
-              onLoad={() => handleVideoEnd()} // Asegúrate de manejar el fin de video
+              onLoad={handleVideoEnd}
             ></iframe>
           )}
         </div>
@@ -108,16 +122,11 @@ const StudyPage: React.FC = () => {
           {course.content.map((video, index) => (
             <a
               key={index}
-              onClick={() => {
-                setActiveVideo(index);
-                setShowQuestions(false);
-                setQuizCompleted(false);
-                setUserAnswers([]);
-              }}
+              onClick={() => handleVideoOnClick(index)}
               className={`text-secondary hover:underline mb-2 cursor-pointer transition duration-300 ${
                 videoCompleted[index]
-                  ? "hover:text-blue-700"
-                  : "opacity-50 cursor-not-allowed"
+                  ? 'hover:text-blue-700'
+                  : 'opacity-50 cursor-not-allowed'
               }`}
             >
               {video.title}
@@ -126,7 +135,18 @@ const StudyPage: React.FC = () => {
         </div>
       </div>
 
-      {showQuestions && activeVideo !== null && (
+      {videoCompleted.every((completed) => completed) && !showQuestions && (
+        <div className="mt-8">
+          <button
+            onClick={handleShowQuestionsClick}
+            className="bg-blue-600 text-white px-4 py-2 rounded shadow-md hover:bg-blue-700 transition duration-200"
+          >
+            Ver Cuestionario
+          </button>
+        </div>
+      )}
+
+      {showQuestions && (
         <div className="mt-8 w-full max-w-2xl bg-white shadow-lg rounded-lg p-4">
           <h2 className="text-2xl font-bold mb-4">Cuestionario</h2>
           <form
@@ -135,24 +155,44 @@ const StudyPage: React.FC = () => {
               handleQuizSubmit();
             }}
           >
-            {course.questions.map((q, index) => (
-              <div key={index} className="mb-4">
-                <p className="font-semibold">{q.question}</p>
-                {q.options.map((option, optIndex) => (
-                  <label key={optIndex} className="block mb-1">
-                    <input
-                      type="radio"
-                      name={`question-${index}`}
-                      value={optIndex}
-                      checked={userAnswers[index] === optIndex}
-                      onChange={() => handleAnswerChange(index, optIndex)}
-                      className="mr-2 text-blue-600 focus:ring-blue-500"
-                    />
-                    {option}
-                  </label>
-                ))}
-              </div>
-            ))}
+            {course.questions && course.questions.length > 0 ? (
+              course.questions.map((q, index) => (
+                <div
+                  key={index}
+                  className="mb-4"
+                >
+                  <p className="font-semibold">{q.question}</p>
+                  {q.options.map((option, optIndex) => {
+                    const isSelected = userAnswers[index] === optIndex;
+
+                    return (
+                      <label
+                        key={optIndex}
+                        className="block mb-1"
+                      >
+                        <input
+                          type="radio"
+                          name={`question-${index}`}
+                          value={optIndex}
+                          checked={isSelected}
+                          onChange={() => handleAnswerChange(index, optIndex)}
+                          className="mr-2 text-blue-600 focus:ring-blue-500"
+                        />
+                        <span
+                          className={
+                            isSelected ? 'text-blue-600' : 'text-black'
+                          }
+                        >
+                          {option}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              ))
+            ) : (
+              <div>No hay preguntas disponibles.</div>
+            )}
             <button
               type="submit"
               className="bg-blue-600 text-white px-4 py-2 rounded shadow-md hover:bg-blue-700 transition duration-200"
@@ -164,19 +204,34 @@ const StudyPage: React.FC = () => {
           {quizCompleted && (
             <div className="mt-4">
               <h3 className="font-bold">Resultados:</h3>
-              {course.questions.map((q, index) => (
-                <div key={index} className="mb-2">
-                  <span className="font-semibold">{q.question}</span>:{" "}
-                  {q.options[q.correctAnswer]}
-                  {userAnswers[index] !== undefined &&
-                    userAnswers[index] !== q.correctAnswer && (
-                      <span className="text-red-500">
-                        {" "}
-                        (Tu respuesta: {q.options[userAnswers[index]]})
+              {course.questions.map((q, index) => {
+                const isCorrect = userAnswers[index] === q.correct;
+                const isIncorrect = userAnswers[index] !== q.correct;
+                const correctAnswer = q.options[q.correct];
+                const userAnswer = q.options[userAnswers[index]];
+
+                return (
+                  <div
+                    key={index}
+                    className="mb-2"
+                  >
+                    <span className="font-semibold">{q.question}:</span>{' '}
+                    {isCorrect ? (
+                      <span className="text-blue-600">
+                        Correcta: {correctAnswer}
+                      </span>
+                    ) : (
+                      <span className="text-red-600">
+                        Incorrecta: {userAnswer}{' '}
+                        <span className="text-blue-600">
+                          {' '}
+                          (Respuesta correcta: {correctAnswer})
+                        </span>
                       </span>
                     )}
-                </div>
-              ))}
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>

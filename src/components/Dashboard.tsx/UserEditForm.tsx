@@ -4,16 +4,14 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
 import Button from "../Button/Button";
-import { Console, log } from "console";
 
 interface UserEditFormProps {
   userId: string;
-  token: string;
+  token?: string;
   closeModal: () => void;
 }
 
 const UserEditForm = ({ userId, token, closeModal }: UserEditFormProps) => {
-  console.log("TOKEN 1", token);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -36,19 +34,20 @@ const UserEditForm = ({ userId, token, closeModal }: UserEditFormProps) => {
       setError("ID de usuario no válido.");
       return;
     }
+    if (!token) {
+      console.error("Token invalido");
+      return;
+    }
 
     const fetchUserData = async () => {
+      const url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
       try {
-        const response = await axios.get(
-          `http://localhost:3001/user/${userId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await axios.get(`${url}/user/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         const { name, email, address, phone } = response.data;
-
         setFormData({
           name,
           email,
@@ -69,15 +68,26 @@ const UserEditForm = ({ userId, token, closeModal }: UserEditFormProps) => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prevData => ({
+
+    // Limita la cantidad de caracteres a 30 y elimina espacios en blanco en los extremos
+    const trimmedValue = value.trimStart().slice(0, 30);
+
+    setFormData((prevData) => ({
       ...prevData,
-      [name]: value,
+      [name]: trimmedValue,
     }));
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    for (const key in formData) {
+      const value = formData[key as keyof typeof formData];
+      if (typeof value === "string" && value.trim() === "") {
+        setError("Por favor, completa todos los campos correctamente.");
+        return;
+      }
+    }
     const result = await Swal.fire({
       title: "¿Estás seguro?",
       text: "¿Deseas cambiar los datos del usuario?",
@@ -109,10 +119,9 @@ const UserEditForm = ({ userId, token, closeModal }: UserEditFormProps) => {
     }
 
     try {
-      console.log("USERDATA", userData);
-      console.log("TOKEN", token);
+      const url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
       const response = await axios.patch(
-        `http://localhost:3001/user/update/${userId}`,
+        `${url}/user/update/${userId}`,
         userData,
         {
           headers: {
@@ -201,7 +210,7 @@ const UserEditForm = ({ userId, token, closeModal }: UserEditFormProps) => {
       <div className="text-center">
         <Button type="submit">Guardar Cambios</Button>
       </div>
-      {error && <p className="text-red-500">{error}</p>}
+      {error && <p className="text-center text-red-500 mt-5">{error}</p>}
     </form>
   );
 };
