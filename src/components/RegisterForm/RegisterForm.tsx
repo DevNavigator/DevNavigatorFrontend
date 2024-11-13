@@ -1,6 +1,7 @@
-"use client";
-import { useEffect, useState } from "react";
-import Button from "../Button/Button";
+'use client';
+
+import { useEffect, useState } from 'react';
+import Button from '../Button/Button';
 import {
   validateName,
   validateEmail,
@@ -8,26 +9,25 @@ import {
   validateConfirmPassword,
   validateAddress,
   validatePhone,
-} from "@/helpers/validation";
-import { IRegisterForm } from "@/interfaces/Iforms";
-import { registerService } from "@/services/authServices";
-import { useRouter } from "next/navigation";
-import Swal from "sweetalert2";
-import withReactContent from "sweetalert2-react-content";
-
-import { FaCircleXmark, FaCircleCheck } from "react-icons/fa6"; // Para mostrar iconos
+} from '@/helpers/validation';
+import { IRegisterForm } from '@/interfaces/Iforms';
+import { registerService } from '@/services/authServices';
+import { useRouter } from 'next/navigation';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+import { FaCircleXmark, FaCircleCheck } from 'react-icons/fa6'; // Para mostrar iconos
 
 const MySwal = withReactContent(Swal);
 
 const RegisterForm = () => {
   const router = useRouter();
   const initialData: IRegisterForm = {
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    address: "",
-    phone: "",
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    address: '',
+    phone: '',
   };
 
   const initialDirty = {
@@ -41,36 +41,36 @@ const RegisterForm = () => {
 
   const [data, setData] = useState(initialData);
   const [errors, setErrors] = useState(initialData);
-  const [valid, setValid] = useState(initialDirty); // Nuevo estado para validez
-  const [dirty, setDirty] = useState(initialDirty);
+  const [valid, setValid] = useState(initialDirty); // Estado para validez de los campos
+  const [dirty, setDirty] = useState(initialDirty); // Estado para saber si el campo fue tocado
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-    const response = await registerService(apiUrl + "/auth/signUp", data);
+    const response = await registerService(apiUrl + '/auth/signUp', data);
 
     if (!response.message) {
       MySwal.fire({
-        title: "¡Registrado correctamente!",
-        icon: "success",
-        confirmButtonText: "OK",
+        title: '¡Registrado correctamente!',
+        icon: 'success',
+        confirmButtonText: 'OK',
         backdrop: true,
         toast: true,
-        position: "center",
+        position: 'center',
       }).then((result) => {
         if (result.isConfirmed) {
-          router.push("/login");
+          router.push('/login');
         }
       });
     } else {
       MySwal.fire({
         title: `¡${response.message}!`,
-        icon: "error",
-        confirmButtonText: "Aceptar",
+        icon: 'error',
+        confirmButtonText: 'Aceptar',
         backdrop: true,
         toast: true,
-        position: "center",
+        position: 'center',
       });
     }
   };
@@ -110,8 +110,25 @@ const RegisterForm = () => {
     });
   }, [data]);
 
+  const isFormValid =
+    valid.name &&
+    valid.email &&
+    valid.password &&
+    valid.confirmPassword &&
+    valid.address &&
+    valid.phone &&
+    data.name &&
+    data.email &&
+    data.password &&
+    data.confirmPassword &&
+    data.address &&
+    data.phone;
+
   return (
-    <form onSubmit={handleSubmit} className=" ">
+    <form
+      onSubmit={handleSubmit}
+      className=" "
+    >
       <div className="flex flex-col w-[300px] mx-auto">
         {/* Nombre */}
         <label htmlFor="name">Nombre</label>
@@ -128,7 +145,7 @@ const RegisterForm = () => {
         {dirty.name && (
           <p
             className={`mt-0 flex items-center ${
-              valid.name ? "text-green-500" : "text-red-600"
+              valid.name ? 'text-green-500' : 'text-red-600'
             }`}
           >
             {valid.name ? (
@@ -144,7 +161,10 @@ const RegisterForm = () => {
         )}
 
         {/* Email */}
-        <label htmlFor="email" className="mt-2">
+        <label
+          htmlFor="email"
+          className="mt-2"
+        >
           Email
         </label>
         <input
@@ -160,7 +180,7 @@ const RegisterForm = () => {
         {dirty.email && (
           <p
             className={`mt-0 flex items-center ${
-              valid.email ? "text-green-500" : "text-red-600"
+              valid.email ? 'text-green-500' : 'text-red-600'
             }`}
           >
             {valid.email ? (
@@ -176,7 +196,10 @@ const RegisterForm = () => {
         )}
 
         {/* Contraseña */}
-        <label htmlFor="password" className="mt-2">
+        <label
+          htmlFor="password"
+          className="mt-2"
+        >
           Contraseña
         </label>
         <input
@@ -192,7 +215,7 @@ const RegisterForm = () => {
         {dirty.password && (
           <p
             className={`mt-0 flex items-center ${
-              valid.password ? "text-green-500" : "text-red-600"
+              valid.password ? 'text-green-500' : 'text-red-600'
             }`}
           >
             {valid.password ? (
@@ -208,7 +231,10 @@ const RegisterForm = () => {
         )}
 
         {/* Confirmar Contraseña */}
-        <label htmlFor="confirmPassword" className="mt-2">
+        <label
+          htmlFor="confirmPassword"
+          className="mt-2"
+        >
           Confirmar Contraseña
         </label>
         <input
@@ -224,7 +250,7 @@ const RegisterForm = () => {
         {dirty.confirmPassword && (
           <p
             className={`mt-0 flex items-center ${
-              valid.confirmPassword ? "text-green-500" : "text-red-600"
+              valid.confirmPassword ? 'text-green-500' : 'text-red-600'
             }`}
           >
             {valid.confirmPassword ? (
@@ -234,7 +260,7 @@ const RegisterForm = () => {
               </>
             ) : (
               <>
-                <FaCircleXmark className="h-4 w-4 mr-1" />{" "}
+                <FaCircleXmark className="h-4 w-4 mr-1" />{' '}
                 {errors.confirmPassword}
               </>
             )}
@@ -242,7 +268,10 @@ const RegisterForm = () => {
         )}
 
         {/* Dirección */}
-        <label htmlFor="address" className="mt-2">
+        <label
+          htmlFor="address"
+          className="mt-2"
+        >
           Dirección
         </label>
         <input
@@ -258,7 +287,7 @@ const RegisterForm = () => {
         {dirty.address && (
           <p
             className={`mt-0 flex items-center ${
-              valid.address ? "text-green-500" : "text-red-600"
+              valid.address ? 'text-green-500' : 'text-red-600'
             }`}
           >
             {valid.address ? (
@@ -274,7 +303,10 @@ const RegisterForm = () => {
         )}
 
         {/* Teléfono */}
-        <label htmlFor="phone" className="mt-2">
+        <label
+          htmlFor="phone"
+          className="mt-2"
+        >
           Número de Teléfono
         </label>
         <input
@@ -290,7 +322,7 @@ const RegisterForm = () => {
         {dirty.phone && (
           <p
             className={`mt-0 flex items-center ${
-              valid.phone ? "text-green-500" : "text-red-600"
+              valid.phone ? 'text-green-500' : 'text-red-600'
             }`}
           >
             {valid.phone ? (
@@ -305,7 +337,11 @@ const RegisterForm = () => {
           </p>
         )}
 
-        <Button type="submit" className="mt-4 w-36 mx-auto">
+        <Button
+          type="submit"
+          className="mt-4 w-36 mx-auto disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:bg-secondary disabled:hover:text-white"
+          disabled={!isFormValid} // Deshabilitar el botón si el formulario no es válido
+        >
           Registrarse
         </Button>
       </div>

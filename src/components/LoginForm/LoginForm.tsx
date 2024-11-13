@@ -10,7 +10,7 @@ import { AuthContext } from '@/contexts/authContext';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { FaCircleXmark, FaCircleCheck } from 'react-icons/fa6'; // Para mostrar iconos
-import { useSession, signOut } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 
 const MySwal = withReactContent(Swal);
 
@@ -20,9 +20,9 @@ const LoginForm = () => {
   const initialData: ILoginForm = { email: '', password: '' };
   const initialDirty = { email: false, password: false };
   const [data, setData] = useState(initialData);
-  const [errors, setErrors] = useState(initialData);
+  const [errors, setErrors] = useState({ email: '', password: '' });
   const [dirty, setDirty] = useState(initialDirty);
-  const [valid, setValid] = useState(initialDirty); // Nuevo estado para validez
+  const [valid, setValid] = useState({ email: false, password: false }); // Estado de validación corregido
   const { data: session } = useSession();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -31,7 +31,6 @@ const LoginForm = () => {
     const response = await loginService(apiUrl + '/auth/signIn', data);
 
     if (response.success || session?.user || session?.user === null) {
-      //alert("Login correcto");
       MySwal.fire({
         title: `${
           response.user.name.toLocaleUpperCase() ||
@@ -47,9 +46,7 @@ const LoginForm = () => {
       });
       setUser(response);
       router.push('/');
-      // router.back();
     } else {
-      //alert("Login incorrecto");
       MySwal.fire({
         title: `¡${response.message}!`,
         text: 'Inténtalo de nuevo',
@@ -71,35 +68,30 @@ const LoginForm = () => {
   };
 
   useEffect(() => {
+    // Validar los campos y establecer los errores
+    const emailError = validateEmail(data.email);
+    const passwordError = validatePassword(data.password);
+
     setErrors({
-      email: validateEmail(data.email),
-      password: validatePassword(data.password),
-    });
-  }, [data]);
-  useEffect(() => {
-    setErrors({
-      email: validateEmail(data.email),
-      password: validatePassword(data.password),
+      email: emailError,
+      password: passwordError,
     });
 
-    // Actualiza validez basada en errores
+    // Establecer la validez en función de los errores
     setValid({
-      email: !validateEmail(data.email),
-      password: !validatePassword(data.password),
+      email: !emailError, // Si no hay error, es válido
+      password: !passwordError, // Lo mismo para la contraseña
     });
   }, [data]);
+
+  // Validación final para habilitar/deshabilitar el botón
+  const isFormValid = valid.email && valid.password && data.email && data.password;
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className=" "
-    >
+    <form onSubmit={handleSubmit} className=" ">
       <div className="flex flex-col w-[300px] mx-auto">
         {/* Email */}
-        <label
-          htmlFor="email"
-          className="mt-2"
-        >
+        <label htmlFor="email" className="mt-2">
           Email
         </label>
         <input
@@ -113,15 +105,9 @@ const LoginForm = () => {
           onBlur={handleBlur}
         />
         {dirty.email && (
-          <p
-            className={`mt-0 flex items-center ${
-              valid.email ? 'text-green-500' : 'text-red-600'
-            }`}
-          >
+          <p className={`mt-0 flex items-center ${valid.email ? 'text-green-500' : 'text-red-600'}`}>
             {valid.email ? (
-              <>
-                <FaCircleCheck className="h-4 w-4 mr-1" />
-              </>
+              <FaCircleCheck className="h-4 w-4 mr-1" />
             ) : (
               <>
                 <FaCircleXmark className="h-4 w-4 mr-1" /> {errors.email}
@@ -131,10 +117,7 @@ const LoginForm = () => {
         )}
 
         {/* Contraseña */}
-        <label
-          htmlFor="password"
-          className="mt-2"
-        >
+        <label htmlFor="password" className="mt-2">
           Contraseña
         </label>
         <input
@@ -148,15 +131,11 @@ const LoginForm = () => {
           onBlur={handleBlur}
         />
         {dirty.password && (
-          <p
-            className={`mt-0 flex items-center ${
-              valid.password ? 'text-green-500' : 'text-red-600'
-            }`}
-          >
+          <p className={`mt-0 flex items-center ${valid.password ? 'text-green-500' : 'text-red-600'}`}>
             {valid.password ? (
-              <>
-                <FaCircleCheck className="h-4 w-4 mr-1" /> ¡Contraseña válida!
-              </>
+               <>
+              <FaCircleCheck className="h-4 w-4 mr-1" /> ¡Contraseña válida!
+               </>
             ) : (
               <>
                 <FaCircleXmark className="h-4 w-4 mr-1" /> {errors.password}
@@ -164,9 +143,12 @@ const LoginForm = () => {
             )}
           </p>
         )}
+
+        {/* Botón de inicio de sesión */}
         <Button
-          className="mt-4 w-36 mx-auto"
+          className="mt-4 w-36 mx-auto disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:bg-secondary disabled:hover:text-white"
           type="submit"
+          disabled={!isFormValid} // Deshabilitar el botón si el formulario no es válido
         >
           Iniciar sesión
         </Button>

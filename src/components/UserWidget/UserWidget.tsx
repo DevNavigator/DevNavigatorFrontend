@@ -40,7 +40,7 @@ const UserWidget = () => {
             <FaUserGraduate />
           </Link>
         </div>
-        {isUserSubscribed ? (
+        {!isUserSubscribed ? (
           <div className=" relative hover:bg-secondary hover:text-white rounded-lg p-2">
             <Link href="/cart">
               <FaShoppingCart />
@@ -52,7 +52,7 @@ const UserWidget = () => {
             </Link>
           </div>
         ) : (
-          <div className='display-none cursor-default '></div>
+          <></>
         )}
         <div className="hover:bg-secondary hover:text-white rounded-lg p-2">
           <button
