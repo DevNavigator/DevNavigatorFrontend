@@ -1,4 +1,3 @@
-
 "use client";
 import React from "react";
 import { FaGoogle } from "react-icons/fa6";
@@ -7,7 +6,6 @@ import { signIn, useSession } from "next-auth/react";
 
 const GoogleLoginButton = () => {
   const { data: session } = useSession();
-  console.log(session);
 
   return (
     <Button

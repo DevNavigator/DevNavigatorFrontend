@@ -10,7 +10,8 @@ const useChatSocket = (
 
   useEffect(() => {
     if (token) {
-      const newSocket = io("http://localhost:3001/chat", {
+      const url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+      const newSocket = io(`${url}/chat`, {
         transports: ["websocket"],
         query: { token },
       });

@@ -16,7 +16,6 @@ export const getCourseById = async (id: string): Promise<ICourse> => {
   });
 
   const data = await response.json();
-  /* console.log(data); */ // Verificar la respuesta completa del servidor
 
   if (!response.ok) {
     throw new Error(`Course with id ${id} not found: ${response.statusText}`);

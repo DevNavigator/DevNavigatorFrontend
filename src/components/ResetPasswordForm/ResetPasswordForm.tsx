@@ -64,7 +64,7 @@ const ResetPasswordForm = () => {
           type="email"
           id="email"
           value={email}
-          onChange={e => setEmail(e.target.value)}
+          onChange={(e) => setEmail(e.target.value)}
           className="border-b-2 border-secondary"
           placeholder="email@email.com"
           required

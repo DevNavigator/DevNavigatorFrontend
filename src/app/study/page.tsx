@@ -1,6 +1,15 @@
 "use client"; // Marca el componente como cliente
 
-import { useEffect, useState } from "react";
+import Card from "@/components/Card/Card";
+import CardList from "@/components/CardList/CardList";
+import { MiCurso } from "@/components/MiCurso/MiCurso";
+import { AuthContext } from "@/contexts/authContext";
+import { ICourse } from "@/interfaces/Icourse";
+import { fetchUserData } from "@/services/userService";
+import axios from "axios";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useContext, useEffect, useState } from "react";
 
 interface Course {
   id: string;
@@ -29,20 +38,71 @@ const Study: React.FC = () => {
   const [showQuestions, setShowQuestions] = useState<boolean>(false);
   const [quizCompleted, setQuizCompleted] = useState<boolean>(false);
   const [userAnswers, setUserAnswers] = useState<number[]>([]);
-  const [courses, setCourses] = useState<Course[]>([]);
+  const [courses, setCourses] = useState<ICourse[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const { user, userExternal, setUserExternal } = useContext(AuthContext);
+  const router = useRouter();
+  const { status } = useSession();
+
+  useEffect(() => {
+    if (status === "loading" && typeof window === "undefined") {
+      return;
+    }
+
+    const updateData = async () => {
+      const userIdExternal = userExternal?.user?.id;
+      const token = userExternal?.token;
+      if (!userIdExternal || !token) return;
+
+      const data = await fetchUserData(userIdExternal, token);
+
+      const updatedUser = {
+        ...userExternal,
+        user: {
+          ...userExternal?.user,
+          Subscription: data.Subscription
+            ? {
+                id: data.Subscription.id,
+                start_sub: data.Subscription.start_sub,
+                end_sub: data.Subscription.end_sub,
+                status_sub: data.Subscription.status_sub,
+              }
+            : null,
+        },
+      };
+
+      // Solo actualiza `userExternal` si `updatedUser` es diferente
+      if (JSON.stringify(updatedUser) !== JSON.stringify(userExternal)) {
+        setUserExternal(updatedUser);
+      }
+    };
+
+    if (userExternal) {
+      updateData();
+    }
+  }, [status, userExternal, setUserExternal]);
+
+  useEffect(() => {
+    if (!user && !userExternal) {
+      router.push("/login");
+    } else if (userExternal?.user?.Subscription === null) {
+      router.push("/");
+    }
+  }, [user, userExternal, router]);
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
-        const response = await fetch(`${url}/courses`);
-
-        if (!response.ok) {
+        const userId = user?.user?.id || userExternal?.user?.id;
+        const token = user?.token || userExternal?.user?.id;
+        if (!token) return;
+        const response = await fetchUserData(userId, token);
+        if (response === null) {
           throw new Error("Error al cargar los cursos");
         }
-        const data = await response.json();
+        const data = response.Courses;
+
         setCourses(data);
       } catch (err) {
         setError("No se pudieron cargar los cursos");
@@ -52,7 +112,7 @@ const Study: React.FC = () => {
     };
 
     fetchCourses();
-  }, []);
+  }, [user?.token, user?.user?.id, userExternal?.user?.id]);
 
   const handleVideoEnd = () => {
     if (activeVideo !== null) {
@@ -74,6 +134,17 @@ const Study: React.FC = () => {
   };
 
   return (
+    <div className="mt-20">
+      <h1 className="text-center">Mis Cursos</h1>
+      <CardList className="!mb-7">
+        {courses.map((course: ICourse, i: number) => (
+          <MiCurso key={i} course={course} />
+        ))}
+      </CardList>
+    </div>
+  );
+
+  /* return (
     <div className="bg-gray-50 min-h-screen p-4 md:p-6">
       {loading && (
         <p className="text-center text-lg text-blue-500">Cargando cursos...</p>
@@ -201,7 +272,7 @@ const Study: React.FC = () => {
         </div>
       )}
     </div>
-  );
+  ); */
 };
 
 export default Study;

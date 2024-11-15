@@ -31,8 +31,6 @@ const BuyButton = ({ course }: BuyButtonProps) => {
     if (user || session?.user) {
       setLoading(false);
     } else {
-      console.log("soy yo");
-
       router.push("/login");
     }
   }, [user, session, status, router]);
