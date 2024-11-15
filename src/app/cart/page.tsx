@@ -99,7 +99,6 @@ const Page = () => {
     });
   };
 
-
   const handleOrderMercadopago = async () => {
     const suscription = await fetchSubscriptionTypes();
     const course = cart[0];
@@ -110,7 +109,6 @@ const Page = () => {
     } else {
       userId = userExternal?.user?.id;
     }
-    console.log(userId);
 
     if (!userId) {
       console.error("Usuario no autenticado");

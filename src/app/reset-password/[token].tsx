@@ -14,7 +14,7 @@ const ResetPasswordPage = () => {
   const router = useRouter();
 
   useEffect(() => {
-    // Obtener el token de la URL
+    // Obtener el token de la URL}
     const { token } = router.query;
     if (token) {
       setToken(token as string);
@@ -63,13 +63,13 @@ const ResetPasswordPage = () => {
     <div className="flex flex-col w-[300px] mx-auto">
       <form onSubmit={handleResetPassword}>
         <label htmlFor="newPassword" className="mt-2">
-          Nueva Contraseña
+          Nueva Contraseña token
         </label>
         <input
           type="password"
           id="newPassword"
           value={newPassword}
-          onChange={e => setNewPassword(e.target.value)}
+          onChange={(e) => setNewPassword(e.target.value)}
           className="border-b-2 border-secondary"
           placeholder="********"
           required

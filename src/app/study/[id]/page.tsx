@@ -1,7 +1,11 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import React, { useContext, useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { AuthContext } from "@/contexts/authContext";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import axios from "axios";
 
 interface Video {
   url: string;
@@ -32,20 +36,33 @@ const StudyPage: React.FC = () => {
   const [showQuestions, setShowQuestions] = useState<boolean>(false);
   const [userAnswers, setUserAnswers] = useState<number[]>([]);
   const [quizCompleted, setQuizCompleted] = useState<boolean>(false);
+  const { user, userExternal } = useContext(AuthContext);
+  const { status } = useSession();
+  const router = useRouter();
+  const [points, setPoints] = useState(0);
+
+  useEffect(() => {
+    if (status === "loading" && typeof window === "undefined") {
+      return;
+    }
+    if (!user && !userExternal) {
+      router.push("/login");
+    }
+  }, [status, user, userExternal, router]);
 
   useEffect(() => {
     const fetchCourse = async () => {
       if (id) {
         try {
-        const url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-        const response = await fetch(`${url}/courses/${id}`);
+          const url =
+            process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+          const response = await fetch(`${url}/courses/${id}`);
 
-         // const response = await fetch(`http://localhost:3001/courses/${id}`);
           const data: Course = await response.json();
           setCourse(data);
           setVideoCompleted(new Array(data.content.length).fill(false));
         } catch (error) {
-          console.error('Error fetching course:', error);
+          console.error("Error fetching course:", error);
         } finally {
           setLoading(false);
         }
@@ -70,7 +87,33 @@ const StudyPage: React.FC = () => {
   };
 
   const handleQuizSubmit = () => {
+    let calculatedPoints = 0;
+
+    if (!course) return;
+    course.questions.forEach((q, index) => {
+      if (userAnswers[index] === q.correct) {
+        calculatedPoints += 10;
+      }
+    });
+
+    let total = points;
+    let pointsToBack = total + calculatedPoints;
+    setPoints(calculatedPoints + total);
+    sendPoint(pointsToBack);
     setQuizCompleted(true);
+  };
+
+  const sendPoint = async (pointBack: number) => {
+    const userId = user?.user?.id || userExternal?.user?.id;
+    try {
+      const url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+      const response = await axios.patch(`${url}/statistics/${userId}/update`, {
+        points: pointBack,
+        achievements: [{ title: course?.title, date: new Date() }],
+      });
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleVideoOnClick = (index: number) => {
@@ -85,6 +128,7 @@ const StudyPage: React.FC = () => {
   const handleShowQuestionsClick = () => {
     if (videoCompleted.every((completed) => completed)) {
       setShowQuestions(true);
+      setPoints(100);
     }
   };
 
@@ -98,7 +142,9 @@ const StudyPage: React.FC = () => {
 
   return (
     <div className="grid grid-cols-1 md:flex md:flex-col items-center justify-center bg-gray-100 p-6">
-      <h1 className="text-4xl font-bold mb-6 text-center mt-20">{course.title}</h1>
+      <h1 className="text-4xl font-bold mb-6 text-center mt-20">
+        {course.title}
+      </h1>
       <div className="max-w-4xl w-full md:flex">
         <div className="flex-1 flex justify-center">
           {activeVideo !== null && (
@@ -125,8 +171,8 @@ const StudyPage: React.FC = () => {
               onClick={() => handleVideoOnClick(index)}
               className={`text-secondary hover:underline mb-2 cursor-pointer transition duration-300 ${
                 videoCompleted[index]
-                  ? 'hover:text-blue-700'
-                  : 'opacity-50 cursor-not-allowed'
+                  ? "hover:text-blue-700"
+                  : "opacity-50 cursor-not-allowed"
               }`}
             >
               {video.title}
@@ -157,19 +203,13 @@ const StudyPage: React.FC = () => {
           >
             {course.questions && course.questions.length > 0 ? (
               course.questions.map((q, index) => (
-                <div
-                  key={index}
-                  className="mb-4"
-                >
+                <div key={index} className="mb-4">
                   <p className="font-semibold">{q.question}</p>
                   {q.options.map((option, optIndex) => {
                     const isSelected = userAnswers[index] === optIndex;
 
                     return (
-                      <label
-                        key={optIndex}
-                        className="block mb-1"
-                      >
+                      <label key={optIndex} className="block mb-1">
                         <input
                           type="radio"
                           name={`question-${index}`}
@@ -180,7 +220,7 @@ const StudyPage: React.FC = () => {
                         />
                         <span
                           className={
-                            isSelected ? 'text-blue-600' : 'text-black'
+                            isSelected ? "text-blue-600" : "text-black"
                           }
                         >
                           {option}
@@ -211,20 +251,17 @@ const StudyPage: React.FC = () => {
                 const userAnswer = q.options[userAnswers[index]];
 
                 return (
-                  <div
-                    key={index}
-                    className="mb-2"
-                  >
-                    <span className="font-semibold">{q.question}:</span>{' '}
+                  <div key={index} className="mb-2">
+                    <span className="font-semibold">{q.question}:</span>{" "}
                     {isCorrect ? (
                       <span className="text-blue-600">
                         Correcta: {correctAnswer}
                       </span>
                     ) : (
                       <span className="text-red-600">
-                        Incorrecta: {userAnswer}{' '}
+                        Incorrecta: {userAnswer}{" "}
                         <span className="text-blue-600">
-                          {' '}
+                          {" "}
                           (Respuesta correcta: {correctAnswer})
                         </span>
                       </span>

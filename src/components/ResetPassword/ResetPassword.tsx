@@ -6,6 +6,7 @@ import Button from "../Button/Button";
 import axios from "axios";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+import { validatePassword } from "@/helpers/validation";
 
 const MySwal = withReactContent(Swal);
 
@@ -14,6 +15,7 @@ const ResetPassword = () => {
   const [token, setToken] = useState("");
   const searchParams = useSearchParams();
   const router = useRouter();
+  const [errors, setErrors] = useState({ password: "" });
 
   useEffect(() => {
     // Obtener el token de la URL
@@ -22,6 +24,10 @@ const ResetPassword = () => {
       setToken(tokenParam);
     }
   }, [searchParams]);
+
+  useEffect(() => {
+    setErrors({ password: validatePassword(newPassword) });
+  }, [newPassword]);
 
   const handleResetPassword = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -72,12 +78,19 @@ const ResetPassword = () => {
             type="password"
             id="newPassword"
             value={newPassword}
-            onChange={e => setNewPassword(e.target.value)}
+            onChange={(e) => setNewPassword(e.target.value)}
             className="border-b-2 border-secondary"
             placeholder="********"
             required
           />
-          <Button type="submit" className="mt-4">
+          {errors.password && (
+            <p className="text-blue-400 text-sm mt-1">{errors.password}.</p>
+          )}
+          <Button
+            type="submit"
+            className="mt-4"
+            disabled={!!errors.password || newPassword === ""}
+          >
             Restablecer contraseña
           </Button>
         </form>
