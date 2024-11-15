@@ -20,16 +20,22 @@ const UserStatistics = () => {
   useEffect(() => {
     const fetchUserStatistics = async () => {
       if (!userId) return;
-      const url = `http://localhost:3001/statistics/${userId}`;
+      const url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+      // const url = `http://localhost:3001/statistics/${userId}`;
       try {
-        const response = await axios.get(url, {
+        const response = await axios.get(`${url}/statistics/${userId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
         console.log("Statistics Response", response.data);
         setPoints(response.data.totalPoints);
-        setAchievements(response.data.achievements);
+        // setAchievements(response.data.achievements);
+        setAchievements(
+          Array.isArray(response.data.achievements)
+            ? response.data.achievements
+            : []
+        );
       } catch (error) {
         console.error("Error fetching user statistics:", error);
       }

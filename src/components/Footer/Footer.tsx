@@ -3,7 +3,7 @@ import { FaXTwitter } from "react-icons/fa6";
 
 const Footer: React.FC = () => {
   return (
-    <div className="bg-primary text-secondary p-6 mt-16 border-t border-t-secondary">
+    <div className="bg-primary text-secondary p-6 mt-16 border-t border-t-secondary ">
       <div className="max-w-4xl mx-auto flex flex-col items-center">
         <div className="flex flex-col md:flex-row justify-between w-full mb-4">
           <div className="mb-4 md:mb-0 ">

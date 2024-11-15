@@ -1,16 +1,16 @@
-"use client";
-import React, { useContext, useState } from "react";
-import { BsFillChatRightTextFill } from "react-icons/bs";
-import { useSession } from "next-auth/react";
-import { AuthContext } from "@/contexts/authContext";
-import Button from "../Button/Button";
-import useChatSocket from "./useChatSocket";
+'use client';
+import React, { useContext, useState } from 'react';
+import { BsFillChatRightTextFill } from 'react-icons/bs';
+import { useSession } from 'next-auth/react';
+import { AuthContext } from '@/contexts/authContext';
+import Button from '../Button/Button';
+import useChatSocket from './useChatSocket';
 
 const Chat = () => {
   const { user, userExternal } = useContext(AuthContext);
   const { data: session } = useSession();
   const [open, setOpen] = useState(false);
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState('');
   const [connectedUsersCount, setConnectedUsersCount] = useState<number>(
     Math.floor(Math.random() * 100) + 1
   );
@@ -25,7 +25,7 @@ const Chat = () => {
   const handleSendMessage = () => {
     if (message.trim()) {
       sendMessage(message, user?.user?.name || userExternal?.user?.name);
-      setMessage("");
+      setMessage('');
     }
   };
 
@@ -57,23 +57,23 @@ const Chat = () => {
               </span>
             </div>
 
-            <div className="flex-1 mb-4 overflow-y-auto max-h-80 space-y-4">
+            <div className="flex-1 mb-4 overflow-y-auto max-h-36 space-y-4">
               {messages.map((msg: any, index: any) => (
                 <div
                   key={index}
                   className={`flex ${
                     msg.name === user?.user?.name ||
                     msg.name === userExternal?.user?.name
-                      ? "justify-end"
-                      : "justify-start"
+                      ? 'justify-end'
+                      : 'justify-start'
                   }`}
                 >
                   <div
                     className={`max-w-xs p-3 rounded-lg ${
                       msg.name === user?.user?.name ||
                       msg.name === userExternal?.user?.name
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-200 text-black"
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-200 text-black'
                     }`}
                   >
                     {msg.name !== user?.user?.name &&
@@ -92,7 +92,7 @@ const Chat = () => {
                 placeholder="Escribe tu mensaje..."
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
+                onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
                 className="w-full p-2 border border-gray-300 rounded-lg outline-none"
               />
               <Button

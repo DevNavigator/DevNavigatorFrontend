@@ -133,16 +133,27 @@ const Study: React.FC = () => {
     setQuizCompleted(true);
   };
 
-  return (
-    <div className="mt-20">
-      <h1 className="text-center">Mis Cursos</h1>
-      <CardList className="!mb-7">
-        {courses.map((course: ICourse, i: number) => (
-          <MiCurso key={i} course={course} />
-        ))}
-      </CardList>
-    </div>
-  );
+ return (
+   <div className="mt-20 min-h-[calc(70vh-70px)]">
+     <h1 className="text-center">Mis Cursos</h1>
+     {courses.length > 0 ? (
+       <div className="container text-center !mt-5 flex gap-4 flex-col  md:flex-row lg:flex-row  lg:justify-center">
+         {courses.map((course: ICourse, i: number) => (
+           <MiCurso
+             key={i}
+             course={course}
+           />
+         ))}
+       </div>
+     ) : (
+       <>
+         <h3 className="text-center mt-10">
+           No estás inscripto a ningún curso.
+         </h3>
+       </>
+     )}
+   </div>
+ );
 
   /* return (
     <div className="bg-gray-50 min-h-screen p-4 md:p-6">
